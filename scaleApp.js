@@ -14,15 +14,21 @@ var scaleApp = (function(){
    * The core holds and manages all data that is used globally.
    */
   var core = (function(){
-        
+               
+    // container for public API and reference to this
+    var that = { };
+    
     // Container for all registered modules           
     var modules = { };
     
     // Container for all module instances
     var instances = { };
     
+    // Container for lists of submodules
+    var subInstances = { };
+    
     // define a dummy object for logging.
-    this.log = {
+    var log = {
       debug: function(){ return; },
       info:  function(){ return; },
       warn:  function(){ return; },
@@ -43,11 +49,16 @@ var scaleApp = (function(){
       
       var mod = modules[ moduleId ];
       
-      // Merge default options and instance options, without modifying the defaults.
-      var instanceOpts = { };
-      $.extend( true, instanceOpts, mod.opt, opt ); 
-      
-      return mod.creator( new sandbox( api, instanceId, instanceOpts ) );                 
+      if( mod ){
+	
+	// Merge default options and instance options, without modifying the defaults.	      
+	var instanceOpts = { };
+	$.extend( true, instanceOpts, mod.opt, opt );            
+	return mod.creator( new sandbox( that, instanceId, instanceOpts ) );
+	
+      } else {
+	that.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
+      } 
     };
     
     /**
@@ -70,7 +81,7 @@ var scaleApp = (function(){
 	};
       } 
       else {
-	this.log.error( "could not register module - illegal arguments", "core" );
+	that.log.error( "could not register module - illegal arguments", "core" );
       }
       
     };
@@ -86,10 +97,43 @@ var scaleApp = (function(){
      */    
     var hasValidStartParameter = function( moduleId, instanceId, opt ){
       
-      return	( typeof moduleId === "string" && typeof instanceId === "string" && typeof opt === "object" ) ||
-		( typeof moduleId === "string" && typeof instanceId === "object" &&  !opt ) ||      
-		( typeof moduleId === "string" && !instanceId  &&  !opt );
+      return	( typeof moduleId === "string" ) && (
+		  ( typeof instanceId === "string" && !opt )			||
+		  ( typeof instanceId === "object" && !opt )			||      
+		  ( typeof instanceId === "string" && typeof opt === "object" ) ||
+		  ( !instanceId  &&  !opt )
+		);
     };
+    
+    /**
+     * PrivateFunction: getSuitedParamaters
+     * 
+     * Parameters:
+     * (String) moduleId
+     * (String) instanceId
+     * (Object) opt
+     * 
+     * Returns: 
+     * Object with parameters
+     */    
+    var getSuitedParamaters = function( moduleId, instanceId, opt ){
+
+      if( hasValidStartParameter( moduleId, instanceId, opt ) ){
+	if( typeof instanceId === "object" && !opt ){		    
+	  // no instance id was specified, so use module id instead	
+	  opt = instanceId;
+	  instanceId = moduleId;
+	}
+	if( !instanceId && !opt ){	    
+	  instanceId = moduleId;
+	  opt = {};
+	}      
+	return { moduleId: moduleId, instanceId: instanceId, opt: opt };	
+      }
+      that.log.error( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
+      return;
+    };
+    
     
     /**
      * Function: start
@@ -100,30 +144,40 @@ var scaleApp = (function(){
      * (Object) opt
      */    
     var start = function( moduleId, instanceId, opt ){
-      
-      if( hasValidStartParameter( moduleId, instanceId, opt ) ){
-		
-	if( modules[ moduleId ] ){
+                  
+      var p = getSuitedParamaters( moduleId, instanceId, opt );      
+      if( p ){	
+	
+	that.log.debug( "start '" + p.moduleId + "'", "core" );
+	
+	instances[ p.instanceId ] = createInstance( p.moduleId, p.instanceId, p.opt );
+	instances[ p.instanceId ].init();
+	
+	return true;
+      }      
+      return false;
+    };
+        
+    /**
+     * Function: startSubModule
+     * 
+     * Parameters:
+     * (String) moduleId
+     * (String) parentInstanceId
+     * (String) instanceId
+     * (Object) opt
+     */    
+    var startSubModule = function( moduleId, instanceId, opt, parentInstanceId ){
+                  
+      var p = getSuitedParamaters( moduleId, instanceId, opt ); 
+      if( start( p.moduleId, p.instanceId, p.opt ) && typeof parentInstanceId === "string" ){
 	      
-	  if( typeof instanceId === "object" && !opt ){		    
-	    // no instance id was specified, so use module id instead	
-	    opt = instanceId;
-	    instanceId = moduleId;
-	  }
-	  if( !instanceId && !opt ){	    
-	    instanceId = moduleId;
-	    opt = {};
-	  }
-	  
-	  instances[ instanceId  ] = createInstance( moduleId, instanceId, opt );
-	  instances[ instanceId ].init();
-	  
-	} else{
-	  this.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
+	var sub = subInstances[ parentInstanceId ];
+	if( !sub ){
+	  sub = [ ];
 	}
-      } else {
-	this.log.error( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
-      }
+	sub.push( p.instanceId );
+      }      
     };
     
     /**
@@ -138,9 +192,16 @@ var scaleApp = (function(){
       
       if( instance ){
 	instance.destroy();
-	instances[ instanceId ] = null;
+	delete instances[ instanceId ];
+	
+	for( var i in subInstances[ instanceId ] ){
+	  if( subInstances[ instanceId ][i] ){
+	    stop( subInstances[ instanceId ][i] );	    
+	  }
+	}	
       }else{
-	this.log.error( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
+	that.log.error( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
+	return;
       }
     };
     
@@ -173,8 +234,10 @@ var scaleApp = (function(){
 	  var handlers = instances[i].subscriptions[ topic ];
 	  
 	  if( handlers ){
-	    for( var j in handlers ){	      
-	      handlers[j]( data );
+	    for( var j in handlers ){
+	      if( typeof handlers[j] === "function" ){
+		handlers[j]( data );		
+	      }
 	    }
 	  }  
 	}
@@ -189,9 +252,11 @@ var scaleApp = (function(){
      * (Function) handler
      */
     var subscribe = function( instanceId, topic, handler ){
-            
+      
+      that.log.debug( "subscribe to '" + topic + "'", instanceId );
+      
       var instance = instances[ instanceId ];
-                  
+                              
       if( !instance.subscriptions ){
 	instance.subscriptions = { };
       }
@@ -220,23 +285,24 @@ var scaleApp = (function(){
       }
     };
     
-    
-    var api = {
+    // public API
+    that = {
       
       register: register,
       
       start: start,
+      startSubModule: startSubModule,
       stop: stop,
       stopAll: stopAll,
-            
+                  
       publish: publish,
       subscribe: subscribe,
       
-      log:this.log
+      log: log
       
     };
     
-    return api;
+    return that;
     
   })();
   
@@ -336,11 +402,22 @@ var scaleApp = (function(){
       }
     };
     
+    var startSubModule = function( moduleId, subInstanceId, opt ){
+      core.startSubModule( moduleId, subInstanceId, opt, instanceId );
+    };
+    
+    var stopSubModule = function( instanceId ){
+      core.stop( instanceId );
+    };
+     
     return {
       
       subscribe: subscribe,
       unsubscribe: unsubscribe,
       publish: publish,
+      
+      startSubModule: startSubModule,
+      stopSubModule: stopSubModule,
       
       debug: log.debug,
       info: log.info,

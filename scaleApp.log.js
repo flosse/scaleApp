@@ -5,7 +5,6 @@
 /**
  * File: scaleApp.log.js
  * scaleApp.log.js is a logging extension for scaleApp.
- * Therefore it requires scaleApp.js
  * 
  * It is licensed under the MIT licence.
  */
