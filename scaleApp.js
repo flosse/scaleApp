@@ -20,30 +20,16 @@ var scaleApp = (function(){
     
     // Container for all module instances
     var instances = { };
-        
-    /**
-     * PrivateFunction: log
-     * 
-     * Parameters:
-     * (String) level
-     * (String) msg
-     * (String) module
-     */
-    var log = function( level, msg, module ){
-      
-      if( module ){
-	msg = module + ": " + msg;
-      }      
-      console[ level ](	msg );
+    
+    // define a dummy object for logging.
+    this.log = {
+      debug: function(){ return; },
+      info:  function(){ return; },
+      warn:  function(){ return; },
+      error: function(){ return; },
+      fatal: function(){ return; }
     };
-    
-    // logging functions, each for a different level
-    var debug =	function( msg, module ){ log("debug", msg, module ); };
-    var info  =	function( msg, module ){ log("info",  msg, module ); };
-    var warn  =	function( msg, module ){ log("warn",  msg, module ); };
-    var error =	function( msg, module ){ log("error", msg, module ); };
-    var fatal =	function( msg, module ){ log("fatal", msg, module ); };    
-    
+            
     /**
      * PrivateFunction: createInstance
      * Creates a new instance of a module.
@@ -73,7 +59,7 @@ var scaleApp = (function(){
      * (Object) ops		- The default options for this module 
      */    
     var register = function( moduleId, creator, opt ){
-      
+            
       if( typeof moduleId === "string" && typeof creator === "function" ){
 	     
 	if( !opt ){ opt = {}; }
@@ -84,7 +70,7 @@ var scaleApp = (function(){
 	};
       } 
       else {
-	error( "could not register module - illegal arguments", "core" );
+	this.log.error( "could not register module - illegal arguments", "core" );
       }
       
     };
@@ -133,10 +119,10 @@ var scaleApp = (function(){
 	  instances[ instanceId ].init();
 	  
 	} else{
-	  error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
+	  this.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
 	}
       } else {
-	error( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
+	this.log.error( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
       }
     };
     
@@ -154,7 +140,7 @@ var scaleApp = (function(){
 	instance.destroy();
 	instances[ instanceId ] = null;
       }else{
-	error( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
+	this.log.error( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
       }
     };
     
@@ -242,15 +228,12 @@ var scaleApp = (function(){
       start: start,
       stop: stop,
       stopAll: stopAll,
-      
-      debug: debug,
-      info: info,
-      warn: warn,
-      error: error,
-      fatal: fatal,
-      
+            
       publish: publish,
-      subscribe: subscribe
+      subscribe: subscribe,
+      
+      log:this.log
+      
     };
     
     return api;
@@ -309,7 +292,7 @@ var scaleApp = (function(){
       * (String) msg     
       */      
       debug: function( msg ){
-	core.debug( msg, instanceId );
+	core.log.debug( msg, instanceId );
       },
 
       /**
@@ -319,7 +302,7 @@ var scaleApp = (function(){
       * (String) msg     
       */    
       info: function( msg ){
-	core.info( msg, instanceId );
+	core.log.info( msg, instanceId );
       },
       
       /**
@@ -329,7 +312,7 @@ var scaleApp = (function(){
       * (String) msg     
       */          
       warn: function( msg ){
-	core.warn( msg, instanceId );
+	core.log.warn( msg, instanceId );
       },
       
       /**
@@ -339,7 +322,7 @@ var scaleApp = (function(){
       * (String) msg     
       */          
       error: function( msg ){
-	core.error( msg, instanceId );
+	core.log.error( msg, instanceId );
       },
       
       /**
@@ -349,7 +332,7 @@ var scaleApp = (function(){
       * (String) msg     
       */          
       fatal: function( msg ){
-	core.fatal( msg, instanceId );
+	core.log.fatal( msg, instanceId );
       }
     };
     

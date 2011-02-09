@@ -9,7 +9,7 @@ scaleApp is licensed under the MIT license.
 
 ## Usage
 
-Lnk scaleApp.js below the jQuery library in your HTML head section:
+Link scaleApp.js below the jQuery library in your HTML head section:
 
 +-----------------------------------------------------------------------+
 |									|
