@@ -60,7 +60,26 @@ var scaleApp = (function(){
 	// Merge default options and instance options, without modifying the defaults.	      
 	var instanceOpts = { };
 	$.extend( true, instanceOpts, mod.opt, opt );            
-	return mod.creator( new sandbox( that, instanceId, instanceOpts ) );
+	var sb = new sandbox( that, instanceId, instanceOpts );
+
+	if( instanceOpts.models ){
+	  
+	  models[ instanceId ] = { }
+	  
+	  for( var i in instanceOpts.models ){
+	    models[ instanceId ][i] = instanceOpts.models[i]( sb );
+	  }
+	}
+	
+	if( instanceOpts.views ){
+	  views[ instanceId ] = { }
+	  
+	  for( var i in instanceOpts.views ){
+	    views[ instanceId ][i] = instanceOpts.views[i]( sb );
+	  }
+	}
+	
+	return mod.creator( sb );
 	
       } else {
 	that.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
@@ -80,10 +99,28 @@ var scaleApp = (function(){
       if( typeof moduleId === "string" && typeof creator === "function" ){
 	     
 	if( !opt ){ opt = {}; }
+	
+	if( opt.views ){
+	  for( var i in opt.views ){
+	    if( typeof opt.views[i] !== "function" ){
+	      that.log.error( "no constructor for view '" + i + "' defined", "core" );
+	      delete opt.views[i];
+	    }
+	  }
+	}
+	
+	if( opt.models ){
+	  for( var j in opt.models ){
+	    if( typeof opt.models[j] !== "function" ){
+	      that.log.error( "no constructor for model '" + j + "' defined", "core" );
+	      delete opt.models[j];
+	    }
+	  }
+	}
 	      
 	modules[ moduleId ] = {
 	  creator: creator,
-	  opt: { }
+	  opt: opt
 	};
       } 
       else {
@@ -329,10 +366,7 @@ var scaleApp = (function(){
                   
       publish: publish,
       subscribe: subscribe,
-      
-      addModel: addModel,
-      addView: addView,
-      
+            
       getModel: getModel,
       getView: getView,
       
@@ -475,9 +509,6 @@ var scaleApp = (function(){
       
       getModel: getModel,
       getView: getView,
-      
-      addModel: addModel,
-      addView: addView,
       
       debug: log.debug,
       info: log.info,
