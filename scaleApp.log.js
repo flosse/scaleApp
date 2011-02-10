@@ -64,8 +64,16 @@ scaleApp.log = (function(){
   var log = function( level, msg, module ){
     
     if( module ){
-      msg = module + ": " + msg;
-    }      
+      if( typeof msg === "object" ){
+	// split into two logs
+	log( level, module + ":");
+	log( level, msg );
+	return;
+      } 
+      else {
+	msg = module + ": " + msg;
+      }      
+    }    
     
     switch( level ){
 
