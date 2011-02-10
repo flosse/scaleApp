@@ -27,6 +27,12 @@ var scaleApp = (function(){
     // Container for lists of submodules
     var subInstances = { };
     
+    // Container for all models    
+    var models = { };
+    
+    // Container for all views    
+    var views = { };
+    
     // define a dummy object for logging.
     var log = {
       debug: function(){ return; },
@@ -285,6 +291,32 @@ var scaleApp = (function(){
       }
     };
     
+    var addModel = function( instanceId, id, model ){
+      if( !models[ instanceId ] ){
+	models[ instanceId ] = { };
+      }
+      models[ instanceId ][ id ] = model;      
+    };
+    
+    var addView = function( instanceId, id, view ){
+      if( !views[ instanceId ] ){
+	views[ instanceId ] = { };
+      }
+      views[ instanceId ][ id ] = view;            
+    };    
+    
+    var getModel = function( instanceId, id ){
+      if( models[ instanceId ] ){
+	return models[ instanceId ][ id ];	
+      }
+    };
+    
+    var getView = function( instanceId, id ){
+      if( views[ instanceId ] ){
+	return views[ instanceId ][ id ];	
+      }
+    };
+    
     // public API
     that = {
       
@@ -297,6 +329,12 @@ var scaleApp = (function(){
                   
       publish: publish,
       subscribe: subscribe,
+      
+      addModel: addModel,
+      addView: addView,
+      
+      getModel: getModel,
+      getView: getView,
       
       log: log
       
@@ -409,15 +447,37 @@ var scaleApp = (function(){
     var stopSubModule = function( instanceId ){
       core.stop( instanceId );
     };
+    
+    var getModel = function( id ){
+      return core.getModel( instanceId, id );
+    };
+    
+    var getView = function( id ){
+      return core.getView( instanceId, id );
+    };
+    
+    var addModel = function( id , model ){
+      return core.addModel( instanceId, id, model );
+    };
+    
+    var addView = function( id, view ){
+      return core.addView( instanceId, id, view );
+    };
      
     return {
       
       subscribe: subscribe,
       unsubscribe: unsubscribe,
       publish: publish,
-      
+                  
       startSubModule: startSubModule,
       stopSubModule: stopSubModule,
+      
+      getModel: getModel,
+      getView: getView,
+      
+      addModel: addModel,
+      addView: addView,
       
       debug: log.debug,
       info: log.info,
