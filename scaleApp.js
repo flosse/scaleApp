@@ -338,7 +338,8 @@ var scaleApp = (function(){
      * Instance
      */    
     var getInstance = function( id ){
-      return instances[ id ];
+      return instances[ id ];      
+    };
 
     var addModel = function( instanceId, id, model ){
       if( !models[ instanceId ] ){
