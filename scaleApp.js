@@ -53,8 +53,14 @@ var scaleApp = (function(){
 	
 	// Merge default options and instance options, without modifying the defaults.	      
 	var instanceOpts = { };
-	$.extend( true, instanceOpts, mod.opt, opt );            
-	return mod.creator( new sandbox( that, instanceId, instanceOpts ) );
+	$.extend( true, instanceOpts, mod.opt, opt );
+	
+	var instance = mod.creator( new sandbox( that, instanceId, instanceOpts ) );
+	
+	// store opt
+	instance.opt = instanceOpts;
+	
+	return instance;
 	
       } else {
 	that.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
@@ -86,10 +92,9 @@ var scaleApp = (function(){
       
       if( typeof modObj !== "object" || typeof modObj.init !== "function" || typeof modObj.destroy !== "function" ){
 	that.log.error( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
-	return false;
+	return false;           
       }
-      
-      
+            
       if( !opt ){ opt = {}; }
       
       modules[ moduleId ] = {
@@ -299,6 +304,19 @@ var scaleApp = (function(){
       }
     };
     
+    /**
+     * Function: getInstances
+     *
+     * Parameters:
+     * (String) id
+     * 
+     * Returns:
+     * Instance
+     */    
+    var getInstance = function( id ){
+      return instances[ id ];
+    };
+    
     // public API
     that = {
       
@@ -312,7 +330,9 @@ var scaleApp = (function(){
       publish: publish,
       subscribe: subscribe,
       
-      log: log
+      getInstance: getInstance,
+      
+      log: log      
       
     };
     
@@ -424,6 +444,16 @@ var scaleApp = (function(){
       core.stop( instanceId );
     };
      
+    /**
+     * Function: _
+
+     * Parameters:
+     * (String) textId 
+     */    
+    var _ = function( textId ){
+      return core.i18n._( instanceId, textId );
+    };
+    
     return {
       
       subscribe: subscribe,
@@ -437,7 +467,9 @@ var scaleApp = (function(){
       info: log.info,
       warn: log.warn,
       error: log.error,
-      fatal: log.fatal
+      fatal: log.fatal,      
+      
+      _:_
       
     };
         
