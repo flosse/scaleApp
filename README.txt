@@ -49,3 +49,13 @@ Afterwards start an instance of your module:
 |	scaleApp.start( "myModuleId", "myInstanceId" );			|
 +-----------------------------------------------------------------------+
  
+## Testing
+
+scaleApp uses JsTestDriver ( https://code.google.com/p/js-test-driver/ ).
+Make shure that Java is installed and the file "JsTestDriver-1.2.2.jar" is placed in the scaleApp directory.
+
+Run the tests:
+  1. start the server ( startTestServer.sh )
+  2. open your browser and navigate to http://localhost:4224/
+  3. click on "Capture This Browser"
+  4. run the tests by executing runTests.sh

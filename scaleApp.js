@@ -70,20 +70,34 @@ var scaleApp = (function(){
      * (Object) ops		- The default options for this module 
      */    
     var register = function( moduleId, creator, opt ){
-            
-      if( typeof moduleId === "string" && typeof creator === "function" ){
-	     
-	if( !opt ){ opt = {}; }
-	      
-	modules[ moduleId ] = {
-	  creator: creator,
-	  opt: { }
-	};
-      } 
-      else {
-	that.log.error( "could not register module - illegal arguments", "core" );
+
+      var errString = "could not register module";
+      
+      if( typeof moduleId !== "string" ){	
+	that.log.error( errString + "- mouduleId has to be a string", "core" );
+	return false;
+      }      
+      if( typeof creator !== "function" ){
+	that.log.error( errString + " - creator has to be a constructor function", "core" );
+	return false;
+      }      
+      
+      var modObj = creator();
+      
+      if( typeof modObj !== "object" || typeof modObj.init !== "function" || typeof modObj.destroy !== "function" ){
+	that.log.error( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
+	return false;
       }
       
+      
+      if( !opt ){ opt = {}; }
+      
+      modules[ moduleId ] = {
+	creator: creator,
+	opt: { }
+      };            
+      
+      return true;
     };
     
     /**
