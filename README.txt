@@ -43,10 +43,17 @@ Now you can register your modules:
 |									|
 +-----------------------------------------------------------------------+
 
-Afterwards start an instance of your module:
+Afterwards start your module:
+
++-----------------------------------------------------------------------+
+|	scaleApp.start( "myModuleId" );					|
++-----------------------------------------------------------------------+
+
+You may also want to start several instances of your module:
 
 +-----------------------------------------------------------------------+
 |	scaleApp.start( "myModuleId", "myInstanceId" );			|
+|	scaleApp.start( "myModuleId", "anOtherInstanceId" );		|
 +-----------------------------------------------------------------------+
  
 ## Testing

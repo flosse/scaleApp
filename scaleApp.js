@@ -27,6 +27,12 @@ var scaleApp = (function(){
     // Container for lists of submodules
     var subInstances = { };
     
+    // Container for all models    
+    var models = { };
+    
+    // Container for all views    
+    var views = { };
+    
     // define a dummy object for logging.
     var log = {
       debug: function(){ return; },
@@ -55,11 +61,29 @@ var scaleApp = (function(){
 	var instanceOpts = { };
 	$.extend( true, instanceOpts, mod.opt, opt );
 	
-	var instance = mod.creator( new sandbox( that, instanceId, instanceOpts ) );
+	var sb = new sandbox( that, instanceId, instanceOpts );
+	
+	var instance = mod.creator( sb );
 	
 	// store opt
 	instance.opt = instanceOpts;
+
+	if( instanceOpts.models ){
+	  	 	  
+	  for( var i in instanceOpts.models ){
+	    addModel( instanceId, i, instanceOpts.models[i]( sb ) );
+	  }
+	  delete instanceOpts.models;
+	}
 	
+	if( instanceOpts.views ){
+	  	  
+	  for( var i in instanceOpts.views ){
+	    addView( instanceId, i, instanceOpts.views[i]( sb ) );
+	  }
+	  delete instanceOpts.views;
+	}
+		
 	return instance;
 	
       } else {
@@ -315,6 +339,32 @@ var scaleApp = (function(){
      */    
     var getInstance = function( id ){
       return instances[ id ];
+
+    var addModel = function( instanceId, id, model ){
+      if( !models[ instanceId ] ){
+	models[ instanceId ] = { };
+      }
+      models[ instanceId ][ id ] = model;      
+    };
+    
+    var addView = function( instanceId, id, view ){
+      if( !views[ instanceId ] ){
+	views[ instanceId ] = { };
+      }
+      views[ instanceId ][ id ] = view;            
+    };    
+    
+    var getModel = function( instanceId, id ){
+      if( models[ instanceId ] ){
+	return models[ instanceId ][ id ];	
+      }
+    };
+    
+    var getView = function( instanceId, id ){
+      if( views[ instanceId ] ){
+	return views[ instanceId ][ id ];	
+      }
+
     };
     
     // public API
@@ -329,6 +379,9 @@ var scaleApp = (function(){
                   
       publish: publish,
       subscribe: subscribe,
+            
+      getModel: getModel,
+      getView: getView,
       
       getInstance: getInstance,
       
@@ -443,6 +496,22 @@ var scaleApp = (function(){
     var stopSubModule = function( instanceId ){
       core.stop( instanceId );
     };
+    
+    var getModel = function( id ){
+      return core.getModel( instanceId, id );
+    };
+    
+    var getView = function( id ){
+      return core.getView( instanceId, id );
+    };
+    
+    var addModel = function( id , model ){
+      return core.addModel( instanceId, id, model );
+    };
+    
+    var addView = function( id, view ){
+      return core.addView( instanceId, id, view );
+    };
      
     /**
      * Function: _
@@ -459,9 +528,12 @@ var scaleApp = (function(){
       subscribe: subscribe,
       unsubscribe: unsubscribe,
       publish: publish,
-      
+                  
       startSubModule: startSubModule,
       stopSubModule: stopSubModule,
+      
+      getModel: getModel,
+      getView: getView,
       
       debug: log.debug,
       info: log.info,
