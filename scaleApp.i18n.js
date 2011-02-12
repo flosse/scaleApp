@@ -9,7 +9,7 @@
  * It is licensed under the MIT licence.
  */
 
-scaleApp.i18n = (function(){
+scaleApp.i18n = (function( core ){
     
   var lang = "en";
   
@@ -52,11 +52,23 @@ scaleApp.i18n = (function(){
     return false;
   };
   
+  var _ = function( instanceId, textId ){
+    var inst = core.getInstance( instanceId );
+    core.log.debug(inst)
+    if( inst.opt ){
+      if( inst.opt.i18n ){
+	return inst.opt.i18n[ lang ][ textId ];
+      }
+    }
+    return "";
+  };
+  
   
   return {
     setLanguage: setLanguage,
     getBrowserLanguage: getBrowserLanguage,
-    getLanguage: getLanguage
+    getLanguage: getLanguage,
+    _:_
   };
   
-})();
+})( scaleApp );
