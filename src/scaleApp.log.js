@@ -9,6 +9,9 @@
  * It is licensed under the MIT licence.
  */
 
+/**
+ * Class: scaleApp.log
+ */
 scaleApp.log = (function(){
 
   /**
@@ -19,7 +22,7 @@ scaleApp.log = (function(){
   if( !console ){
 
     console = {};
-    console.log	= function( msg ) { return; };	
+    console.log		= function( msg ) { return; };	
     console.debug	= function( msg ) { return; };
     console.info	= function( msg ) { return; };
     console.warn	= function( msg ) { return; };

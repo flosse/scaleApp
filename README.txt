@@ -1,9 +1,10 @@
 # scaleApp
-scaleApp is a tiny JavaScript framework for One-Page-Applications. 
-It is inspired by the talk of Nicholas C. Zakas — "Scalable JavaScript Application Architecture".
+scaleApp is a tiny JavaScript framework for scalable One-Page-Applications. 
+It is inspired by the talk of Nicholas C. Zakas — 
+"Scalable JavaScript Application Architecture" (http://developer.yahoo.com/yui/theater/video.php?v=zakas-architecture).
 
 Unlike his recommendations to abstract DOM manipulations and separating the framework from the base library, 
-scaleApp explicitly ueses jQuery as base library. Therefore you can use the full power of jQuery in every layer.
+scaleApp explicitly ueses jQuery as base library. Therefore you can use the full power of jQuery on every layer.
 
 scaleApp is licensed under the MIT license.
 

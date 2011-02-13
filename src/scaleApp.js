@@ -69,17 +69,21 @@ var scaleApp = (function(){
 	instance.opt = instanceOpts;
 
 	if( instanceOpts.models ){
-	  	 	  
+
 	  for( var i in instanceOpts.models ){
-	    addModel( instanceId, i, instanceOpts.models[i]( sb ) );
+	    if( instanceOpts.models[i] ){
+	      addModel( instanceId, i, instanceOpts.models[i]( sb ) );	      
+	    }
 	  }
 	  delete instanceOpts.models;
 	}
 	
 	if( instanceOpts.views ){
-	  	  
-	  for( var i in instanceOpts.views ){
-	    addView( instanceId, i, instanceOpts.views[i]( sb ) );
+
+	  for( var j in instanceOpts.views ){
+	    if( instanceOpts.views ){
+	      addView( instanceId, j, instanceOpts.views[j]( sb ) );	      
+	    }
 	  }
 	  delete instanceOpts.views;
 	}
@@ -92,15 +96,78 @@ var scaleApp = (function(){
     };
     
     /**
-     * Function: register
+     * PrivateFunction: checkOptionObject
+     * Checks whether the passed option object is valid or not.
      * 
      * Parameters:
-     * (String) moduleId	- The module id
-     * (Function) creator	- The module creator function
-     * (Object) ops		- The default options for this module 
-     */    
-    var register = function( moduleId, creator, opt ){
-
+     * (Object) opt
+     * 
+     * Returns:
+     * False if it is not valid, true if everything is ok.
+     */
+    var checkOptionObject = function( opt ){
+      
+      var errString = "could not register module";
+      
+      if( typeof opt !== "object" ){
+	that.log.error( errString + " - option has to be an object", "core" );
+	return false;
+      }
+      
+      if( opt.views ){
+	if( typeof opt.views !== "object" ){
+	  that.log.error( errString + " - 'views' property has to be an object", "core" );
+	  return false;
+	}
+	for( var i in opt.views ){
+	  if( opt.views[i] ){
+	    if( typeof opt.views[i] !== "function" ){
+	      that.log.error( errString + " - the view "+ i +" is not a function", "core" );
+	      return false;
+	    }	    
+	    if( typeof opt.views[i]() !== "object" ){
+	      that.log.error( errString + " - the view "+ i +" does not return an object", "core" );
+	      return false;
+	    }	   
+	  }
+	}
+      }
+      
+      if( opt.models ){
+	if( typeof opt.models !== "object" ){
+	  that.log.error( errString + " - the 'models' property has to be an object", "core" );
+	  return false;
+	}
+	for( var j in opt.models ){
+	  if( opt.models[j] ){
+	    var m = opt.models[j];  
+	    if( typeof m !== "function" ){
+	      that.log.error( errString + " - the model "+ j +" is not a function", "core" );
+	      return false;
+	    }
+	    if( typeof m() !== "object" ){
+	      that.log.error( errString + " - the model "+ j +" does not return an object", "core" );
+	      return false;
+	    }
+	  } 
+	}
+      }
+      return true;
+    };
+    
+    /**
+     * PrivateFunction: checkRegisterParameters
+     * 
+     * Parameters:
+     * (String) moduleId 
+     * (Function) creator
+     * (Object) opt
+     * 
+     * Returns:
+     * True if everything is ok.
+     */
+    var checkRegisterParameters = function( moduleId, creator, opt  ){
+      
       var errString = "could not register module";
       
       if( typeof moduleId !== "string" ){	
@@ -118,12 +185,35 @@ var scaleApp = (function(){
 	that.log.error( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
 	return false;           
       }
+      
+      if( opt ){
+	if( !checkOptionObject( opt ) ){ return false; }
+      }
+      
+      return true;
+      
+    };
+    
+    /**
+     * Function: register
+     * 
+     * Parameters:
+     * (String) moduleId	- The module id
+     * (Function) creator	- The module creator function
+     * (Object) ops		- The default options for this module 
+     * 
+     * Returns:
+     * True if registration was successfull.
+     */    
+    var register = function( moduleId, creator, opt ){
+
+      if( !checkRegisterParameters( moduleId, creator, opt  ) ){ return false; }  
             
       if( !opt ){ opt = {}; }
       
       modules[ moduleId ] = {
 	creator: creator,
-	opt: { }
+	opt: opt
       };            
       
       return true;
@@ -137,6 +227,8 @@ var scaleApp = (function(){
      * (String) instanceId
      * (Object) opt
      * 
+     * Returns:
+     * True, if parameters are valid.
      */    
     var hasValidStartParameter = function( moduleId, instanceId, opt ){
       
@@ -340,7 +432,15 @@ var scaleApp = (function(){
     var getInstance = function( id ){
       return instances[ id ];      
     };
-
+    
+    /**
+     * PrivateFunction: addModel
+     * 
+     * Paraneters:
+     * (String) instanceId
+     * (String) id
+     * (Function) model
+     */
     var addModel = function( instanceId, id, model ){
       if( !models[ instanceId ] ){
 	models[ instanceId ] = { };
@@ -348,6 +448,14 @@ var scaleApp = (function(){
       models[ instanceId ][ id ] = model;      
     };
     
+    /**
+     * PrivateFunction: addView
+     * 
+     * Paraneters:
+     * (String) instanceId
+     * (String) id
+     * (Function) view
+     */
     var addView = function( instanceId, id, view ){
       if( !views[ instanceId ] ){
 	views[ instanceId ] = { };
@@ -355,12 +463,32 @@ var scaleApp = (function(){
       views[ instanceId ][ id ] = view;            
     };    
     
+    /**
+     * Function: getModel
+     * 
+     * Paraneters:
+     * (String) instanceId
+     * (String) id
+     * 
+     * Returns:
+     * (Object) model
+     */
     var getModel = function( instanceId, id ){
       if( models[ instanceId ] ){
 	return models[ instanceId ][ id ];	
       }
     };
     
+    /**
+     * Function: getView
+     * 
+     * Paraneters:
+     * (String) instanceId
+     * (String) id
+     * 
+     * Returns:
+     * (Object) view
+     */
     var getView = function( instanceId, id ){
       if( views[ instanceId ] ){
 	return views[ instanceId ][ id ];	
@@ -410,8 +538,7 @@ var scaleApp = (function(){
      * Parameters:
      * (String) topic
      * (Function) callback
-     */
-    
+     */    
     var subscribe = function( topic, callback ){            
       core.subscribe( instanceId, topic, callback );
     };
@@ -490,35 +617,72 @@ var scaleApp = (function(){
       }
     };
     
+    /**
+     * Function: startSubModule
+     * 
+     * Parameters:
+     * (String) moduleId
+     * (String) subInstanceId
+     * (Object) opt
+     */    
     var startSubModule = function( moduleId, subInstanceId, opt ){
       core.startSubModule( moduleId, subInstanceId, opt, instanceId );
     };
     
+    /**
+     * Function: stopSubModule
+     * 
+     * Parameters:
+     * (String) instanceId
+     */    
     var stopSubModule = function( instanceId ){
       core.stop( instanceId );
     };
     
+    /**
+     * Function: getModel
+     * 
+     * Paraneters:
+     * (String) id
+     * 
+     * Returns:
+     * (Object) model
+     */    
     var getModel = function( id ){
       return core.getModel( instanceId, id );
     };
     
+    /**
+     * Function: getView
+     * 
+     * Paraneters:
+     * (String) id
+     * 
+     * Returns:
+     * (Object) view
+     */    
     var getView = function( id ){
       return core.getView( instanceId, id );
     };
     
+    // not used at the moment
     var addModel = function( id , model ){
       return core.addModel( instanceId, id, model );
     };
     
+    // not used at the moment
     var addView = function( id, view ){
       return core.addView( instanceId, id, view );
     };
      
     /**
      * Function: _
-
+     * 
      * Parameters:
      * (String) textId 
+     * 
+     * Returns:
+     * The localized text.
      */    
     var _ = function( textId ){
       return core.i18n._( instanceId, textId );

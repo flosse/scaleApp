@@ -9,19 +9,10 @@
  * It is licensed under the MIT licence.
  */
 
+/**
+ * Class: scaleApp.i18n
+ */
 scaleApp.i18n = (function( core ){
-    
-  var lang = "en";
-  
-  /**
-   * Function: getLanguage
-   * 
-   * Returns:
-   * (String) the current language code, that is used globally
-   */  
-  var getLanguage = function(){
-    return lang;
-  }
   
   /**
    * Function: getBrowserLanguage
@@ -33,6 +24,21 @@ scaleApp.i18n = (function( core ){
     return navigator.language || navigator.browserLanguage;
   };
   
+  /**
+   * Holds the current global language code.
+   * By default the browsers language is used.
+   */  
+  var lang = getBrowserLanguage();
+  
+  /**
+   * Function: getLanguage
+   * 
+   * Returns:
+   * (String) the current language code, that is used globally.
+   */  
+  var getLanguage = function(){
+    return lang;
+  };
   
   /**
    * Function: setLanguage
@@ -52,9 +58,19 @@ scaleApp.i18n = (function( core ){
     return false;
   };
   
+  /**
+   * Function: _
+   * 
+   * Parameters:
+   * (String) instanceId
+   * (String) textId
+   * 
+   * Returns
+   * (String) the localized string.
+   */  
   var _ = function( instanceId, textId ){
     var inst = core.getInstance( instanceId );
-    core.log.debug(inst)
+    
     if( inst.opt ){
       if( inst.opt.i18n ){
 	return inst.opt.i18n[ lang ][ textId ];
