@@ -1,12 +1,32 @@
 # scaleApp
 scaleApp is a tiny JavaScript framework for scalable One-Page-Applications. 
-It is inspired by the talk of Nicholas C. Zakas — 
-"Scalable JavaScript Application Architecture" (http://developer.yahoo.com/yui/theater/video.php?v=zakas-architecture).
+The framework allows you to easily create complex web applications.
 
+With scaleApp you are able to write modules that concentrate on their own business. 
+They can act independently from each other and communicate through a central message bus.
+Each module has its own sandbox where it can play in. Thus as developer you only need to know the API of the sandbox.
+
+By splitting your complex application into separate parts using loose coupling, 
+it is comfortable to maintain and scale.
+
+If you like the following features, scaleApp might be the right choice for you:
+
++ loose coupling of modules
++ small & simple
++ no serverside dependencies
++ modules can be tested separately
++ replacing any module without affecting other modules
++ multi language UIs
++ supports the Model–View–Controller pattern
+
+scaleApp is inspired by the talk of Nicholas C. Zakas — "Scalable JavaScript Application Architecture" 
+(http://developer.yahoo.com/yui/theater/video.php?v=zakas-architecture).
 Unlike his recommendations to abstract DOM manipulations and separating the framework from the base library, 
-scaleApp explicitly ueses jQuery as base library. Therefore you can use the full power of jQuery on every layer.
+scaleApp explicitly uses jQuery as base library. Therefore you can use the full power of jQuery on every layer.
 
-scaleApp is licensed under the MIT license.
+## Dependencies
+
+At the moment only jQuery is required.
 
 ## Usage
 
@@ -44,10 +64,17 @@ Now you can register your modules:
 |									|
 +-----------------------------------------------------------------------+
 
-Afterwards start your module:
+As you can see the module is a function that takes the sandbox as an parameter 
+and returns an object that has the two functions 'init' and 'destroy'. 
+The 'init' function is called by the framework when the module is supposed to start.
+The 'destroy' function is called when the module has to shut down.
+
+After your modules are registered, start your modules:
 
 +-----------------------------------------------------------------------+
 |	scaleApp.start( "myModuleId" );					|
+|	scaleApp.start( "AnOtherModule" );				|
+|	...								|
 +-----------------------------------------------------------------------+
 
 You may also want to start several instances of your module:
@@ -55,6 +82,12 @@ You may also want to start several instances of your module:
 +-----------------------------------------------------------------------+
 |	scaleApp.start( "myModuleId", "myInstanceId" );			|
 |	scaleApp.start( "myModuleId", "anOtherInstanceId" );		|
++-----------------------------------------------------------------------+
+
+If all your modules just needs to be instanciated once, you can simply start them all with:
+
++-----------------------------------------------------------------------+
+|	scaleApp.startAll();						|
 +-----------------------------------------------------------------------+
 
 If your module is more complex, you might want to split it into models and views.
@@ -96,7 +129,29 @@ You can get your models and views with the sandbox method 'getModel' and 'getVie
 | ...									|
 +-----------------------------------------------------------------------+
 
-If your application should be support several languages, you can pass an objects containig the localized strings 
+If the module needs to communicate with an other one, you can use the 'publish' and 'subscribe' commands.
+
++-----------------------------------------------------------------------+
+| ...									|
+|  var messageHandler = function( event ){				|
+|  									|
+|	swich( event.type ){						|
+|									|
+|	  case "somthingHappend":					|
+|	    var result = processData( event.data );			|
+|	    sb.publish( { type:"myEventTopic", data: result } );	|
+|	    break;							|
+|	    ....							|
+|	}...								|
+|  };									|
+|									|
+|  var init = function(){						|
+|	sb.subscribe( "somthingHappend", messageHandler );		|
+|  };									|
+| ...									|
++-----------------------------------------------------------------------+
+
+If your application should be support several languages, you can pass an objects containing the localized strings 
 with the options object.
 
 +-----------------------------------------------------------------------+
@@ -112,7 +167,7 @@ with the options object.
 | ...									|
 +-----------------------------------------------------------------------+
 
-Now you can access that stings easely trough the sandbox with the '_' method. 
+Now you can access that stings easily trough the sandbox with the '_' method. 
 Depending on which language is set globally it returns the corresponding localized string.
 
 +-----------------------------------------------------------------------+
@@ -140,3 +195,9 @@ Run the tests:
   2. open your browser and navigate to http://localhost:4224/
   3. click on "Capture This Browser"
   4. run the tests by executing runTests.sh
+
+
+## Licence
+
+scaleApp is licensed under the MIT license.
+For more information have a look at LICENCE.txt.
