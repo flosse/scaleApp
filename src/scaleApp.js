@@ -79,7 +79,7 @@ var scaleApp = (function(){
 	}
 	
 	if( instanceOpts.views ){
-
+	  
 	  for( var j in instanceOpts.views ){
 	    if( instanceOpts.views ){
 	      addView( instanceId, j, instanceOpts.views[j]( sb ) );	      
@@ -125,14 +125,14 @@ var scaleApp = (function(){
 	      that.log.error( errString + " - the view "+ i +" is not a function", "core" );
 	      return false;
 	    }	    
-	    if( typeof opt.views[i]() !== "object" ){
+	    if( typeof opt.views[i]( new sandbox( that, "dummy" ) ) !== "object" ){
 	      that.log.error( errString + " - the view "+ i +" does not return an object", "core" );
 	      return false;
 	    }	   
 	  }
 	}
       }
-      
+                              
       if( opt.models ){
 	if( typeof opt.models !== "object" ){
 	  that.log.error( errString + " - the 'models' property has to be an object", "core" );
@@ -145,7 +145,7 @@ var scaleApp = (function(){
 	      that.log.error( errString + " - the model "+ j +" is not a function", "core" );
 	      return false;
 	    }
-	    if( typeof m() !== "object" ){
+	    if( typeof m( new sandbox( that, "dummy" )  ) !== "object" ){
 	      that.log.error( errString + " - the model "+ j +" does not return an object", "core" );
 	      return false;
 	    }
@@ -206,9 +206,9 @@ var scaleApp = (function(){
      * True if registration was successfull.
      */    
     var register = function( moduleId, creator, opt ){
-
+      
       if( !checkRegisterParameters( moduleId, creator, opt  ) ){ return false; }  
-            
+      
       if( !opt ){ opt = {}; }
       
       modules[ moduleId ] = {
@@ -279,7 +279,7 @@ var scaleApp = (function(){
      * (Object) opt
      */    
     var start = function( moduleId, instanceId, opt ){
-                  
+      
       var p = getSuitedParamaters( moduleId, instanceId, opt );      
       if( p ){	
 	
@@ -342,6 +342,19 @@ var scaleApp = (function(){
     
     
     /**
+     * Function: startAll
+     * Starts all available modules.
+     */
+    var startAll = function(){
+      for( var id in modules ){
+	if( modules[ id ] ){
+	  start( id, id, modules[ id ].opt );
+	}
+      }
+    };
+    
+    
+    /**
      * Function: stopAll
      * Stops all available instances.
      */
@@ -371,7 +384,7 @@ var scaleApp = (function(){
 	  if( handlers ){
 	    for( var j in handlers ){
 	      if( typeof handlers[j] === "function" ){
-		handlers[j]( data );		
+		handlers[j]( topic, data );
 	      }
 	    }
 	  }  
@@ -504,6 +517,7 @@ var scaleApp = (function(){
       start: start,
       startSubModule: startSubModule,
       stop: stop,
+      startAll: startAll,
       stopAll: stopAll,
                   
       publish: publish,

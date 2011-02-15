@@ -133,13 +133,13 @@ If the module needs to communicate with an other one, you can use the 'publish' 
 
 +-----------------------------------------------------------------------+
 | ...									|
-|  var messageHandler = function( event ){				|
+|  var messageHandler = function( topic, data ){			|
 |  									|
-|	swich( event.type ){						|
+|	switch( topic ){						|
 |									|
 |	  case "somthingHappend":					|
-|	    var result = processData( event.data );			|
-|	    sb.publish( { type:"myEventTopic", data: result } );	|
+|	    var result = processData( data );				|
+|	    sb.publish("myEventTopic", result );			|
 |	    break;							|
 |	    ....							|
 |	}...								|
