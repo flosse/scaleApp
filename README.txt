@@ -3,7 +3,7 @@ scaleApp is a tiny JavaScript framework for scalable One-Page-Applications.
 The framework allows you to easily create complex web applications.
 
 With scaleApp you are able to write modules that concentrate on their own business. 
-They can act independently from each other and communicate through a central message bus.
+They can act independently from each other and communicate through a central event system.
 Each module has its own sandbox where it can play in. Thus as developer you only need to know the API of the sandbox.
 
 By splitting your complex application into separate parts using loose coupling, 
@@ -133,20 +133,26 @@ If the module needs to communicate with an other one, you can use the 'publish' 
 
 +-----------------------------------------------------------------------+
 | ...									|
+|  var eventHandlerOne = function( topic, data ){			|
+|	...								|	
+|  };									|
+|  ...									|
 |  var messageHandler = function( topic, data ){			|
 |  									|
 |	switch( topic ){						|
 |									|
 |	  case "somthingHappend":					|
 |	    var result = processData( data );				|
-|	    sb.publish("myEventTopic", result );			|
+|	    sb.publish( "myEventTopic", result );			|
 |	    break;							|
 |	    ....							|
 |	}...								|
 |  };									|
 |									|
 |  var init = function(){						|
+|	sb.subscribe( "anInteresstingEvent", eventHandlerOne );		|
 |	sb.subscribe( "somthingHappend", messageHandler );		|
+|	sb.subscribe( "aNiceTopic", messageHandler );			|
 |  };									|
 | ...									|
 +-----------------------------------------------------------------------+

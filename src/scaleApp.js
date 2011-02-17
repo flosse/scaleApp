@@ -508,8 +508,8 @@ var scaleApp = (function(){
       }
 
     };
-    
-    // public API
+        
+    // public core API
     that = {
       
       register: register,
@@ -524,7 +524,7 @@ var scaleApp = (function(){
       subscribe: subscribe,
             
       getModel: getModel,
-      getView: getView,
+      getView: getView,            
       
       getInstance: getInstance,
       
@@ -702,6 +702,39 @@ var scaleApp = (function(){
       return core.i18n._( instanceId, textId );
     };
     
+     /**
+     * Function: hotkeys
+     * Binds a function to hotkeys. 
+     * If an topic as string and data is used instead of the function the data gets published.
+     * 
+     * Parameters:
+     * (String) keys
+     * (Function) handler
+     * (String) type
+     */
+    var hotkeys = function( keys, handler, type, opt ){
+      
+      // if user wants to publish s.th. directly
+      if( typeof handler === "string" ){
+
+	// in this case 'handler' holds the topic, 'type' the data and 'opt' the type.
+	if( !opt ){ opt = "keypress"; }
+	
+	$(document).bind( opt, keys, function(){	  
+	  publish( handler, type );  
+	});
+	
+      }            
+      else if( typeof handler === "function" ){
+
+	if( !type ){ type = "keypress"; }
+		
+	$(document).bind( type, keys, handler );	
+      }
+      
+    };
+    
+    // public sandbox api    
     return {
       
       subscribe: subscribe,
@@ -720,7 +753,9 @@ var scaleApp = (function(){
       error: log.error,
       fatal: log.fatal,      
       
-      _:_
+      _:_,
+      
+      hotkeys: hotkeys
       
     };
         
