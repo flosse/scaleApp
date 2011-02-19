@@ -61,7 +61,7 @@ var scaleApp = (function(){
 	var instanceOpts = { };
 	$.extend( true, instanceOpts, mod.opt, opt );
 	
-	var sb = new sandbox( that, instanceId, instanceOpts );
+	var sb = new that.sandbox( that, instanceId, instanceOpts );
 	
 	var instance = mod.creator( sb );
 	
@@ -72,7 +72,9 @@ var scaleApp = (function(){
 
 	  for( var i in instanceOpts.models ){
 	    if( instanceOpts.models[i] ){
-	      addModel( instanceId, i, instanceOpts.models[i]( sb ) );	      
+	      
+	      // in contrast to the view the model should not be invoked with the sandbox
+	      addModel( instanceId, i, instanceOpts.models[i]() );	      
 	    }
 	  }
 	  delete instanceOpts.models;
@@ -125,7 +127,7 @@ var scaleApp = (function(){
 	      that.log.error( errString + " - the view "+ i +" is not a function", "core" );
 	      return false;
 	    }	    
-	    if( typeof opt.views[i]( new sandbox( that, "dummy" ) ) !== "object" ){
+	    if( typeof opt.views[i]( new that.sandbox( that, "dummy" ) ) !== "object" ){
 	      that.log.error( errString + " - the view "+ i +" does not return an object", "core" );
 	      return false;
 	    }	   
@@ -145,7 +147,7 @@ var scaleApp = (function(){
 	      that.log.error( errString + " - the model "+ j +" is not a function", "core" );
 	      return false;
 	    }
-	    if( typeof m( new sandbox( that, "dummy" )  ) !== "object" ){
+	    if( typeof m( new that.sandbox( that, "dummy" )  ) !== "object" ){
 	      that.log.error( errString + " - the model "+ j +" does not return an object", "core" );
 	      return false;
 	    }
@@ -535,231 +537,6 @@ var scaleApp = (function(){
     return that;
     
   })();
-  
-  /**
-   * Class: sandbox
-   * 
-   * Parameters:
-   * (Object) core
-   * (String) instanceId
-   * (Object) opt
-   */
-  var sandbox = function( core, instanceId, opt ){
-            
-    /**
-     * Function: subscribe
-     * 
-     * Parameters:
-     * (String) topic
-     * (Function) callback
-     */    
-    var subscribe = function( topic, callback ){            
-      core.subscribe( instanceId, topic, callback );
-    };
-    
-    /**
-     * Function: unsubscribe
-     * 
-     * Parameters:
-     * (String) topic    
-     */
-    var unsubscribe = function( topic ){      
-      core.unsubscribe( instanceId, topic );
-    };
-
-    /**
-     * Function: publish
-     * 
-     * Parameters:
-     * (String) topic
-     * (Object) data
-     */
-    var publish = function( topic, data ){      
-      core.publish( topic, data );
-    };
-    
-    var log = {
-      
-      /**
-      * Function: debug
-      * 
-      * Parameters:
-      * (String) msg     
-      */      
-      debug: function( msg ){
-	core.log.debug( msg, instanceId );
-      },
-
-      /**
-      * Function: info
-      * 
-      * Parameters:
-      * (String) msg     
-      */    
-      info: function( msg ){
-	core.log.info( msg, instanceId );
-      },
-      
-      /**
-      * Function: warn
-      * 
-      * Parameters:
-      * (String) msg     
-      */          
-      warn: function( msg ){
-	core.log.warn( msg, instanceId );
-      },
-      
-      /**
-      * Function: error
-      * 
-      * Parameters:
-      * (String) msg     
-      */          
-      error: function( msg ){
-	core.log.error( msg, instanceId );
-      },
-      
-      /**
-      * Function: fatal
-      * 
-      * Parameters:
-      * (String) msg     
-      */          
-      fatal: function( msg ){
-	core.log.fatal( msg, instanceId );
-      }
-    };
-    
-    /**
-     * Function: startSubModule
-     * 
-     * Parameters:
-     * (String) moduleId
-     * (String) subInstanceId
-     * (Object) opt
-     */    
-    var startSubModule = function( moduleId, subInstanceId, opt ){
-      core.startSubModule( moduleId, subInstanceId, opt, instanceId );
-    };
-    
-    /**
-     * Function: stopSubModule
-     * 
-     * Parameters:
-     * (String) instanceId
-     */    
-    var stopSubModule = function( instanceId ){
-      core.stop( instanceId );
-    };
-    
-    /**
-     * Function: getModel
-     * 
-     * Paraneters:
-     * (String) id
-     * 
-     * Returns:
-     * (Object) model
-     */    
-    var getModel = function( id ){
-      return core.getModel( instanceId, id );
-    };
-    
-    /**
-     * Function: getView
-     * 
-     * Paraneters:
-     * (String) id
-     * 
-     * Returns:
-     * (Object) view
-     */    
-    var getView = function( id ){
-      return core.getView( instanceId, id );
-    };
-    
-    // not used at the moment
-    var addModel = function( id , model ){
-      return core.addModel( instanceId, id, model );
-    };
-    
-    // not used at the moment
-    var addView = function( id, view ){
-      return core.addView( instanceId, id, view );
-    };
-     
-    /**
-     * Function: _
-     * 
-     * Parameters:
-     * (String) textId 
-     * 
-     * Returns:
-     * The localized text.
-     */    
-    var _ = function( textId ){
-      return core.i18n._( instanceId, textId );
-    };
-    
-     /**
-     * Function: hotkeys
-     * Binds a function to hotkeys. 
-     * If an topic as string and data is used instead of the function the data gets published.
-     * 
-     * Parameters:
-     * (String) keys
-     * (Function) handler
-     * (String) type
-     */
-    var hotkeys = function( keys, handler, type, opt ){
-      
-      // if user wants to publish s.th. directly
-      if( typeof handler === "string" ){
-
-	// in this case 'handler' holds the topic, 'type' the data and 'opt' the type.
-	if( !opt ){ opt = "keypress"; }
-	
-	$(document).bind( opt, keys, function(){	  
-	  publish( handler, type );  
-	});
-	
-      }            
-      else if( typeof handler === "function" ){
-
-	if( !type ){ type = "keypress"; }
-		
-	$(document).bind( type, keys, handler );	
-      }
-      
-    };
-    
-    // public sandbox api    
-    return {
-      
-      subscribe: subscribe,
-      unsubscribe: unsubscribe,
-      publish: publish,
-                  
-      startSubModule: startSubModule,
-      stopSubModule: stopSubModule,
-      
-      getModel: getModel,
-      getView: getView,
-      
-      debug: log.debug,
-      info: log.info,
-      warn: log.warn,
-      error: log.error,
-      fatal: log.fatal,      
-      
-      _:_,
-      
-      hotkeys: hotkeys
-      
-    };
-        
-  };
   
   return core;
   

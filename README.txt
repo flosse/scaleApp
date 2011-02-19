@@ -26,18 +26,18 @@ scaleApp explicitly uses jQuery as base library. Therefore you can use the full 
 
 ## Dependencies
 
-At the moment only jQuery is required.
+At the moment only jQuery and the jQuery.hotkeys plugin are required.
+You can use scaleApp.full.min.js that already contains all required libraries.
 
 ## Usage
 
-Link scaleApp.js below the jQuery library in your HTML head section:
+Link scaleApp.full.min.js in your HTML head section:
 
 +-----------------------------------------------------------------------+
 |									|
 |  <head>								|
 |   ...									|
-|   <script type="text/javascript" src="jQuery.min.js"></script>	|
-|   <script type="text/javascript" src="scaleApp.js"></script>		|
+|   <script type="text/javascript" src="scaleApp.full.min.js"></script>	|
 |   ...									|
 |  </head>								|
 |									|
@@ -187,6 +187,23 @@ You can set the language globally by using the 'setLanguage' method:
 +-----------------------------------------------------------------------+
 | ...									|
 |  scaleApp.i18n.setLanguage( "de" );					|
+| ...									|
++-----------------------------------------------------------------------+
+
+For handling hotkeys, you simply can register them like this:
+
++-----------------------------------------------------------------------+
+| ...									|
+|  scaleApp.hotkeys( "alt+c", myFunction, "keydown" );			|
+|  scaleApp.hotkeys( "h", myFunction, "keypress" );			|
+| ...									|
++-----------------------------------------------------------------------+
+
+If you want to trigger an event by hotkeys, you can simply do it in that way:
+
++-----------------------------------------------------------------------+
+| ...									|
+|  scaleApp.hotkeys( "alt+c", "myTopic", myData, "keydown" );		|
 | ...									|
 +-----------------------------------------------------------------------+
 
