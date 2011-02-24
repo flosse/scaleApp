@@ -21,7 +21,7 @@ scaleApp.i18n = (function( core ){
    * (String) the language code of the browser
    */  
   var getBrowserLanguage = function(){    
-    return navigator.language || navigator.browserLanguage;
+    return ( navigator.language || navigator.browserLanguage || "en" ).split('-')[0];
   };
   
   /**
