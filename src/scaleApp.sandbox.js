@@ -160,6 +160,30 @@ scaleApp.sandbox = function( core, instanceId, opt ){
   var addView = function( id, view ){
     return core.addView( instanceId, id, view );
   };
+  
+  /**
+   * Function: getTemplate
+   * 
+   * Parameters:
+   * (String) id   
+   * 
+   * Returns:
+   * (Object) pre-rendered jQuery template
+   */
+  var getTemplate = function( id ){    
+    return core.getTemplate( instanceId, id );
+  };
+  
+  /**
+   * Function: tmpl
+   * 
+   * Parameters:
+   * (String) id
+   * (Object) data
+   */  
+  var tmpl = function( id, data ){
+    return $.tmpl( core.getTemplate( instanceId, id ) , data );  
+  };
     
   /**
     * Function: _
@@ -218,6 +242,9 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     
     getModel: getModel,
     getView: getView,
+    
+    getTemplate: getTemplate,
+    tmpl: tmpl,
     
     debug: log.debug,
     info: log.info,

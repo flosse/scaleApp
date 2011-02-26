@@ -52,7 +52,7 @@ scaleApp.i18n = (function( core ){
   var setLanguage = function( languageCode ){
     if( typeof languageCode === "string" ){
       lang = languageCode;
-      this.publish( "languageChanged", languageCode );      
+      core.publish( "languageChanged", languageCode );      
       return true;
     }    
     return false;
