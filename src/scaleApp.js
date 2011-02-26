@@ -569,7 +569,7 @@ var scaleApp = (function(){
       }
       
       var onSuccess = function( html ){
-	templates[ instanceId ][ id ] = $('<script type="text/x-jquery-tmpl">').append( html ).template();
+	templates[ instanceId ][ id ] = $('<script type="text/x-jquery-tmpl">'+ html + '</script>').template();
 	if( typeof success === "function" ){ success(); }
       };
       
