@@ -181,8 +181,11 @@ scaleApp.sandbox = function( core, instanceId, opt ){
    * (String) id
    * (Object) data
    */  
-  var tmpl = function( id, data ){
-    return $.tmpl( core.getTemplate( instanceId, id ) , data );  
+  var tmpl = function( id, data ){  
+    var t = getTemplate( id )
+    core.log.debug("tmpl", "sandbox");
+    core.log.debug(t)
+    return $.tmpl( getTemplate( id ), data );  
   };
     
   /**
@@ -198,6 +201,13 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     return core.i18n._( instanceId, textId );
   };
   
+  /**
+   * Function: getContainer
+   */  
+  var getContainer = function(){
+    return core.getContainer( instanceId );
+  };
+ 
     /**
     * Function: hotkeys
     * Binds a function to hotkeys. 
@@ -245,6 +255,8 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     
     getTemplate: getTemplate,
     tmpl: tmpl,
+    
+    getContainer: getContainer,
     
     debug: log.debug,
     info: log.info,

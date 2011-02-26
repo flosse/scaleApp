@@ -632,7 +632,21 @@ var scaleApp = (function(){
       if( views[ instanceId ] ){
 	return views[ instanceId ][ id ];	
       }
-
+    };
+    
+    /**
+     * Function: getContainer      
+     */     
+    var getContainer = function( instanceId ){
+      
+      var o = instances[ instanceId ].opt;
+      
+      if( o ){
+	if( typeof o.container === "string" ){
+	  return $( "#" + o.container );  
+	}
+      }
+      return $( "#" + instanceId );      
     };
         
     // public core API
@@ -652,6 +666,8 @@ var scaleApp = (function(){
       getModel: getModel,
       getView: getView,            
       getTemplate: getTemplate,  
+      
+      getContainer: getContainer,
       
       getInstance: getInstance,
       
