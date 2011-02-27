@@ -181,10 +181,7 @@ scaleApp.sandbox = function( core, instanceId, opt ){
    * (String) id
    * (Object) data
    */  
-  var tmpl = function( id, data ){  
-    var t = getTemplate( id )
-    core.log.debug("tmpl", "sandbox");
-    core.log.debug(t)
+  var tmpl = function( id, data ){      
     return $.tmpl( getTemplate( id ), data );  
   };
     

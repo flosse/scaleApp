@@ -597,8 +597,17 @@ var scaleApp = (function(){
      * (Object) template - the pre-rendered jQuery template object
      */    
     var getTemplate = function( instanceId, id ){
-      if( templates[ instanceId ] ){
-	return templates[ instanceId ][ id ];
+      
+      var t = templates[ instanceId ];
+      
+      if( t ){
+	      
+	if( !id && $(t).length == 1 ){
+	  for( var one in t ) break;
+	  return t[ one ];
+	}      
+	
+	return t[ id ];
       }
     };
     
@@ -613,8 +622,16 @@ var scaleApp = (function(){
      * (Object) model
      */
     var getModel = function( instanceId, id ){
-      if( models[ instanceId ] ){
-	return models[ instanceId ][ id ];	
+      
+      var m = models[ instanceId ];
+      
+      if( m ){	
+	
+	if( !id && $(m).length == 1 ){
+	  for( var one in m ) break;
+ 	  return m[ one ];
+	}
+	return m[ id ];	
       }
     };
     
@@ -629,8 +646,16 @@ var scaleApp = (function(){
      * (Object) view
      */
     var getView = function( instanceId, id ){
-      if( views[ instanceId ] ){
-	return views[ instanceId ][ id ];	
+      
+      var v = views[ instanceId ];      
+      
+      if( v ){
+	
+	if( !id && $(v).length == 1 ){
+	  for( var one in v ) break;
+	  return v[ one ];
+	}      
+	return v[ id ];
       }
     };
     
