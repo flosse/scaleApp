@@ -551,6 +551,26 @@ var scaleApp = (function(){
       return $( "#" + instanceId );      
     };
         
+    /**
+     * Function: mixin
+     */
+    var mixin = function( receivingClass, givingClass ){
+      
+      if( typeof receivingClass === "function" && typeof givingClass === "function" ){
+	for( var i in givingClass.prototype ){
+	  if( !receivingClass.prototype[i] ){
+	    receivingClass.prototype[i] = givingClass.prototype[i];
+	  }
+	}	
+      } else if ( typeof receivingClass === "object" && typeof givingClass === "function" ){
+	for( var i in givingClass.prototype ){
+	  if( !receivingClass[i] ){
+	    receivingClass[i] = givingClass.prototype[i];
+	  }
+	}
+      }
+    };
+    
     // public core API
     that = {
       
@@ -572,7 +592,9 @@ var scaleApp = (function(){
       
       getInstance: getInstance,
       
-      log: log      
+      log: log,
+      
+      mixin: mixin
       
     };
     

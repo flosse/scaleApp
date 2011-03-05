@@ -271,7 +271,9 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     addModel: addModel,
     addView: addView,
     addController: addController,
-        
+    
+    observable: core.mvc.observable,
+    
     getTemplate: getTemplate,
     tmpl: tmpl,
     
@@ -282,6 +284,8 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     warn: log.warn,
     error: log.error,
     fatal: log.fatal,      
+    
+    mixin: core.mixin,
     
     _:_,
     

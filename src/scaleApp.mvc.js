@@ -1,4 +1,40 @@
 scaleApp.mvc = (function( core ){
+    
+  /**
+   * Class: observable
+   */
+  var observable = function(){};
+  
+  observable.prototype = {
+            
+    subscribe : function( s ){
+      if( !this._subscribers ){
+	this._subscribers = [];
+      }
+      this._subscribers.push( s );
+    },
+    
+    unsubscribe : function( observer ){
+
+      if( this._subscribers ){
+	_this.subscribers = this._subscribers.filter(
+	  function( el ){
+	    if( el !== observer ){ return el; }
+	  }
+	);
+      }
+    },
+    
+    notify : function(){      
+      if( this._subscribers ){	
+	for( var i in this._subscribers ){
+	  if( typeof this._subscribers[i].update === "function" ){
+	    this._subscribers[i].update();
+	  }
+	}
+      }      
+    }      
+  };  
   
   // Container for all models    
   var models = { };
@@ -165,7 +201,9 @@ scaleApp.mvc = (function( core ){
     
     getModel: getModel,
     getView: getView,
-    getController: getController        
+    getController: getController,
+    
+    observable: observable
     
   };
   
