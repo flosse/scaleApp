@@ -26,15 +26,12 @@ var scaleApp = (function(){
     
     // Container for lists of submodules
     var subInstances = { };
-    
-    // Container for all models    
-    var models = { };
-    
-    // Container for all views    
-    var views = { };
-    
+        
     // Container for all templates    
     var templates = { };
+    
+    // Container for all functions that gets called when an instance gets created
+    var onInstantiateFunctions = [];
         
     // define a dummy object for logging.
     var log = {
@@ -43,6 +40,20 @@ var scaleApp = (function(){
       warn:  function(){ return; },
       error: function(){ return; },
       fatal: function(){ return; }
+    };
+    
+    /**
+     * Function: onInstantiate
+     * 
+     * Parameters:
+     * (Function) fn
+     */    
+    var onInstantiate = function( fn ){
+      if( typeof fn === "function" ){
+	onInstantiateFunctions.push( fn );
+      }else{
+	that.log.error("scaleApp.onInstantiate expect a function as parameter", "core" );
+      }
     };
             
     /**
@@ -82,26 +93,8 @@ var scaleApp = (function(){
 	// store opt
 	instance.opt = instanceOpts;
 
-	if( instanceOpts.models ){
-
-	  for( var i in instanceOpts.models ){
-	    if( instanceOpts.models[i] ){
-	      
-	      // in contrast to the view the model should not be invoked with the sandbox
-	      addModel( instanceId, i, instanceOpts.models[i]() );	      
-	    }
-	  }
-	  delete instanceOpts.models;
-	}
-	
-	if( instanceOpts.views ){
-	  
-	  for( var j in instanceOpts.views ){
-	    if( instanceOpts.views ){
-	      addView( instanceId, j, instanceOpts.views[j]( sb ) );	      
-	    }
-	  }
-	  delete instanceOpts.views;
+	for( var i in onInstantiateFunctions ){
+	  onInstantiateFunctions[i]( instanceId, instanceOpts, sb );
 	}
 	
 	if( instanceOpts.templates ){
@@ -144,47 +137,9 @@ var scaleApp = (function(){
 	that.log.error( errString + " - option has to be an object", "core" );
 	return false;
       }
-      
-      if( opt.views ){
-	if( typeof opt.views !== "object" ){
-	  that.log.error( errString + " - 'views' property has to be an object", "core" );
-	  return false;
-	}
-	for( var i in opt.views ){
-	  if( opt.views[i] ){
-	    if( typeof opt.views[i] !== "function" ){
-	      that.log.error( errString + " - the view "+ i +" is not a function", "core" );
-	      return false;
-	    }	    
-	    if( typeof opt.views[i]( new that.sandbox( that, "dummy" ) ) !== "object" ){
-	      that.log.error( errString + " - the view "+ i +" does not return an object", "core" );
-	      return false;
-	    }	   
-	  }
-	}
-      }
-                              
-      if( opt.models ){
-	if( typeof opt.models !== "object" ){
-	  that.log.error( errString + " - the 'models' property has to be an object", "core" );
-	  return false;
-	}
-	for( var j in opt.models ){
-	  if( opt.models[j] ){
-	    var m = opt.models[j];  
-	    if( typeof m !== "function" ){
-	      that.log.error( errString + " - the model "+ j +" is not a function", "core" );
-	      return false;
-	    }
-	    if( typeof m( new that.sandbox( that, "dummy" )  ) !== "object" ){
-	      that.log.error( errString + " - the model "+ j +" does not return an object", "core" );
-	      return false;
-	    }
-	  } 
-	}
-      }
       return true;
     };
+      
     
     /**
      * PrivateFunction: checkRegisterParameters
@@ -478,38 +433,7 @@ var scaleApp = (function(){
     var getInstance = function( id ){
       return instances[ id ];      
     };
-    
-    /**
-     * PrivateFunction: addModel
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * (Function) model
-     */
-    var addModel = function( instanceId, id, model ){
-      if( !models[ instanceId ] ){
-	models[ instanceId ] = { };
-      }
-      models[ instanceId ][ id ] = model;      
-    };
-    
-    /**
-     * PrivateFunction: addView
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * (Function) view
-     */
-    var addView = function( instanceId, id, view ){
-      if( !views[ instanceId ] ){
-	views[ instanceId ] = { };
-      }
-      views[ instanceId ][ id ] = view;            
-    };    
-    
-    
+        
      /**
      * PrivateFunction: loadTemplates
      * 
@@ -611,53 +535,6 @@ var scaleApp = (function(){
       }
     };
     
-    /**
-     * Function: getModel
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * 
-     * Returns:
-     * (Object) model
-     */
-    var getModel = function( instanceId, id ){
-      
-      var m = models[ instanceId ];
-      
-      if( m ){	
-	
-	if( !id && $(m).length == 1 ){
-	  for( var one in m ) break;
- 	  return m[ one ];
-	}
-	return m[ id ];	
-      }
-    };
-    
-    /**
-     * Function: getView
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * 
-     * Returns:
-     * (Object) view
-     */
-    var getView = function( instanceId, id ){
-      
-      var v = views[ instanceId ];      
-      
-      if( v ){
-	
-	if( !id && $(v).length == 1 ){
-	  for( var one in v ) break;
-	  return v[ one ];
-	}      
-	return v[ id ];
-      }
-    };
     
     /**
      * Function: getContainer      
@@ -678,6 +555,7 @@ var scaleApp = (function(){
     that = {
       
       register: register,
+      onInstantiate:onInstantiate,
       
       start: start,
       startSubModule: startSubModule,
@@ -688,8 +566,6 @@ var scaleApp = (function(){
       publish: publish,
       subscribe: subscribe,
             
-      getModel: getModel,
-      getView: getView,            
       getTemplate: getTemplate,  
       
       getContainer: getContainer,

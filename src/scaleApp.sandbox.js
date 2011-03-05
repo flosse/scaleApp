@@ -135,7 +135,7 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     * (Object) model
     */    
   var getModel = function( id ){
-    return core.getModel( instanceId, id );
+    return core.mvc.getModel( instanceId, id );
   };
   
   /**
@@ -148,17 +148,34 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     * (Object) view
     */    
   var getView = function( id ){
-    return core.getView( instanceId, id );
+    return core.mvc.getView( instanceId, id );
   };
   
-  // not used at the moment
+  /**
+    * Function: getController
+    * 
+    * Paraneters:
+    * (String) id
+    * 
+    * Returns:
+    * (Object) controller
+    */      
+  var getController = function( id ){
+    return core.mvc.getController( instanceId, id );
+  };
+  
+  
   var addModel = function( id , model ){
-    return core.addModel( instanceId, id, model );
+    return core.mvc.addModel( instanceId, id, model );
   };
   
-  // not used at the moment
+  
   var addView = function( id, view ){
-    return core.addView( instanceId, id, view );
+    return core.mvc.addView( instanceId, id, view );
+  };
+  
+  var addController = function( id, controller ){
+    return core.mvc.addController( instanceId, id, controller );
   };
   
   /**
@@ -243,13 +260,18 @@ scaleApp.sandbox = function( core, instanceId, opt ){
     subscribe: subscribe,
     unsubscribe: unsubscribe,
     publish: publish,
-		
+
     startSubModule: startSubModule,
     stopSubModule: stopSubModule,
     
     getModel: getModel,
     getView: getView,
+    getController: getController,
     
+    addModel: addModel,
+    addView: addView,
+    addController: addController,
+        
     getTemplate: getTemplate,
     tmpl: tmpl,
     
