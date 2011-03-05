@@ -31,6 +31,8 @@ You can use scaleApp.full.min.js that already contains all required libraries.
 
 ## Usage
 
+### Basic usage
+
 Link scaleApp.full.min.js in your HTML head section:
 
 +-----------------------------------------------------------------------+
@@ -90,6 +92,7 @@ If all your modules just needs to be instanciated once, you can simply start the
 |	scaleApp.startAll();						|
 +-----------------------------------------------------------------------+
 
+### MVC
 If your module is more complex, you might want to split it into models and views.
 So use your current module as a controller and pass your models and views with the option object.
 You can get your models and views with the sandbox method 'getModel' and 'getView' respectively.
@@ -113,7 +116,7 @@ You can get your models and views with the sandbox method 'getModel' and 'getVie
 |	return { init: init, destroy: destroy };			|
 |  };									|
 | ...									|
-|  var myModelOne = function( sb ){ ... }				|
+|  var myModelOne = { ... }						|
 | ...									|
 |  scaleApp.register( "moduleId", myController,				|
 |  {									|
@@ -128,6 +131,31 @@ You can get your models and views with the sandbox method 'getModel' and 'getVie
 |  });									|
 | ...									|
 +-----------------------------------------------------------------------+
+
+If you want to use the observer pattern, you can do something like this:
+
++-----------------------------------------------------------------------+
+| ...									|
+|  var myView = (function(){						|
+|	...								|
+|	var init = function( sb ){					|
+|		...							|
+|		model = sb.getModel( "myModel" );			|
+|		sb.mixin( model, sb.observable );			|
+|		model.subscribe( this );				|
+|	  	...							|
+|	};								|
+|									|
+|	var update = function(){					|
+|	  render( model );						|
+|	};								|
+|	...								|
+|	return { init: init, destroy: destroy, update:update };		|
+|  })();								|
+|									|
++-----------------------------------------------------------------------+
+
+### Publish/Subscribe
 
 If the module needs to communicate with an other one, you can use the 'publish' and 'subscribe' commands.
 
@@ -156,6 +184,8 @@ If the module needs to communicate with an other one, you can use the 'publish' 
 |  };									|
 | ...									|
 +-----------------------------------------------------------------------+
+
+### i18n
 
 If your application should be support several languages, you can pass an objects containing the localized strings 
 with the options object.
@@ -190,6 +220,8 @@ You can set the language globally by using the 'setLanguage' method:
 | ...									|
 +-----------------------------------------------------------------------+
 
+### hotkeys
+
 For handling hotkeys, you simply can register them like this:
 
 +-----------------------------------------------------------------------+
@@ -207,6 +239,42 @@ If you want to trigger an event by hotkeys, you can simply do it in that way:
 | ...									|
 +-----------------------------------------------------------------------+
 
+### templating
+
+Create a usual HTML-File with your placeholders an place it somewhere on your server.
+
++-----------------------------------------------------------------------+
+| <div>									|
+| ...									|
+| <li>${ Name }</li>							|
+| ...									|
+| </div>								|
++-----------------------------------------------------------------------+
+
+Point to your template when you register your module.
+
++-----------------------------------------------------------------------+
+|  scaleApp.register( "moduleId", myModule,				|
+|  {									|
+|	models: { ... },						|
+|	views: { ... },							|
+|	templates: { myTemplate: "path/to/myTemplate.html" },		|
+|	i18n: myi18n       						|
+|  });									|
+| ...									|
++-----------------------------------------------------------------------+
+
+Afterwards you can use it in your module like this:
+
++-----------------------------------------------------------------------+
+| ...									|
+|	var init = function(){						|
+|	  ...								|
+|	  sb.tmpl("myTemplate", myData ).appendTo( somewhere );		|
+|	  ...								|
+|	} 								|
+| ...									|
++-----------------------------------------------------------------------+  
  
 ## Testing
 
