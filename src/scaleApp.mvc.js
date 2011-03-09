@@ -1,4 +1,4 @@
-scaleApp.mvc = (function( core ){
+scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     
   /**
    * Class: observable
@@ -48,11 +48,29 @@ scaleApp.mvc = (function( core ){
   // register function that gets called after an instance was created
   core.onInstantiate( function( instanceId, opt ){
     
-    if( opt.models ){ 		addObjects( models, instanceId, opt.models  );		}    
+    if( opt.models ){ mixinDefaultModel( opt.models ); addObjects( models, instanceId, opt.models  ); }
     if( opt.views ){ 		addObjects( views, instanceId, opt.views );		}
     if( opt.controllers ){	addObjects( controllers, instanceId, opt.controllers );	}    
     
   });
+    
+  /**
+   * PrivateFunction: mixinDefaultModel
+   * Extend the model with standard model-methods by default.
+   * At the moment there are just the observale methods.
+   */  
+  var mixinDefaultModel = function( objects ){
+    
+    if( typeof objects === "object" ){
+    
+      for( var i in objects ){
+	      
+	if( objects[i] ){  
+	  core.mixin( objects[i], observable );
+	}
+      }          
+    }
+  };
   
   /**
   * PrivateFunction: addObjects
@@ -207,4 +225,4 @@ scaleApp.mvc = (function( core ){
     
   };
   
-})( scaleApp );
+})( window, scaleApp );

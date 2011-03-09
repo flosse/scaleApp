@@ -7,13 +7,12 @@
  * scaleApp is a tiny framework for One-Page-Applications. 
  * It is licensed under the MIT licence.
  */
-var scaleApp = (function(){
-  
-  /**
-   * Class: core
-   * The core holds and manages all data that is used globally.
-   */
-  var core = (function(){
+
+/**
+  * Class: core
+  * The core holds and manages all data that is used globally.
+  */
+var scaleApp = (function( window, undefined ){
                
     // container for public API and reference to this
     var that = { };
@@ -372,7 +371,7 @@ var scaleApp = (function(){
 	  if( handlers ){
 	    for( var j in handlers ){
 	      if( typeof handlers[j] === "function" ){
-		handlers[j]( topic, data );
+		handlers[j]( data, topic );
 	      }
 	    }
 	  }  
@@ -599,9 +598,5 @@ var scaleApp = (function(){
     };
     
     return that;
-    
-  })();
   
-  return core;
-  
-})();
+})( window );
