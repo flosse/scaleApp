@@ -24,6 +24,12 @@ scaleApp is inspired by the talk of Nicholas C. Zakas —
 Unlike his recommendations to abstract DOM manipulations and separating the framework from the base library, 
 scaleApp explicitly uses jQuery as base library. Therefore you can use the full power of jQuery on every layer.
 
+## Demo
+
+You can try out the [sample application](http://www.scaleapp.org/demo/fast/) that is build on 
+[scaleApp](http://www.scaleapp.org). Also have a look at the [source code](http://github.com/flosse/FAST).
+
+
 ## Dependencies
 
 At the moment only jQuery and the jQuery.hotkeys plugin are required.
