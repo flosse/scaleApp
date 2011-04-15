@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
+ */
+
+/**
+ * File: scaleApp.mvc.js
+ * scaleApp.mvc.js is a Model-View-Controler extension for scaleApp.
+ * 
+ * It is licensed under the MIT licence.
+ */
+
+/**
+ * Class: scaleApp.mvc
+ */
 scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     
   /**
