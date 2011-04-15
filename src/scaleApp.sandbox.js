@@ -200,8 +200,14 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
     * (String) id
     * (Object) data
     */  
-    var tmpl = function( id, data ){      
-      return $.tmpl( getTemplate( id ), data );  
+    var tmpl = function( id, data ){     
+      if( typeof id === "string" ){
+	return $.tmpl( getTemplate( id ), data );        
+      }else if( typeof id === "function" ){
+	return $.tmpl( id, data );
+      }else{
+	log.error("type of 'id' is not valid", "sandbox of " + instanceId );
+      }
     };
       
     /**
