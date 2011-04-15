@@ -85,7 +85,7 @@ var scaleApp = (function( window, undefined ){
 	var instanceOpts = { };
 	$.extend( true, instanceOpts, mod.opt, opt );
 	
-	var sb = new that.sandbox( that, instanceId, instanceOpts );
+	var sb = new that.sandbox( instanceId, instanceOpts );
 	
 	instance = mod.creator( sb );
 	

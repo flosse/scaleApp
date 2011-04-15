@@ -12,7 +12,7 @@
 /**
  * Class: scaleApp.i18n
  */
-scaleApp.i18n = (function( core ){
+scaleApp.i18n = scaleApp.i18n || (function( core ){
   
   /**
    * Function: getBrowserLanguage
