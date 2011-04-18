@@ -293,7 +293,8 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       error: log.error,
       fatal: log.fatal,      
       
-      mixin: core.mixin,
+      mixin: core.util.mixin,
+      count: core.util.countObjectKeys,
       
       _:_,
       

@@ -81,6 +81,12 @@ If all your modules just needs to be instanciated once, you can simply start the
 
     scaleApp.startAll();
 
+You can also pass a callback function:
+
+    scaleApp.startAll(function(){
+      // do something when all modules were initialized
+    });
+
 ### MVC
 
 If your module is more complex, you might want to split it into models and views.

@@ -80,7 +80,7 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
       for( var i in objects ){
 	      
 	if( objects[i] ){  
-	  core.mixin( objects[i], observable );
+	  core.util.mixin( objects[i], observable );
 	}
       }          
     }

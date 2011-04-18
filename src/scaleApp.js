@@ -263,7 +263,7 @@ var scaleApp = (function( window, undefined ){
      * (String) instanceId
      * (Object) opt
      */    
-    var start = function( moduleId, instanceId, opt ){
+    var start = function( moduleId, instanceId, opt, callback ){
       
       var p = getSuitedParamaters( moduleId, instanceId, opt );      
       if( p ){
@@ -273,6 +273,9 @@ var scaleApp = (function( window, undefined ){
 	var onSuccess = function( instance ){
 	  instances[ p.instanceId ] = instance;
 	  instance.init();  
+	  if( typeof callback === "function" ){
+	    callback();
+	  }
 	};
 	createInstance( p.moduleId, p.instanceId, p.opt, onSuccess );
 	return true;
@@ -332,10 +335,22 @@ var scaleApp = (function( window, undefined ){
      * Function: startAll
      * Starts all available modules.
      */
-    var startAll = function(){
+    var startAll = function( fn ){
+
+      var callback = function(){};
+      
+      if( typeof fn === "function" ){
+	var count = countObjectKeys( modules );
+	callback = function(){
+	  count --;
+	  if( count === 0 ){
+	    fn();
+	  }
+	};
+      }      
       for( var id in modules ){
 	if( modules[ id ] ){
-	  start( id, id, modules[ id ].opt );
+	  start( id, id, modules[ id ].opt, callback );
 	}
       }
     };
@@ -351,6 +366,18 @@ var scaleApp = (function( window, undefined ){
 	  stop( id );
 	}
       }
+    };
+    
+    /**
+     * Function: countObjectKeys
+     * Counts all available keys of an object.
+     */    
+    var countObjectKeys = function( obj ){
+      var count = 0;
+      for( var i in obj ){
+	count++;
+      }
+      return count;
     };
     
     /**
@@ -591,9 +618,12 @@ var scaleApp = (function( window, undefined ){
       
       getInstance: getInstance,
       
-      log: log,
+      log: log,            
       
-      mixin: mixin
+      util: {
+	mixin: mixin,      
+	countObjectKeys: countObjectKeys
+      }
       
     };
     
