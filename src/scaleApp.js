@@ -340,7 +340,7 @@ var scaleApp = (function( window, undefined ){
       var callback = function(){};
       
       if( typeof fn === "function" ){
-	var count = countObjectKeys( modules );
+	var count = that.util.countObjectKeys( modules );
 	callback = function(){
 	  count --;
 	  if( count === 0 ){
@@ -366,18 +366,6 @@ var scaleApp = (function( window, undefined ){
 	  stop( id );
 	}
       }
-    };
-    
-    /**
-     * Function: countObjectKeys
-     * Counts all available keys of an object.
-     */    
-    var countObjectKeys = function( obj ){
-      var count = 0;
-      for( var i in obj ){
-	count++;
-      }
-      return count;
     };
     
     /**
@@ -576,27 +564,7 @@ var scaleApp = (function( window, undefined ){
       }
       return $( "#" + instanceId );      
     };
-        
-    /**
-     * Function: mixin
-     */
-    var mixin = function( receivingClass, givingClass ){
-      
-      if( typeof receivingClass === "function" && typeof givingClass === "function" ){
-	for( var i in givingClass.prototype ){
-	  if( !receivingClass.prototype[i] ){
-	    receivingClass.prototype[i] = givingClass.prototype[i];
-	  }
-	}	
-      } else if ( typeof receivingClass === "object" && typeof givingClass === "function" ){
-	for( var i in givingClass.prototype ){
-	  if( !receivingClass[i] ){
-	    receivingClass[i] = givingClass.prototype[i];
-	  }
-	}
-      }
-    };
-    
+
     // public core API
     that = {
       
@@ -618,12 +586,7 @@ var scaleApp = (function( window, undefined ){
       
       getInstance: getInstance,
       
-      log: log,            
-      
-      util: {
-	mixin: mixin,      
-	countObjectKeys: countObjectKeys
-      }
+      log: log          
       
     };
     
