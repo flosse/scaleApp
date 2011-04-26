@@ -190,7 +190,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
     * (Object) pre-rendered jQuery template
     */
     var getTemplate = function( id ){    
-      return core.getTemplate( instanceId, id );
+      return core.template.get( instanceId, id );
     };
     
     /**

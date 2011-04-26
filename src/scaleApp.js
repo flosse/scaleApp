@@ -96,19 +96,12 @@ var scaleApp = (function( window, undefined ){
 	  onInstantiateFunctions[i]( instanceId, instanceOpts, sb );
 	}
 	
-	if( instanceOpts.templates ){
-	  
-	  loadTemplates( instanceId, instanceOpts.templates, 
-	    function(){  
-	      delete instanceOpts.templates;    
-	      that.log.debug("templates loaded");
-	      callSuccess();
-	    },
-	    function( err ){
-	      delete instanceOpts.templates;
-	      callError( err );
-	    }
-	  );
+	if( instanceOpts.templates && that.template ){
+
+	  that.template.loadMultiple( instanceOpts.templates )
+		.done( function( res ){ that.template.set( instanceId, res ); callSuccess(); })
+		.fail( function( err ){ callError( err ); })
+		.then( function(){ delete instanceOpts.templates; });
 	  
 	}else{
 	  callSuccess();
@@ -447,108 +440,6 @@ var scaleApp = (function( window, undefined ){
     var getInstance = function( id ){
       return instances[ id ];      
     };
-        
-     /**
-     * PrivateFunction: loadTemplates
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (Object) templates
-     * (Function) success
-     * (Function) error
-     */    
-    var loadTemplates = function( instanceId, templates, success, error ){
-      
-      that.log.debug("loading templates...");
-      var counter = 0;
-      
-      var onFail = function( err ){
-	
-	counter--;
-	
-	if( typeof error === "function" ){ 
-	  error( err ); 	  
-	}else{
-	  that.log.error("could not load template:" + err , "core" );
-	}
-	
-	if( counter < 1 && typeof success === "function" ){
-	  success();
-	}
-      };
-      
-      var onSuccess = function(){
-	that.log.debug("template loading successfull")      
-	counter--;
-	that.log.debug( counter + " templates left");
-	if( counter < 1 && typeof success === "function" ){
-	  success();
-	}
-      };
-
-      for( var k in templates ){
-	counter++;
-	addTemplate( instanceId, k, templates[k], onSuccess, onFail );
-      }
-    };
-
-    /**
-     * PrivateFunction: addTemplate
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * (String) tmpl - path to the template
-     */
-    var addTemplate = function( instanceId, id, tmpl, success, error ){
-      
-      if( !templates[ instanceId ] ){
-	templates[ instanceId ] = { };
-      }
-      
-      var onSuccess = function( html ){
-	templates[ instanceId ][ id ] = $('<script type="text/x-jquery-tmpl">'+ html + '</script>').template();
-	if( typeof success === "function" ){ success(); }
-      };
-      
-      var onFail = function( err ){
-	if( typeof error === "function" ){ 
-	  error( err );
-	}else{
-	  that.log.error("could not load template:" + err , "core" );  
-	}
-      };
-      
-      if( typeof tmpl === "string" ){	
-	$.get( tmpl, onSuccess );
-      }
-    };
-    
-    /**
-     * Function: getTemplate
-     * 
-     * Paraneters:
-     * (String) instanceId
-     * (String) id
-     * 
-     * Returns:
-     * (Object) template - the pre-rendered jQuery template object
-     */    
-    var getTemplate = function( instanceId, id ){
-      
-      var t = templates[ instanceId ];
-      
-      if( t ){
-	      
-	if( !id && $(t).length == 1 ){
-	  for( var one in t ) break;
-	  return t[ one ];
-	}      
-	
-	return t[ id ];
-      }
-    };
-    
     
     /**
      * Function: getContainer      
@@ -579,8 +470,6 @@ var scaleApp = (function( window, undefined ){
                   
       publish: publish,
       subscribe: subscribe,
-            
-      getTemplate: getTemplate,  
       
       getContainer: getContainer,
       
