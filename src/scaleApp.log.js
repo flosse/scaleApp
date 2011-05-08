@@ -12,7 +12,7 @@
 /**
  * Class: scaleApp.log
  */
-scaleApp.log = (function( window, undefined ){
+scaleApp['log'] = (function( window, undefined ){
 
 	/**
 	* PrivateClass: console
@@ -22,12 +22,12 @@ scaleApp.log = (function( window, undefined ){
 	if( !console ){
 
 		console = {};
-		console.log		= function( msg ) { return; };
-		console.debug	= function( msg ) { return; };
-		console.info	= function( msg ) { return; };
-		console.warn	= function( msg ) { return; };
-		console.error	= function( msg ) { return; };
-		console.fatal	= function( msg ) { return; };
+		console.log		= function() { return; };
+		console.debug	= function() { return; };
+		console.info	= function() { return; };
+		console.warn	= function() { return; };
+		console.error	= function() { return; };
+		console.fatal	= function() { return; };
 	}
 
 	/**
@@ -40,6 +40,7 @@ scaleApp.log = (function( window, undefined ){
 	* Constants: logLevel
 	* logging level indicators
 	*
+	* Parameters:
 	* logLevel.DEBUG - Debug output
 	* logLevel.INFO - Informational output
 	* logLevel.WARN - Warnings
@@ -54,6 +55,59 @@ scaleApp.log = (function( window, undefined ){
 		ERROR:	3,
 		FATAL:	4
 
+	};
+
+	/**
+	 * PrivateFunction: getLogLevel
+	 */
+	var getLogLevel = function(){
+		return currentLogLevel;
+	};
+
+	/**
+	 * PrivateFunction: setLogLevel
+	 *
+	 * Parameters:
+	 * (String) level	- name of the level
+	 */
+	var setLogLevel = function( level ){
+
+		if( typeof level === "string" ){
+
+			switch( level.toLowerCase() ){
+
+				case "debug":
+					currentLogLevel = logLevel.DEBUG;  
+					break;
+
+				case "info":
+					currentLogLevel = logLevel.INFO;  
+					break;
+
+				case "warn":
+					currentLogLevel = logLevel.WARN;  
+					break;
+
+				case "error":
+					currentLogLevel = logLevel.ERROR;  
+					break;
+
+				case "fatal":
+					currentLogLevel = logLevel.FATAL;  
+					break;
+
+				default:
+					currentLogLevel = logLevel.INFO;  
+					break;                    
+				}
+			}else if( typeof level === "number" ){
+
+				if( level >= logLevel.DEBUG && level <= logLevel.FATAL ){
+					currentLogLevel = level;                       
+				}else{
+					currentLogLevel = logLevel.INFO;                       
+				}
+			}
 	};
 
 	/**
@@ -116,11 +170,14 @@ scaleApp.log = (function( window, undefined ){
 	// public API
 	return ({
 
-		debug: debug,
-		info: info,
-		warn: warn,
-		error: error,
-		fatal: fatal
+		'debug': debug,
+		'info': info,
+		'warn': warn,
+		'error': error,
+		'fatal': fatal,
+
+		'setLogLevel': setLogLevel,
+		'getLogLevel': getLogLevel
 
 	});
 
