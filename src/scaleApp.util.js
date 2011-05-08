@@ -19,13 +19,33 @@ scaleApp['util'] = scaleApp.util || (function( window, undefined ){
 	*/
 	var mixin = function( receivingClass, givingClass ){
 
-		if( typeof givingClass === "function" ){
-			if( typeof receivingClass === "function" ){
-				$.extend( true, receivingClass.prototype, givingClass.prototype );
-			} else if ( typeof receivingClass === "object" ){
-				$.extend( true, receivingClass, givingClass.prototype );
-			}
+		var mix = function( giv, rec ){
+
+				var empty = {};
+
+				$.extend( empty, giv, rec );
+				$.extend( rec, empty );
+		};
+
+		switch( typeof givingClass + "-" + typeof receivingClass ){
+			
+			case "function-function":
+				mix( givingClass.prototype, receivingClass.prototype );
+				break;
+
+			case "function-object":
+				mix( givingClass.prototype, receivingClass );
+				break;
+				
+			case "object-object":
+				mix( givingClass, receivingClass );
+				break;
+
+			case "object-function":
+				mix( givingClass, receivingClass.prototype );
+				break;
 		}
+
 	};
 
 	/**
@@ -34,8 +54,10 @@ scaleApp['util'] = scaleApp.util || (function( window, undefined ){
 	*/
 	var countObjectKeys = function( obj ){
 		var count = 0;
-		for( var i in obj ){
-			count++;
+		if( typeof obj === "object" ){
+			for( var i in obj ){
+				count++;
+			}                            
 		}
 		return count;
 	};
