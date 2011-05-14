@@ -16,7 +16,7 @@
  * (String) instanceId
  * (Object) opt
  */
-scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
+window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( window, core, undefined ){
 
     return function( instanceId, opt ){
 
@@ -28,7 +28,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Function) callback
       */
     var subscribe = function( topic, callback ){
-      core.subscribe( instanceId, topic, callback );
+      core['subscribe']( instanceId, topic, callback );
     };
 
     /**
@@ -38,7 +38,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) topic
       */
     var unsubscribe = function( topic ){
-      core.unsubscribe( instanceId, topic );
+      core['unsubscribe']( instanceId, topic );
     };
 
     /**
@@ -49,7 +49,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Object) data
       */
     var publish = function( topic, data ){
-      core.publish( topic, data );
+      core['publish']( topic, data );
     };
 
     var log = {
@@ -61,7 +61,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) msg
       */
       debug: function( msg ){
-				core.log.debug( msg, instanceId );
+				core['log']['debug']( msg, instanceId );
       },
 
       /**
@@ -71,7 +71,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) msg
       */
       info: function( msg ){
-				core.log.info( msg, instanceId );
+				core['log']['info']( msg, instanceId );
       },
 
       /**
@@ -81,7 +81,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) msg
       */
       warn: function( msg ){
-				core.log.warn( msg, instanceId );
+				core['log']['warn']( msg, instanceId );
       },
 
       /**
@@ -91,7 +91,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) msg
       */
       error: function( msg ){
-				core.log.error( msg, instanceId );
+				core['log']['error']( msg, instanceId );
       },
 
       /**
@@ -101,7 +101,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) msg
       */
       fatal: function( msg ){
-				core.log.fatal( msg, instanceId );
+				core['log']['fatal']( msg, instanceId );
       }
     };
 
@@ -114,7 +114,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Object) opt
       */
     var startSubModule = function( moduleId, subInstanceId, opt ){
-      core.startSubModule( moduleId, subInstanceId, opt, instanceId );
+      core['startSubModule']( moduleId, subInstanceId, opt, instanceId );
     };
 
     /**
@@ -124,7 +124,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (String) instanceId
       */
     var stopSubModule = function( instanceId ){
-      core.stop( instanceId );
+      core['stop']( instanceId );
     };
 
     /**
@@ -137,7 +137,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Object) model
       */
     var getModel = function( id ){
-      return core.mvc.getModel( instanceId, id );
+      return core['mvc']['getModel']( instanceId, id );
     };
 
     /**
@@ -150,7 +150,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Object) view
       */
     var getView = function( id ){
-      return core.mvc.getView( instanceId, id );
+      return core['mvc']['getView']( instanceId, id );
     };
 
     /**
@@ -163,21 +163,21 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * (Object) controller
       */
     var getController = function( id ){
-      return core.mvc.getController( instanceId, id );
+      return core['mvc']['getController']( instanceId, id );
     };
 
 
     var addModel = function( id , model ){
-      return core.mvc.addModel( instanceId, id, model );
+      return core['mvc']['addModel']( instanceId, id, model );
     };
 
 
     var addView = function( id, view ){
-      return core.mvc.addView( instanceId, id, view );
+      return core['mvc']['addView']( instanceId, id, view );
     };
 
     var addController = function( id, controller ){
-      return core.mvc.addController( instanceId, id, controller );
+      return core['mvc']['addController']( instanceId, id, controller );
     };
 
     /**
@@ -190,7 +190,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
     * (Object) pre-rendered jQuery template
     */
     var getTemplate = function( id ){
-      return core.template.get( instanceId, id );
+      return core['template']['get']( instanceId, id );
     };
 
     /**
@@ -206,7 +206,7 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       }else if( typeof id === "function" ){
 				return $.tmpl( id, data );
       }else{
-				log.error("type of 'id' is not valid", "sandbox of " + instanceId );
+				log['error']("type of 'id' is not valid", "sandbox of " + instanceId );
       }
     };
 
@@ -220,14 +220,14 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
       * The localized text.
       */
     var _ = function( textId ){
-      return core.i18n._( instanceId, textId );
+      return core['i18n']['_']( instanceId, textId );
     };
 
     /**
     * Function: getContainer
     */
     var getContainer = function(){
-      return core.getContainer( instanceId );
+      return core['getContainer']( instanceId );
     };
 
       /**
@@ -265,44 +265,43 @@ scaleApp.sandbox = scaleApp.sandbox || (function( window, core, undefined ){
 		// public sandbox API
 		return ({
 
-			subscribe: subscribe,
-			unsubscribe: unsubscribe,
-			publish: publish,
+			'subscribe': subscribe,
+			'unsubscribe': unsubscribe,
+			'publish': publish,
 
-			startSubModule: startSubModule,
-			stopSubModule: stopSubModule,
+			'startSubModule': startSubModule,
+			'stopSubModule': stopSubModule,
 
-			getModel: getModel,
-			getView: getView,
-			getController: getController,
+			'getModel': getModel,
+			'getView': getView,
+			'getController': getController,
 
-			addModel: addModel,
-			addView: addView,
-			addController: addController,
+			'addModel': addModel,
+			'addView': addView,
+			'addController': addController,
 
-			observable: core.mvc.observable,
+			'observable': core['mvc']['observable'],
 
-			getTemplate: getTemplate,
-			tmpl: tmpl,
+			'getTemplate': getTemplate,
+			'tmpl': tmpl,
 
-			getContainer: getContainer,
+			'getContainer': getContainer,
 
-			debug: log.debug,
-			info: log.info,
-			warn: log.warn,
-			error: log.error,
-			fatal: log.fatal,
+			'debug': log.debug,
+			'info': log.info,
+			'warn': log.warn,
+			'error': log.error,
+			'fatal': log.fatal,
 
-			mixin: core.util.mixin,
-			count: core.util.countObjectKeys,
+			'mixin': core['util']['mixin'],
+			'count': core['util']['countObjectKeys'],
 
-			_:_,
-			getLanguage: core.i18n.getLanguage,
+			'_':_,
+			'getLanguage': core['i18n']['getLanguage'],
 
-			hotkeys: hotkeys
+			'hotkeys': hotkeys
 
 		});
 
 	};
-
-})( window, scaleApp );
+})( window, window['scaleApp'] );

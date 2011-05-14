@@ -12,7 +12,7 @@
  * Class: util
  * A countainer for some helpfull functions
  */
-scaleApp['util'] = scaleApp.util || (function( window, undefined ){
+scaleApp['util'] = scaleApp['util'] || (function( window, undefined ){
 
 	/**
 	* Function: mixin

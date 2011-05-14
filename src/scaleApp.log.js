@@ -19,15 +19,18 @@ scaleApp['log'] = (function( window, undefined ){
 	* Some browsers don't support logging via the console object.
 	* If the console object is not defined, just create a dummy.
 	*/
-	if( !console ){
+	if( !window['console'] ){
 
-		console = {};
-		console.log		= function() { return; };
-		console.debug	= function() { return; };
-		console.info	= function() { return; };
-		console.warn	= function() { return; };
-		console.error	= function() { return; };
-		console.fatal	= function() { return; };
+		window['console'] = {
+
+			'log'	: function() { return; },
+			'debug'	: function() { return; },
+			'info'	: function() { return; },
+			'warn'	: function() { return; },
+			'error'	: function() { return; },
+			'fatal'	: function() { return; }
+
+		};
 	}
 
 	/**
@@ -77,35 +80,35 @@ scaleApp['log'] = (function( window, undefined ){
 			switch( level.toLowerCase() ){
 
 				case "debug":
-					currentLogLevel = logLevel.DEBUG;  
+					currentLogLevel = logLevel.DEBUG;
 					break;
 
 				case "info":
-					currentLogLevel = logLevel.INFO;  
+					currentLogLevel = logLevel.INFO;
 					break;
 
 				case "warn":
-					currentLogLevel = logLevel.WARN;  
+					currentLogLevel = logLevel.WARN;
 					break;
 
 				case "error":
-					currentLogLevel = logLevel.ERROR;  
+					currentLogLevel = logLevel.ERROR;
 					break;
 
 				case "fatal":
-					currentLogLevel = logLevel.FATAL;  
+					currentLogLevel = logLevel.FATAL;
 					break;
 
 				default:
-					currentLogLevel = logLevel.INFO;  
-					break;                    
+					currentLogLevel = logLevel.INFO;
+					break;
 				}
 			}else if( typeof level === "number" ){
 
 				if( level >= logLevel.DEBUG && level <= logLevel.FATAL ){
-					currentLogLevel = level;                       
+					currentLogLevel = level;
 				}else{
-					currentLogLevel = logLevel.INFO;                       
+					currentLogLevel = logLevel.INFO;
 				}
 			}
 	};
@@ -135,27 +138,27 @@ scaleApp['log'] = (function( window, undefined ){
 		switch( level ){
 
 			case logLevel.DEBUG:
-				if( currentLogLevel <= logLevel.DEBUG ){  console.debug( msg ); }
+				if( currentLogLevel <= logLevel.DEBUG ){  console['debug']( msg ); }
 				break;
 
 			case logLevel.INFO:
-				if( currentLogLevel <= logLevel.INFO ){  console.info( msg ); }
+				if( currentLogLevel <= logLevel.INFO ){  console['info']( msg ); }
 				break;
 
 			case logLevel.WARN:
-				if( currentLogLevel <= logLevel.WARN ) {  console.warn( msg ); }
+				if( currentLogLevel <= logLevel.WARN ) {  console['warn']( msg ); }
 				break;
 
 			case logLevel.ERROR:
-				if( currentLogLevel <= logLevel.ERROR ) {  console.error( msg ); }
+				if( currentLogLevel <= logLevel.ERROR ) {  console['error']( msg ); }
 				break;
 
 			case logLevel.FATAL:
-				if( currentLogLevel <= logLevel.FATAL ) {  console.error( msg ); }
+				if( currentLogLevel <= logLevel.FATAL ) {  console['error']( msg ); }
 				break;
 
 			default:
-				console.log( msg );
+				console['log']( msg );
 				break;
 		}
 	};

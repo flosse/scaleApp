@@ -52,7 +52,7 @@ window['scaleApp']['i18n'] = window['scaleApp']['i18n'] || (function( window, co
 	var setLanguage = function( languageCode ){
 		if( typeof languageCode === "string" ){
 			lang = languageCode;
-			core.publish( "languageChanged", languageCode );
+			core['publish']( "languageChanged", languageCode );
 			return true;
 		}
 		return false;
@@ -69,11 +69,11 @@ window['scaleApp']['i18n'] = window['scaleApp']['i18n'] || (function( window, co
 	 * (String) the localized string.
 	 */
 	var _ = function( instanceId, textId ){
-		var inst = core.getInstance( instanceId );
+		var inst = core['getInstance']( instanceId );
 
-		if( inst.opt ){
-			if( inst.opt.i18n ){
-				return inst.opt.i18n[ lang ][ textId ];
+		if( inst['opt'] ){
+			if( inst['opt']['i18n'] ){
+				return inst['opt']['i18n'][ lang ][ textId ];
 			}
 		}
 		return "";

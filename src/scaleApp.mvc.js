@@ -12,40 +12,40 @@
 /**
  * Class: scaleApp.mvc
  */
-scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
+window['scaleApp']['mvc'] = window['scaleApp']['mvc'] || (function( window, core, undefined ){
     
   /**
    * Class: observable
    */
   var observable = function(){};
   
-  observable.prototype = {
+  observable['prototype'] = {
             
-    subscribe : function( s ){
+    'subscribe' : function( s ){
       if( !this._subscribers ){
-	this._subscribers = [];
+				this._subscribers = [];
       }
       this._subscribers.push( s );
     },
     
-    unsubscribe : function( observer ){
+    'unsubscribe' : function( observer ){
 
       if( this._subscribers ){
-	_this.subscribers = this._subscribers.filter(
-	  function( el ){
-	    if( el !== observer ){ return el; }
-	  }
-	);
+				this._subscribers = this._subscribers.filter(
+					function( el ){
+						if( el !== observer ){ return el; }
+					}
+				);
       }
     },
     
-    notify : function(){      
+    'notify' : function(){      
       if( this._subscribers ){	
-	for( var i in this._subscribers ){
-	  if( typeof this._subscribers[i].update === "function" ){
-	    this._subscribers[i].update();
-	  }
-	}
+				$.each( this._subscribers, function( i, subscriber ){
+					if( typeof subscriber['update'] === "function" ){
+						subscriber['update']();
+					}
+				});
       }      
     }      
   };  
@@ -60,12 +60,19 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
   var controllers = { };
   
   // register function that gets called after an instance was created
-  core.onInstantiate( function( instanceId, opt ){
+  core['onInstantiate']( function( instanceId, opt ){
+
+    core['log']['debug']("adding opts");
+    core['log']['debug']( opt );
+
+    if( opt['models'] ){ mixinDefaultModel( opt['models'] ); addObjects( models, instanceId, opt['models']  ); }
+    if( opt['views'] ){ 		addObjects( views, instanceId, opt['views'] );		}
+    if( opt['controllers'] ){	addObjects( controllers, instanceId, opt['controllers'] );	}    
     
-    if( opt.models ){ mixinDefaultModel( opt.models ); addObjects( models, instanceId, opt.models  ); }
-    if( opt.views ){ 		addObjects( views, instanceId, opt.views );		}
-    if( opt.controllers ){	addObjects( controllers, instanceId, opt.controllers );	}    
-    
+    core['log']['debug']("added ops");
+    core['log']['debug']( models );
+    core['log']['debug']( views );
+    core['log']['debug']( controllers );
   });
     
   /**
@@ -77,12 +84,12 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     
     if( typeof objects === "object" ){
     
-      for( var i in objects ){
+      $.each( objects, function( i, obj ){
 	      
-	if( objects[i] ){  
-	  core.util.mixin( objects[i], observable );
-	}
-      }          
+				if( obj ){          
+					core['util']['mixin']( obj, observable );
+				}
+			});          
     }
   };
   
@@ -98,12 +105,12 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     
     if( typeof objects === "object" ){
     
-      for( var i in objects ){
+      $.each( objects, function( i, obj ){
 	      
-	if( objects[i] ){  
-	  add( container, instanceId, i, objects[i] );
-	}
-      }          
+				if( obj ){  
+					add( container, instanceId, i, obj );
+				}
+			});          
     }
   };
   
@@ -138,11 +145,11 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     if( o ){
       
       // if no id was specified and only one object exist => return it
-      if( !id && $(o).length == 1 ){
-	for( var one in o ) break;
-	return o[ one ];
-      }            
-      return o[ id ];
+      if( !id && core['util']['countObjectKeys'](o) == 1 ){
+				for( var one in o ) break;
+					return o[ one ];
+			}            
+			return o[ id ];
     }
   };
   
@@ -225,18 +232,18 @@ scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     return get( controllers, instanceId, id );     
   };
     
-  return {
+  return ({
     
-    addModel: addModel,
-    addView: addView,
-    addController: addController,
+    'addModel': addModel,
+    'addView': addView,
+    'addController': addController,
     
-    getModel: getModel,
-    getView: getView,
-    getController: getController,
+    'getModel': getModel,
+    'getView': getView,
+    'getController': getController,
     
-    observable: observable
+    'observable': observable
     
-  };
-  
-})( window, scaleApp );
+	});
+
+})( window, window['scaleApp'] );

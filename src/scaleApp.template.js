@@ -11,7 +11,7 @@
 /**
  * Class: scaleApp.template
  */
-scaleApp.template = scaleApp.template || (function( window, core, undefined ){
+window['scaleApp']['template'] = window['scaleApp']['template'] || (function( window, core, undefined ){
 
   // container for templates
   var templates = { };
@@ -29,8 +29,8 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
     if( typeof path === "string" ){
  
       $.get( path )
-	.done( function( html ){ dfd.resolve( $('<script type="text/x-jquery-tmpl">'+ html + '</script>').template() ); })
-	.fail( function(){ dfd.reject("Could not load the template"); });
+				.done( function( html ){ dfd.resolve( $('<script type="text/x-jquery-tmpl">'+ html + '</script>').template() ); })
+				.fail( function(){ dfd.reject("Could not load the template"); });
 
     }else{
       dfd.reject("function argument has to be a string");
@@ -70,8 +70,8 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
     if( t ){
 
       if( !id && $(t).length == 1 ){
-	for( var one in t ) break;
-	return t[ one ];
+				for( var one in t ){ break; }
+				return t[ one ];
       }
 
       return t[ id ];
@@ -83,12 +83,12 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
    */
   var add = function( instanceId, id, tmpl ){
     if( typeof instanceId === "string" &&
-	typeof id === "string" &&
-	typeof tmpl === "function" ){
-	  if( !templates[ instanceId ] ){ templates[ instanceId ] = {}; }
-	  templates[ instanceId ][ id ] = tmpl;
+				typeof id === "string" &&
+				typeof tmpl === "function" ){
+			if( !templates[ instanceId ] ){ templates[ instanceId ] = {}; }
+					templates[ instanceId ][ id ] = tmpl;
     }else{
-      core.log.error("could not add template: invalid parameters", "template");
+      core['log']['error']("could not add template: invalid parameters", "template");
     }
   };
 
@@ -99,16 +99,16 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
     if( typeof instanceId === "string" && typeof obj === "object" ){
       templates[ instanceId ] = obj;
     }else{
-      core.log.error("could not set templates: invalid parameters", "template");
+      core['log']['error']("could not set templates: invalid parameters", "template");
     }
   };
 
   // publich API
   return ({
-    load: load,
-    loadMultiple: loadMultiple,
-    get: get,
-    add: add,
-    set: set
+    'load': load,
+    'loadMultiple': loadMultiple,
+    'get': get,
+    'add': add,
+    'set': set
   });
-})( window, scaleApp );
+})( window, window['scaleApp'] );

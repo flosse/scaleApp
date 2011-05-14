@@ -12,33 +12,33 @@
  * Class: core
  * The core holds and manages all data that is used globally.
  */
-var scaleApp = (function( window, undefined ){
+window[ 'scaleApp' ] = (function( window, undefined ){
 
-	// container for public API and reference to this
-	var that = { };
+	// reference to the core object itself
+	var that = this;
 
-	// Container for all registered modules
+	// container for all registered modules
 	var modules = { };
 
-	// Container for all module instances
+	// container for all module instances
 	var instances = { };
 
-	// Container for lists of submodules
+	// container for lists of submodules
 	var subInstances = { };
 
-	// Container for all templates
+	// container for all templates
 	var templates = { };
 
-	// Container for all functions that gets called when an instance gets created
+	// container for all functions that gets called when an instance gets created
 	var onInstantiateFunctions = [];
 
-	// define dummy obj
-	that.log = {
-		debug: function( msg ){ return; },
-		info:  function( msg ){ return; },
-		warn:  function( msg ){ return; },
-		error: function( msg ){ return; },
-		fatal: function( msg ){ return; }
+	// as long the log object is not overridden do nothing
+	var log = {
+		'debug': function(){ return; },
+		'info':  function(){ return; },
+		'warn':  function(){ return; },
+		'error': function(){ return; },
+		'fatal': function(){ return; }
 	};
 
 	/**
@@ -51,7 +51,7 @@ var scaleApp = (function( window, undefined ){
 		if( typeof fn === "function" ){
 			onInstantiateFunctions.push( fn );
 		}else{
-			that.log.error("onInstantiate expect a function as parameter", "core" );
+			that["log"]["error"]( "onInstantiate expect a function as parameter", "core" );
 		}
 	};
 
@@ -84,31 +84,31 @@ var scaleApp = (function( window, undefined ){
 			// Merge default options and instance options,
 			// without modifying the defaults.
 			var instanceOpts = { };
-			$.extend( true, instanceOpts, mod.opt, opt );
+			$.extend( true, instanceOpts, mod['opt'], opt );
 
-			var sb = new that.sandbox( instanceId, instanceOpts );
+			var sb = new that['sandbox']( instanceId, instanceOpts );
 
-			instance = mod.creator( sb );
+			instance = mod['creator']( sb );
 
 			// store opt
-			instance.opt = instanceOpts;
+			instance['opt'] = instanceOpts;
 
-			for( var i in onInstantiateFunctions ){
-				onInstantiateFunctions[i]( instanceId, instanceOpts, sb );
-			}
+			$.each( onInstantiateFunctions, function( i, fn ){
+				fn( instanceId, instanceOpts, sb );
+			});
 
-			if( instanceOpts.templates && that.template ){
+			if( instanceOpts['templates'] && that['template'] ){
 
-				that.template.loadMultiple( instanceOpts.templates )
+				that['template']['loadMultiple']( instanceOpts['templates'] )
 					.done( function( res ){
-							that.template.set( instanceId, res );
+							that['template']['set']( instanceId, res );
 							callSuccess(); })
 					.fail( function( err ){ callError( err ); })
-					.then( function(){ delete instanceOpts.templates; });
+					.then( function(){ delete instanceOpts['templates']; });
 
 			} else { callSuccess(); }
 		} else {
-			 that.log.error( "could not start module '" + moduleId + "' - module does not exist.", "core" );
+			 that["log"]["error"]( "could not start module '" + moduleId + "' - module does not exist.", "core" );
 		}
 	};
 
@@ -124,12 +124,22 @@ var scaleApp = (function( window, undefined ){
 	 */
 	var checkOptionObject = function( opt ){
 
-		var errString = "could not register module";
-
 		if( typeof opt !== "object" ){
-			that.log.error( errString + " - option has to be an object", "core" );
+			that["log"]["error"]( "could not register module - option has to be an object", "core" );
 			return false;
 		}
+		if( opt['views'] ){
+		 if( typeof opt['views'] !== "object" ){ return false }
+	  }
+			
+		if( opt['models'] ){
+		 if( typeof opt['models'] !== "object" ){ return false }
+	  }
+
+		if( opt['templates'] ){
+		 if( typeof opt['templates'] !== "object" ){ return false }
+	  }
+
 		return true;
 	};
 
@@ -149,20 +159,20 @@ var scaleApp = (function( window, undefined ){
 		var errString = "could not register module";
 
 		if( typeof moduleId !== "string" ){
-			that.log.error( errString + "- mouduleId has to be a string", "core" );
+			that["log"]["error"]( errString + "- mouduleId has to be a string", "core" );
 			return false;
 		}
 		if( typeof creator !== "function" ){
-			that.log.error( errString + " - creator has to be a constructor function", "core" );
+			that["log"]["error"]( errString + " - creator has to be a constructor function", "core" );
 			return false;
 		}
 
 		var modObj = creator();
 
-		if( typeof modObj			!== "object"   ||
-				typeof modObj.init	!== "function" ||
-				typeof modObj.destroy	!== "function" ){
-			that.log.error( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
+		if( typeof modObj							!== "object"   ||
+				typeof modObj['init']			!== "function" ||
+				typeof modObj['destroy']	!== "function" ){
+			that["log"]["error"]( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
 			return false;
 		}
 
@@ -192,8 +202,8 @@ var scaleApp = (function( window, undefined ){
 		if( !opt ){ opt = {}; }
 
 		modules[ moduleId ] = {
-			creator: creator,
-			opt: opt
+			'creator': creator,
+			'opt': opt
 		};
 
 		return true;
@@ -244,9 +254,9 @@ var scaleApp = (function( window, undefined ){
 				instanceId = moduleId;
 				opt = {};
 			}
-			return { moduleId: moduleId, instanceId: instanceId, opt: opt };
+			return { 'moduleId': moduleId, 'instanceId': instanceId, 'opt': opt };
 		}
-		that.log.error( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
+		that["log"]["error"]( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
 		return;
 	};
 
@@ -264,16 +274,16 @@ var scaleApp = (function( window, undefined ){
 		var p = getSuitedParamaters( moduleId, instanceId, opt );
 		if( p ){
 
-			that.log.debug( "start '" + p.moduleId + "'", "core" );
+			that["log"]["debug"]( "start '" + p['moduleId'] + "'", "core" );
 
 			var onSuccess = function( instance ){
-				instances[ p.instanceId ] = instance;
-				instance.init();
+				instances[ p['instanceId'] ] = instance;
+				instance['init']();
 				if( typeof callback === "function" ){
 					callback();
 				}
 			};
-			createInstance( p.moduleId, p.instanceId, p.opt, onSuccess );
+			createInstance( p['moduleId'], p['instanceId'], p['opt'], onSuccess );
 			return true;
 		}
 		return false;
@@ -291,13 +301,13 @@ var scaleApp = (function( window, undefined ){
 	var startSubModule = function( moduleId, instanceId, opt, parentInstanceId ){
 
 		var p = getSuitedParamaters( moduleId, instanceId, opt );
-		if( start( p.moduleId, p.instanceId, p.opt ) && typeof parentInstanceId === "string" ){
+		if( start( p['moduleId'], p['instanceId'], p['opt'] ) && typeof parentInstanceId === "string" ){
 
 			var sub = subInstances[ parentInstanceId ];
 			if( !sub ){
 				sub = [ ];
 			}
-			sub.push( p.instanceId );
+			sub.push( p['instanceId'] );
 		}
 	};
 
@@ -312,14 +322,14 @@ var scaleApp = (function( window, undefined ){
 		var instance = instances[ instanceId ];
 
 		if( instance ){
-			instance.destroy();
+			instance['destroy']();
 			delete instances[ instanceId ];
 
-			$.map( subInstances[ instanceId ], function( instance ){
+			$.each( subInstances[ instanceId ], function( i, instance ){
 				if( instance){ stop( instance ); }
 			});
 		}else{
-			that.log.error( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
+			that['log']['error']( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
 			return false;
 		}
 	};
@@ -334,7 +344,7 @@ var scaleApp = (function( window, undefined ){
 		var callback = function(){};
 
 		if( typeof fn === "function" ){
-			var count = that.util.countObjectKeys( modules );
+			var count = that['util']['countObjectKeys']( modules );
 			callback = function(){
 				count --;
 				if( count === 0 ){
@@ -342,8 +352,8 @@ var scaleApp = (function( window, undefined ){
 				}
 			};
 		}
-		$.map( modules, function( module, id ){
-			if( module ){ start( id, id, module.opt, callback ); }
+		$.each( modules, function( id, module ){
+			if( module ){ start( id, id, module['opt'], callback ); }
 		});
 	};
 
@@ -352,7 +362,7 @@ var scaleApp = (function( window, undefined ){
 	 * Function: stopAll
 	 * Stops all available instances.
 	 */
-	var stopAll = $.map( instances, function( inst, id ){ stop( id ); });
+	var stopAll = function(){ $.each( instances, function( id, inst ){ stop( id ); }); };
 
 	/**
 	 * PrivateFunction: publish
@@ -363,14 +373,14 @@ var scaleApp = (function( window, undefined ){
 	 */
 	var publish = function( topic, data ){
 
-		$.map( instances, function( instance ){
+		$.each( instances, function( i, instance ){
 
-			if( instance.subscriptions ){
+			if( instance['subscriptions'] ){
 
-				var handlers = instance.subscriptions[ topic ];
+				var handlers = instance['subscriptions'][ topic ];
 
 				if( handlers ){
-					$.map( handlers, function( h ){
+					$.each( handlers, function( i, h ){
 						if( typeof h === "function" ){ h( data, topic ); }
 					});
 				}
@@ -387,14 +397,14 @@ var scaleApp = (function( window, undefined ){
 	 */
 	var subscribe = function( instanceId, topic, handler ){
 
-		that.log.debug( "subscribe to '" + topic + "'", instanceId );
+		that["log"]["debug"]( "subscribe to '" + topic + "'", instanceId );
 
 		var instance = instances[ instanceId ];
 
-		if( !instance.subscriptions ){
-			instance.subscriptions = { };
+		if( !instance['subscriptions'] ){
+			instance['subscriptions'] = { };
 		}
-		var subs = instance.subscriptions;
+		var subs = instance['subscriptions'];
 
 		if( !subs[ topic ] ){
 			subs[ topic ] = [];
@@ -411,7 +421,7 @@ var scaleApp = (function( window, undefined ){
 	 */
 	var unsubscribe = function( instanceId, topic ){
 
-		var subs = instances[ instanceId ].subscriptions;
+		var subs = instances[ instanceId ]['subscriptions'];
 		if( subs ){
 			if( subs[ topic ] ){
 				delete subs[ topic ];
@@ -437,36 +447,38 @@ var scaleApp = (function( window, undefined ){
 	 */
 	var getContainer = function( instanceId ){
 
-		var o = instances[ instanceId ].opt;
+		var o = instances[ instanceId ]['opt'];
 
 		if( o ){
-			if( typeof o.container === "string" ){
-				return $( "#" + o.container );
+			if( typeof o['container'] === "string" ){
+				return $( "#" + o['container'] );
 			}
 		}
 		return $( "#" + instanceId );
 	};
 
 	// public core API
-	that = {
+	that = ({
 
-		register: register,
-		onInstantiate:onInstantiate,
+		'register': register,
+		'onInstantiate':onInstantiate,
 
-		start: start,
-		startSubModule: startSubModule,
-		stop: stop,
-		startAll: startAll,
-		stopAll: stopAll,
+		'start': start,
+		'startSubModule': startSubModule,
+		'stop': stop,
+		'startAll': startAll,
+		'stopAll': stopAll,
 
-		publish: publish,
-		subscribe: subscribe,
+		'publish': publish,
+		'subscribe': subscribe,
 
-		getContainer: getContainer,
+		'getContainer': getContainer,
 
-		getInstance: getInstance
+		'getInstance': getInstance,
 
-	};
+		'log': log
+
+	});
 
 	return that;
 
