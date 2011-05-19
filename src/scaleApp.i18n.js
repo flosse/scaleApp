@@ -12,7 +12,7 @@
 /**
  * Class: scaleApp.i18n
  */
-window['scaleApp']['i18n'] = window['scaleApp']['i18n'] || (function( window, core, undefined ){
+scaleApp['i18n'] = (function( window, core, undefined ){
 
 	/**
 	 * Function: getBrowserLanguage

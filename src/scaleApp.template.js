@@ -11,7 +11,7 @@
 /**
  * Class: scaleApp.template
  */
-window['scaleApp']['template'] = window['scaleApp']['template'] || (function( window, core, undefined ){
+scaleApp.template = scaleApp.template || (function( window, core, undefined ){
 
   // container for templates
   var templates = { };

@@ -137,7 +137,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (Object) model
       */
     var getModel = function( id ){
-      return core['mvc']['getModel']( instanceId, id );
+      return core.mvc['getModel']( instanceId, id );
     };
 
     /**
@@ -150,7 +150,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (Object) view
       */
     var getView = function( id ){
-      return core['mvc']['getView']( instanceId, id );
+      return core.mvc['getView']( instanceId, id );
     };
 
     /**
@@ -163,21 +163,21 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (Object) controller
       */
     var getController = function( id ){
-      return core['mvc']['getController']( instanceId, id );
+      return core.mvc['getController']( instanceId, id );
     };
 
 
     var addModel = function( id , model ){
-      return core['mvc']['addModel']( instanceId, id, model );
+      return core.mvc['addModel']( instanceId, id, model );
     };
 
 
     var addView = function( id, view ){
-      return core['mvc']['addView']( instanceId, id, view );
+      return core.mvc['addView']( instanceId, id, view );
     };
 
     var addController = function( id, controller ){
-      return core['mvc']['addController']( instanceId, id, controller );
+      return core.mvc['addController']( instanceId, id, controller );
     };
 
     /**
@@ -190,7 +190,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
     * (Object) pre-rendered jQuery template
     */
     var getTemplate = function( id ){
-      return core['template']['get']( instanceId, id );
+      return core.template['get']( instanceId, id );
     };
 
     /**
@@ -280,7 +280,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
 			'addView': addView,
 			'addController': addController,
 
-			'observable': core['mvc']['observable'],
+			'observable': core.mvc['observable'],
 
 			'getTemplate': getTemplate,
 			'tmpl': tmpl,

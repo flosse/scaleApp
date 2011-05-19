@@ -12,7 +12,7 @@
 /**
  * Class: scaleApp.mvc
  */
-window['scaleApp']['mvc'] = window['scaleApp']['mvc'] || (function( window, core, undefined ){
+scaleApp.mvc = scaleApp.mvc || (function( window, core, undefined ){
     
   /**
    * Class: observable
@@ -62,17 +62,10 @@ window['scaleApp']['mvc'] = window['scaleApp']['mvc'] || (function( window, core
   // register function that gets called after an instance was created
   core['onInstantiate']( function( instanceId, opt ){
 
-    core['log']['debug']("adding opts");
-    core['log']['debug']( opt );
-
     if( opt['models'] ){ mixinDefaultModel( opt['models'] ); addObjects( models, instanceId, opt['models']  ); }
     if( opt['views'] ){ 		addObjects( views, instanceId, opt['views'] );		}
     if( opt['controllers'] ){	addObjects( controllers, instanceId, opt['controllers'] );	}    
     
-    core['log']['debug']("added ops");
-    core['log']['debug']( models );
-    core['log']['debug']( views );
-    core['log']['debug']( controllers );
   });
     
   /**

@@ -131,7 +131,7 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 		if( opt['views'] ){
 		 if( typeof opt['views'] !== "object" ){ return false }
 	  }
-			
+
 		if( opt['models'] ){
 		 if( typeof opt['models'] !== "object" ){ return false }
 	  }
@@ -370,8 +370,9 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 	 * Parameters:
 	 * (String) topic
 	 * (Object) data
+	 * (Boolean) publishReference
 	 */
-	var publish = function( topic, data ){
+	var publish = function( topic, data, publishReference ){
 
 		$.each( instances, function( i, instance ){
 
@@ -381,7 +382,15 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
 				if( handlers ){
 					$.each( handlers, function( i, h ){
-						if( typeof h === "function" ){ h( data, topic ); }
+						if( typeof h === "function" ){
+							if( typeof data === "object" && publishReference !== true ){
+								var copy = {};
+								$.extend( true, copy, data );
+								h( copy, topic );
+							}else {
+								h( data, topic );
+							}
+						}
 					});
 				}
 			}
