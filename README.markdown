@@ -2,11 +2,11 @@
 scaleApp is a tiny JavaScript framework for scalable One-Page-Applications. 
 The framework allows you to easily create complex web applications.
 
-With scaleApp you are able to write modules that concentrate on their own business. 
+With scaleApp you are able to write modules that focus on their own business. 
 They can act independently from each other and communicate through a central event system.
 Each module has its own sandbox where it can play in. Thus as developer you only need to know the API of the sandbox.
 
-By splitting your complex application into separate parts using loose coupling, 
+By splitting your complex application into separate parts by loose coupling, 
 it is comfortable to maintain and scale.
 
 If you like the following features, scaleApp might be the right choice for you:
@@ -61,8 +61,8 @@ Now you can register your modules:
 	    };
       });
 
-As you can see the module is a function that takes the sandbox as an parameter 
-and returns an object that has the two functions 'init' and 'destroy'. 
+As you can see the module is a function that takes the sandbox as a parameter 
+and returns an object that has two functions 'init' and 'destroy'. 
 The 'init' function is called by the framework when the module is supposed to start.
 The 'destroy' function is called when the module has to shut down.
 
@@ -72,12 +72,12 @@ After your modules are registered, start your modules:
     scaleApp.start( "AnOtherModule" );
     ...
 
-You may also want to start several instances of your module:
+You may also want to start several instances of your module at once:
 
     scaleApp.start( "myModuleId", "myInstanceId" );
     scaleApp.start( "myModuleId", "anOtherInstanceId" );
 
-If all your modules just needs to be instanciated once, you can simply start them all with:
+If all your modules just needs to be instanciated once, you can simply starting them all with:
 
     scaleApp.startAll();
 
@@ -124,11 +124,11 @@ You can get your models and views with the sandbox method 'getModel' and 'getVie
 	  }
     });
 
-If you want to use the observer pattern, you can extend your model easily with a simple implementation:
+If you want to make use of the observer pattern, you can extend your model easily with a simple implementation:
 
     sb.mixin( myModel, sb.observable );
 
-Now the methods 'subscribe', 'unsubscribe' and 'notify' can be used. 
+Now the methods 'subscribe', 'unsubscribe' and 'notify' are available to you. 
 Your observer has to implement the update method to be notified on change.
 
 If you defined a model on registration, your model is already extended, so you can do something like this:
@@ -151,7 +151,7 @@ If you defined a model on registration, your model is already extended, so you c
 
 ### Publish/Subscribe
 
-If the module needs to communicate with an other one, you can use the 'publish' and 'subscribe' commands.
+If the module needs to communicate with others, you can use the 'publish' and 'subscribe' methods.
 
     var eventHandlerOne = function( topic, data ){ ... };
     ...
@@ -176,7 +176,7 @@ If the module needs to communicate with an other one, you can use the 'publish' 
 
 ### i18n
 
-If your application should be support several languages, you can pass an objects containing the localized strings 
+If your application has to support multiple languages, you can pass an objects containing the localized strings 
 with the options object.
 
     var myLocalization =
@@ -188,7 +188,7 @@ with the options object.
     ...
     scaleApp.register( "moduleId", myModule, { i18n: myLocalization } );
 
-Now you can access that stings easily trough the sandbox with the '_' method. 
+Now you can access these strings easily trough the sandbox using the '_' method. 
 Depending on which language is set globally it returns the corresponding localized string.
 
     sb._("myStringId" );
@@ -210,7 +210,7 @@ If you want to trigger an event by hotkeys, you can simply do it in that way:
 
 ### templating
 
-Create a usual HTML-File with your placeholders an place it somewhere on your server.
+Create a HTML-File with placeholders on your server.
 
     <div>
       ...
@@ -218,7 +218,7 @@ Create a usual HTML-File with your placeholders an place it somewhere on your se
       ...
     </div>
 
-Point to your template when you register your module.
+Link to your template when you register your module.
 
     scaleApp.register( "moduleId", myModule,
     {
@@ -228,7 +228,7 @@ Point to your template when you register your module.
       i18n: myi18n 
     }); 
 
-Afterwards you can use it in your module like this:
+Once registered, you can use it in your module like this:
 
     var init = function(){
       ...
