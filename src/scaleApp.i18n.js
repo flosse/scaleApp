@@ -73,10 +73,10 @@ scaleApp['i18n'] = (function( window, core, undefined ){
 
 		if( inst['opt'] ){
 			if( inst['opt']['i18n'] ){
-				return inst['opt']['i18n'][ lang ][ textId ];
+        return inst['opt']['i18n'][ lang ][ textId ] || textId;
 			}
 		}
-		return "";
+    return textId;
 	};
 
 	return ({
