@@ -112,9 +112,10 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) moduleId
       * (String) subInstanceId
       * (Object) opt
+      * (Function) fn
       */
-    var startSubModule = function( moduleId, subInstanceId, opt ){
-      core['startSubModule']( moduleId, subInstanceId, opt, instanceId );
+    var startSubModule = function( moduleId, subInstanceId, opt, fn ){
+      core['startSubModule']( moduleId, subInstanceId, opt, instanceId, fn );
     };
 
     /**
