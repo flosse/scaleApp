@@ -129,15 +129,15 @@ window[ 'scaleApp' ] = (function( window, undefined ){
       return false;
     }
     if( opt['views'] ){
-     if( typeof opt['views'] !== "object" ){ return false }
+      if( typeof opt['views'] !== "object" ){ return false; }
     }
 
     if( opt['models'] ){
-     if( typeof opt['models'] !== "object" ){ return false }
+      if( typeof opt['models'] !== "object" ){ return false; }
     }
 
     if( opt['templates'] ){
-     if( typeof opt['templates'] !== "object" ){ return false }
+      if( typeof opt['templates'] !== "object" ){ return false; }
     }
 
     return true;
@@ -258,26 +258,6 @@ window[ 'scaleApp' ] = (function( window, undefined ){
   };
 
   /**
-   * Function: start
-   *
-   * Parameters:
-   * (String) moduleId
-   * (String) instanceId
-   * (Object) opt
-   */
-  var start = function( moduleId, instanceId, opt, callback ){
-
-    if( hasValidStartParameter( moduleId, instanceId, opt ) ){
-
-      return regularStart( moduleId, instanceId, opt, callback );
-
-    }else{
-      that["log"]["error"]( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
-      return false;
-    }
-  };
-
-  /**
    * Function: regularStart
    */
   var regularStart = function( moduleId, instanceId, opt, callback ){
@@ -302,6 +282,27 @@ window[ 'scaleApp' ] = (function( window, undefined ){
   };
 
   /**
+   * Function: start
+   *
+   * Parameters:
+   * (String) moduleId
+   * (String) instanceId
+   * (Object) opt
+   */
+  var start = function( moduleId, instanceId, opt, callback ){
+
+    if( hasValidStartParameter( moduleId, instanceId, opt ) ){
+
+      return regularStart( moduleId, instanceId, opt, callback );
+
+    }else{
+      that["log"]["error"]( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
+      return false;
+    }
+  };
+
+
+  /**
    * Function: startSubModule
    *
    * Parameters:
@@ -309,11 +310,13 @@ window[ 'scaleApp' ] = (function( window, undefined ){
    * (String) parentInstanceId
    * (String) instanceId
    * (Object) opt
+   * (Function) callback
    */
-  var startSubModule = function( moduleId, instanceId, opt, parentInstanceId ){
+  var startSubModule = function( moduleId, instanceId, opt, parentInstanceId, callback ){
 
     var p = getSuitedParamaters( moduleId, instanceId, opt );
-    if( start( p['moduleId'], p['instanceId'], p['opt'] ) && typeof parentInstanceId === "string" ){
+
+    if( start( p['moduleId'], p['instanceId'], p['opt'], callback ) && typeof parentInstanceId === "string" ){
 
       var sub = subInstances[ parentInstanceId ];
       if( !sub ){
@@ -532,4 +535,4 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
   return that;
 
-})( window );
+}( window ));
