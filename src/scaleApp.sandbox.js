@@ -16,9 +16,9 @@
  * (String) instanceId
  * (Object) opt
  */
-window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( window, core, undefined ){
+(function( window, core, undefined ){
 
-    return function( instanceId, opt ){
+ core['sandbox'] = core['sandbox'] || function( instanceId, opt ){
 
     /**
       * Function: subscribe
@@ -61,7 +61,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) msg
       */
       debug: function( msg ){
-				core['log']['debug']( msg, instanceId );
+        core['log']['debug']( msg, instanceId );
       },
 
       /**
@@ -71,7 +71,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) msg
       */
       info: function( msg ){
-				core['log']['info']( msg, instanceId );
+        core['log']['info']( msg, instanceId );
       },
 
       /**
@@ -81,7 +81,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) msg
       */
       warn: function( msg ){
-				core['log']['warn']( msg, instanceId );
+        core['log']['warn']( msg, instanceId );
       },
 
       /**
@@ -91,7 +91,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) msg
       */
       error: function( msg ){
-				core['log']['error']( msg, instanceId );
+        core['log']['error']( msg, instanceId );
       },
 
       /**
@@ -101,7 +101,7 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       * (String) msg
       */
       fatal: function( msg ){
-				core['log']['fatal']( msg, instanceId );
+        core['log']['fatal']( msg, instanceId );
       }
     };
 
@@ -203,11 +203,11 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
     */
     var tmpl = function( id, data ){
       if( typeof id === "string" ){
-				return $.tmpl( getTemplate( id ), data );
+        return $.tmpl( getTemplate( id ), data );
       }else if( typeof id === "function" ){
-				return $.tmpl( id, data );
+        return $.tmpl( id, data );
       }else{
-				log['error']("type of 'id' is not valid", "sandbox of " + instanceId );
+        log['error']("type of 'id' is not valid", "sandbox of " + instanceId );
       }
     };
 
@@ -234,7 +234,8 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       /**
       * Function: hotkeys
       * Binds a function to hotkeys.
-      * If an topic as string and data is used instead of the function the data gets published.
+      * If an topic as string and data is used instead of the function 
+      * the data gets published.
       *
       * Parameters:
       * (String) keys
@@ -243,66 +244,67 @@ window['scaleApp']['sandbox'] = window['scaleApp']['sandbox'] || (function( wind
       */
     var hotkeys = function( keys, handler, type, opt ){
 
-			// if user wants to publish s.th. directly
-			if( typeof handler === "string" ){
+      // if user wants to publish s.th. directly
+      if( typeof handler === "string" ){
 
-				// in this case 'handler' holds the topic, 'type' the data and 'opt' the type.
-				if( !opt ){ opt = "keypress"; }
+        // in this case 'handler' holds the topic, 'type' the data 
+        // and 'opt' the type.
+        if( !opt ){ opt = "keypress"; }
 
-				$(document).bind( opt, keys, function(){
-					publish( handler, type );
-				});
+        $(document).bind( opt, keys, function(){
+          publish( handler, type );
+        });
 
-			}
-			else if( typeof handler === "function" ){
+      }
+      else if( typeof handler === "function" ){
 
-				if( !type ){ type = "keypress"; }
+        if( !type ){ type = "keypress"; }
 
-				$(document).bind( type, keys, handler );
-			}
+        $(document).bind( type, keys, handler );
+      }
 
-		};
+    };
 
-		// public sandbox API
-		return ({
+    // public sandbox API
+    return ({
 
-			'subscribe': subscribe,
-			'unsubscribe': unsubscribe,
-			'publish': publish,
+      'subscribe': subscribe,
+      'unsubscribe': unsubscribe,
+      'publish': publish,
 
-			'startSubModule': startSubModule,
-			'stopSubModule': stopSubModule,
+      'startSubModule': startSubModule,
+      'stopSubModule': stopSubModule,
 
-			'getModel': getModel,
-			'getView': getView,
-			'getController': getController,
+      'getModel': getModel,
+      'getView': getView,
+      'getController': getController,
 
-			'addModel': addModel,
-			'addView': addView,
-			'addController': addController,
+      'addModel': addModel,
+      'addView': addView,
+      'addController': addController,
 
-			'observable': core.mvc['observable'],
+      'observable': core.mvc['observable'],
 
-			'getTemplate': getTemplate,
-			'tmpl': tmpl,
+      'getTemplate': getTemplate,
+      'tmpl': tmpl,
 
-			'getContainer': getContainer,
+      'getContainer': getContainer,
 
-			'debug': log.debug,
-			'info': log.info,
-			'warn': log.warn,
-			'error': log.error,
-			'fatal': log.fatal,
+      'debug': log.debug,
+      'info': log.info,
+      'warn': log.warn,
+      'error': log.error,
+      'fatal': log.fatal,
 
-			'mixin': core['util']['mixin'],
-			'count': core['util']['countObjectKeys'],
+      'mixin': core['util']['mixin'],
+      'count': core['util']['countObjectKeys'],
 
-			'_':_,
-			'getLanguage': core['i18n']['getLanguage'],
+      '_':_,
+      'getLanguage': core['i18n']['getLanguage'],
 
-			'hotkeys': hotkeys
+      'hotkeys': hotkeys
 
-		});
+    });
 
-	};
-})( window, window['scaleApp'] );
+  };
+}( window, window['scaleApp'] ));

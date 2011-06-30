@@ -11,7 +11,7 @@
 /**
  * Class: scaleApp.template
  */
-scaleApp.template = scaleApp.template || (function( window, core, undefined ){
+(function( window, core, undefined ){
 
   // container for templates
   var templates = { };
@@ -29,7 +29,12 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
     if( typeof path === "string" ){
  
       $.get( path )
-				.done( function( html ){ dfd.resolve( $('<script type="text/x-jquery-tmpl">'+ html + '</script>').template() ); })
+				.done( function( html ){ 
+            dfd.resolve( 
+              $('<script type="text/x-jquery-tmpl">' + html + '</script>')
+              .template() 
+            ); 
+          })
 				.fail( function(){ dfd.reject("Could not load the template"); });
 
     }else{
@@ -46,8 +51,10 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
 
     var dfd = $.Deferred();
     var deferreds = [];
-    var templates = {}
-    var onSuccess = function( key ){ return function( data ){ templates[ key ] = data; }; };
+    var templates = {};
+    var onSuccess = function( key ){ 
+      return function( data ){ templates[ key ] = data; }; 
+    };
 
     for( var i in tmpls ){
       deferreds.push( load( tmpls[i] ).done( new onSuccess( i ) ));
@@ -69,7 +76,7 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
 
     if( t ){
 
-      if( !id && $(t).length == 1 ){
+      if( !id && $(t).length === 1 ){
 				for( var one in t ){ break; }
 				return t[ one ];
       }
@@ -104,11 +111,11 @@ scaleApp.template = scaleApp.template || (function( window, core, undefined ){
   };
 
   // publich API
-  return ({
+  core['template'] = core['template'] || ({
     'load': load,
     'loadMultiple': loadMultiple,
     'get': get,
     'add': add,
     'set': set
   });
-})( window, window['scaleApp'] );
+}( window, window['scaleApp'] ));

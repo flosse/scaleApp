@@ -12,7 +12,7 @@
  * Class: core
  * The core holds and manages all data that is used globally.
  */
-window[ 'scaleApp' ] = (function( window, undefined ){
+(function( window, name, undefined ){
 
   // reference to the core object itself
   var that = this;
@@ -32,14 +32,19 @@ window[ 'scaleApp' ] = (function( window, undefined ){
   // container for all functions that gets called when an instance gets created
   var onInstantiateFunctions = [];
 
-  // as long the log object is not overridden do nothing
-  var log = {
-    'debug': function(){ return; },
-    'info':  function(){ return; },
-    'warn':  function(){ return; },
-    'error': function(){ return; },
-    'fatal': function(){ return; }
+  // local log functions
+  var log = function( msg, mod, level ){ 
+
+    if( that['log'] && typeof that['log'][ level ] === "function" ){ 
+      that['log'][ level ]( msg, mod ); 
+    } 
   };
+
+  var debug = function( msg, mod ){ log( msg, mod, "debug" ); };
+  var info  = function( msg, mod ){ log( msg, mod, "info"  ); };
+  var warn  = function( msg, mod ){ log( msg, mod, "warn"  ); };
+  var error = function( msg, mod ){ log( msg, mod, "error" ); };
+  var fatal = function( msg, mod ){ log( msg, mod, "fatal" ); };
 
   /**
    * Function: onInstantiate
@@ -51,7 +56,7 @@ window[ 'scaleApp' ] = (function( window, undefined ){
     if( typeof fn === "function" ){
       onInstantiateFunctions.push( fn );
     }else{
-      that["log"]["error"]( "onInstantiate expect a function as parameter", "core" );
+      error( "onInstantiate expect a function as parameter", name );
     }
   };
 
@@ -108,7 +113,8 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
       } else { callSuccess(); }
     } else {
-       that["log"]["error"]( "could not start module '" + moduleId + "' - module does not exist.", "core" );
+       error( "could not start module '" + moduleId +
+        "' - module does not exist.", name );
     }
   };
 
@@ -125,7 +131,8 @@ window[ 'scaleApp' ] = (function( window, undefined ){
   var checkOptionObject = function( opt ){
 
     if( typeof opt !== "object" ){
-      that["log"]["error"]( "could not register module - option has to be an object", "core" );
+      error( "could not register module - " +
+        "option has to be an object", name );
       return false;
     }
     if( opt['views'] ){
@@ -159,11 +166,11 @@ window[ 'scaleApp' ] = (function( window, undefined ){
     var errString = "could not register module";
 
     if( typeof moduleId !== "string" ){
-      that["log"]["error"]( errString + "- mouduleId has to be a string", "core" );
+      error( errString + "- mouduleId has to be a string", name );
       return false;
     }
     if( typeof creator !== "function" ){
-      that["log"]["error"]( errString + " - creator has to be a constructor function", "core" );
+      error( errString + " - creator has to be a constructor function", name );
       return false;
     }
 
@@ -172,7 +179,7 @@ window[ 'scaleApp' ] = (function( window, undefined ){
     if( typeof modObj             !== "object"   ||
         typeof modObj['init']     !== "function" ||
         typeof modObj['destroy']  !== "function" ){
-      that["log"]["error"]( errString + " - creator has to return an object with the functions 'init' and 'destroy'", "core" );
+      error( errString + " - creator has to return an object with the functions 'init' and 'destroy'", name );
       return false;
     }
 
@@ -266,11 +273,11 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
     if( p ){
 
-      that["log"]["debug"]( "start '" + p['moduleId'] + "'", "core" );
+      debug( "start '" + p['moduleId'] + "'", name );
 
       var onSuccess = function( instance ){
         instances[ p['instanceId'] ] = instance;
-        instance['init']();
+        instance['init']( instance['opt'] );
         if( typeof callback === "function" ){
           callback();
         }
@@ -296,7 +303,7 @@ window[ 'scaleApp' ] = (function( window, undefined ){
       return regularStart( moduleId, instanceId, opt, callback );
 
     }else{
-      that["log"]["error"]( "could not start module '"+ moduleId +"' - illegal arguments.", "core" );
+      error( "could not start module '" + moduleId + "' - illegal arguments.", name );
       return false;
     }
   };
@@ -316,7 +323,8 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
     var p = getSuitedParamaters( moduleId, instanceId, opt );
 
-    if( start( p['moduleId'], p['instanceId'], p['opt'], callback ) && typeof parentInstanceId === "string" ){
+    if( start( p['moduleId'], p['instanceId'], p['opt'], callback ) &&
+      typeof parentInstanceId === "string" ){
 
       var sub = subInstances[ parentInstanceId ];
       if( !sub ){
@@ -344,7 +352,8 @@ window[ 'scaleApp' ] = (function( window, undefined ){
         if( instance){ stop( instance ); }
       });
     }else{
-      that['log']['error']( "could not stop instance '" + instanceId + "' - instance does not exist.", "core" );
+      error( "could not stop instance '" + instanceId +
+        "' - instance does not exist.", name );
       return false;
     }
   };
@@ -358,6 +367,8 @@ window[ 'scaleApp' ] = (function( window, undefined ){
    * (Array) array  - Array of module ids that shell be started.
    */
   var startAll = function( fn, array ){
+
+    var couldNotStartModuleStr = "Could not start module";
 
     var callback = function(){};
 
@@ -386,11 +397,12 @@ window[ 'scaleApp' ] = (function( window, undefined ){
           if( id.moduleId && id.opt ){
             start( id.moduleId, id.instanceId, id.opt, callback );
           }else{
-            that["log"]["error"]( "could not start module from array - invalid parameters", "core" );
+            error(
+            couldNotStartModuleStr + " from array - invalid parameters", name );
           }
         }
         else{
-          that["log"]["error"]( "could not start module from array", "core" );
+          error( couldNotStartModuleStr + " from array", name );
         }
       });
 
@@ -450,7 +462,7 @@ window[ 'scaleApp' ] = (function( window, undefined ){
    */
   var subscribe = function( instanceId, topic, handler ){
 
-    that["log"]["debug"]( "subscribe to '" + topic + "'", instanceId );
+    debug( "subscribe to '" + topic + "'", instanceId );
 
     var instance = instances[ instanceId ];
 
@@ -533,6 +545,6 @@ window[ 'scaleApp' ] = (function( window, undefined ){
 
   });
 
-  return that;
+  window[ name ] = window[ name ] || that;
 
-}( window ));
+}( window, 'scaleApp' ));
