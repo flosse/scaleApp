@@ -3,19 +3,13 @@
  */
 
 /**
- * File: scaleApp.util.js
- * scaleApp is a tiny framework for One-Page-Applications.
- * It is licensed under the MIT licence.
- */
-
-/**
- * Class: util
+ * PrivateClass: scaleApp.util
  * A countainer for some helpfull functions
  */
 (function( window, core, undefined ){
 
   /**
-  * Function: mixin
+  * PrivateFunction: mixin
   */
   var mixin = function( receivingClass, givingClass ){
 
@@ -49,7 +43,7 @@
   };
 
   /**
-  * Function: countObjectKeys
+  * PrivateFunction: countObjectKeys
   * Counts all available keys of an object.
   */
   var countObjectKeys = function( obj ){

@@ -3,19 +3,12 @@
  */
 
 /**
- * File: scaleApp.mvc.js
- * scaleApp.mvc.js is a Model-View-Controler extension for scaleApp.
- *
- * It is licensed under the MIT licence.
- */
-
-/**
- * Class: scaleApp.mvc
+ * PrivateClass: scaleApp.mvc
  */
 (function( window, core, undefined ){
 
   /**
-   * Class: observable
+   * PrivateClass: observable
    */
   var observable = function(){};
 
@@ -154,7 +147,7 @@
   };
 
   /**
-  * Function: addModel
+  * PrivateFunction: addModel
   *
   * Paraneters:
   * (String) instanceId
@@ -166,7 +159,7 @@
   };
 
   /**
-  * Function: addView
+  * PrivateFunction: addView
   *
   * Paraneters:
   * (String) instanceId
@@ -178,7 +171,7 @@
   };
 
   /**
-  * Function: addController
+  * PrivateFunction: addController
   *
   * Paraneters:
   * (String) instanceId
@@ -190,7 +183,7 @@
   };
 
   /**
-  * Function: getModel
+  * PrivateFunction: getModel
   *
   * Paraneters:
   * (String) instanceId
@@ -204,7 +197,7 @@
   };
 
   /**
-  * Function: getView
+  * PrivateFunction: getView
   *
   * Paraneters:
   * (String) instanceId
@@ -219,7 +212,7 @@
 
 
   /**
-  * Function: getController
+  * PrivateFunction: getController
   *
   * Paraneters:
   * (String) instanceId

@@ -3,13 +3,7 @@
  */
 
 /**
- * File: scaleApp.template.js
- * 
- * It is licensed under the MIT licence.
- */
-
-/**
- * Class: scaleApp.template
+ * PrivateClass: scaleApp.template
  */
 (function( window, core, undefined ){
 
@@ -17,7 +11,7 @@
   var templates = { };
 
   /**
-   * Function: load
+   * PrivateFunction: load
    * 
    * Parameters:
    * (String) path
@@ -44,7 +38,7 @@
   };
 
   /**
-   * Function: loadMultiple
+   * PrivateFunction: loadMultiple
    *
    */
   var loadMultiple = function( tmpls ){
@@ -68,7 +62,7 @@
   };
 
   /**
-   * Function: get
+   * PrivateFunction: get
    */
   var get = function( instanceId, id ){
 
@@ -86,7 +80,7 @@
   };
 
   /**
-   * Function: add
+   * PrivateFunction: add
    */
   var add = function( instanceId, id, tmpl ){
     if( typeof instanceId === "string" &&
@@ -100,7 +94,7 @@
   };
 
   /**
-   * Function: set
+   * PrivateFunction: set
    */
   var set = function( instanceId, obj ){
     if( typeof instanceId === "string" && typeof obj === "object" ){

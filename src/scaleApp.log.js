@@ -3,14 +3,7 @@
  */
 
 /**
- * File: scaleApp.log.js
- * scaleApp.log.js is a logging extension for scaleApp.
- *
- * It is licensed under the MIT licence.
- */
-
-/**
- * Class: scaleApp.log
+ * PrivateClass: scaleApp.log
  */
 (function( window, console, core, undefined ){
 
@@ -40,7 +33,7 @@
   var currentLogLevel = 0;
 
   /**
-  * Constants: logLevel
+  * PrivateConstants: logLevel
   * logging level indicators
   *
   * Parameters:

@@ -3,13 +3,12 @@
  */
 
 /**
- * File: scaleApp.js
  * scaleApp is a tiny framework for One-Page-Applications.
  * It is licensed under the MIT licence.
  */
 
 /**
- * Class: core
+ * Class: scaleApp
  * The core holds and manages all data that is used globally.
  */
 (function( window, name, undefined ){
@@ -48,9 +47,10 @@
 
   /**
    * Function: onInstantiate
+   * Registers a function that gets executed when a module gets instantiated.
    *
    * Parameters:
-   * (Function) fn
+   * (Function) fn  - Callback function 
    */
   var onInstantiate = function( fn ){
     if( typeof fn === "function" ){
@@ -123,10 +123,10 @@
    * Checks whether the passed option object is valid or not.
    *
    * Parameters:
-   * (Object) opt
+   * (Object) opt - The option object
    *
    * Returns:
-   * False if it is not valid, true if everything is ok.
+   * (Boolean) valid - False if it is not valid, true if everything is ok.
    */
   var checkOptionObject = function( opt ){
 
@@ -154,12 +154,12 @@
    * PrivateFunction: checkRegisterParameters
    *
    * Parameters:
-   * (String) moduleId
-   * (Function) creator
-   * (Object) opt
+   * (String) moduleId  - The module ID
+   * (Function) creator - The creator function
+   * (Object) opt       - The option object
    *
    * Returns:
-   * True if everything is ok.
+   * (Boolean) ok - True if everything is ok.
    */
   var checkRegisterParameters = function( moduleId, creator, opt  ){
 
@@ -193,6 +193,7 @@
 
   /**
    * Function: register
+   * Registers a new module.
    *
    * Parameters:
    * (String) moduleId  - The module id
@@ -200,7 +201,7 @@
    * (Object) ops       - The default options for this module
    *
    * Returns:
-   * True if registration was successfull.
+   * (Boolean) success  - True if registration was successfull.
    */
   var register = function( moduleId, creator, opt ){
 
@@ -265,7 +266,13 @@
   };
 
   /**
-   * Function: regularStart
+   * PrivateFunction: regularStart
+   *
+   * Parameters:
+   * (String) moduleId    -
+   * (String) instanceId  -
+   * (Object) opt         -
+   * (Function) callback  -
    */
   var regularStart = function( moduleId, instanceId, opt, callback ){
 
@@ -290,11 +297,12 @@
 
   /**
    * Function: start
+   * Starts a module.
    *
    * Parameters:
-   * (String) moduleId
-   * (String) instanceId
-   * (Object) opt
+   * (String) moduleId    - The module ID
+   * (String) instanceId  - The instance ID
+   * (Object) opt         - The option object
    */
   var start = function( moduleId, instanceId, opt, callback ){
 
@@ -310,7 +318,7 @@
 
 
   /**
-   * Function: startSubModule
+   * PrivateFunction: startSubModule
    *
    * Parameters:
    * (String) moduleId
@@ -336,9 +344,10 @@
 
   /**
    * Function: stop
+   * Stops a module.
    *
    * Parameters:
-   * (String) instanceId
+   * (String) instanceId  - The instance ID
    */
   var stop = function( instanceId ){
 
@@ -363,7 +372,7 @@
    * Starts all available modules.
    *
    * Parameters:
-   * (Function) fn  - function that gets called after all modules where initialized.
+   * (Function) fn  - The Function that gets called after all modules where initialized.
    * (Array) array  - Array of module ids that shell be started.
    */
   var startAll = function( fn, array ){
@@ -424,9 +433,14 @@
    * PrivateFunction: publish
    *
    * Parameters:
-   * (String) topic
-   * (Object) data
-   * (Boolean) publishReference
+   * (String) topic             - The topic name  
+   * (Object) data              - The data that gets published
+   * (Boolean) publishReference - If the data should be passed as a reference to
+   *                              the other modules this parameter has to be set
+   *                              to *true*. 
+   *                              By default the data object gets copied so that
+   *                              other modules can't influence the original 
+   *                              object. 
    */
   var publish = function( topic, data, publishReference ){
 
@@ -495,7 +509,7 @@
   };
 
   /**
-   * Function: getInstances
+   * PrivateFunction: getInstances
    *
    * Parameters:
    * (String) id
@@ -508,7 +522,7 @@
   };
 
   /**
-   * Function: getContainer
+   * PrivateFunction: getContainer
    */
   var getContainer = function( instanceId ){
 
