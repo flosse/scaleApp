@@ -7,10 +7,13 @@ TestCase("scaleApp.i18n tests", {
 				en: {
 					helloWorld: "Hello world"
 				},
-
 				de: {
 					helloWorld: "Hallo Welt"
+				},
+				es: {
+					something: "??"
 				}
+
 			};
 
 			this.myModule = function( sb ){
@@ -51,4 +54,15 @@ TestCase("scaleApp.i18n tests", {
 		assertEquals( lang, scaleApp.i18n.getLanguage() );
 	},
 
+	"test that _ returns english string if current language is not supported": function(){
+		var lang = "es";
+		scaleApp.i18n.setLanguage( lang );
+    assertEquals( this.myLangObj.en.helloWorld, scaleApp.i18n._("module", "helloWorld") );
+	},
+
+	"test that _ returns base language string if current language is not supported": function(){
+		var lang = "de-CH";
+		scaleApp.i18n.setLanguage( lang );
+    assertEquals( this.myLangObj.de.helloWorld, scaleApp.i18n._("module", "helloWorld") );
+	},
 });

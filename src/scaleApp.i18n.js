@@ -69,7 +69,23 @@
 
     if( inst['opt'] ){
       if( inst['opt']['i18n'] ){
-        return inst['opt']['i18n'][ lang ][ textId ] || textId;
+        var i18n = inst['opt']['i18n']; 
+
+        // everything is fine
+        if( i18n[ lang ] && i18n[ lang ][ textId ] ){
+          return i18n[ lang ][ textId ];
+        }else{
+          // fallback
+          var sub = lang.substring(0,2);
+
+          if( i18n[ sub ] && i18n[ sub ][ textId ] ){
+            return i18n[ sub ][ textId ];
+          }else{
+            if( i18n[ 'en' ] && i18n[ 'en' ][ textId ] ){
+              return i18n[ 'en' ][ textId ];
+            }
+          }
+        }
       }
     }
     return textId;
