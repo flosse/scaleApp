@@ -211,19 +211,6 @@
       return core.mvc['addController']( instanceId, id, controller );
     };
 
-    /**
-      * Function: _
-      * Get localized text.
-      *
-      * Parameters:
-      * (String) textId - The text ID
-      *
-      * Returns:
-      * (String) text - The localized text
-      */
-    var _ = function( textId ){
-      return core['i18n']['_']( instanceId, textId );
-    };
 
     /**
     * Function: getContainer
@@ -265,10 +252,7 @@
       'fatal': log.fatal,
 
       'mixin': core['util']['mixin'],
-      'count': core['util']['countObjectKeys'],
-
-      '_':_,
-      'getLanguage': core['i18n']['getLanguage']
+      'count': core['util']['countObjectKeys']
 
     });
 

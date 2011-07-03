@@ -1,6 +1,9 @@
+/**
+ * Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
+ */
 (function( window, scaleApp, $ ){
 
-  scaleApp.addPlugin('hotkeys', function( sb ){
+    scaleApp.registerPlugin('hotkeys', { sandbox: function( sb ){
 
     /**
      * Function: hotkeys
@@ -41,6 +44,6 @@
       hotkeys: hotkeys
     });
 
-  });
+  }});
 
 }( window, window['scaleApp'], jQuery ));

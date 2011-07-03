@@ -576,12 +576,21 @@
     return $( "#" + instanceId );
   };
 
-  var addPlugin = function( id, plugin ){
+  var registerPlugin = function( id, plugin ){
 
-    if( typeof id === "string" && typeof plugin === "function" ){
-      plugins[ id ] = plugins[ id ] || plugin;
+    if( typeof id === "string" && typeof plugin == "object" ){
+
+      if( typeof plugin['sandbox'] === "function" ){
+        plugins[ id ] = plugins[ id ] || plugin['sandbox'];
+      }
+      if( typeof plugin['core'] === "function" || typeof plugin['core'] === "object" ){
+        that['util']['mixin']( that, plugin['core'] );
+      }
+      if( typeof plugin['onInstantiate'] === "function" ){
+        onInstantiate( plugin['onInstantiate'] );
+      }
     }else{
-      error( "addPluggin expect an id and a function as parameters", name );
+      error( "registerPlugin expect an id and an object as parameters", name );
     }
 
   };
@@ -592,7 +601,7 @@
     'register': register,
     'onInstantiate':onInstantiate,
 
-    'addPlugin': addPlugin,
+    'registerPlugin': registerPlugin,
 
     'start': start,
     'startSubModule': startSubModule,

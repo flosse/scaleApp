@@ -63,7 +63,7 @@
    * Returns
    * (String) the localized string.
    */
-  var _ = function( instanceId, textId ){
+  var get = function( instanceId, textId ){
 
     var inst = core['getInstance']( instanceId );
 
@@ -91,12 +91,35 @@
     return textId;
   };
 
-  // public API
-  core['i18n'] = core['i18n'] || ({
-    'setLanguage': setLanguage,
-    'getBrowserLanguage': getBrowserLanguage,
-    'getLanguage': getLanguage,
-    '_': _
-  });
+  /**
+   * PrivateFunction: sandboxPlugin
+   */
+  var sandboxPlugin = function( sb, instanceId ){
+
+    /**
+      * Function: _
+      * Get localized text.
+      *
+      * Parameters:
+      * (String) textId - The text ID
+      *
+      * Returns:
+      * (String) text - The localized text
+      */
+    var _ = function( textId ){
+      return get( instanceId, textId );
+    };
+
+    return ({
+      'setLanguage': setLanguage,
+      'getBrowserLanguage': getBrowserLanguage,
+      'getLanguage': getLanguage,
+      '_': _
+    });
+
+  };
+
+  // register plugin
+  scaleApp.registerPlugin( 'i18n', { sandbox: sandboxPlugin });
 
 }( window, window['scaleApp'] ));

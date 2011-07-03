@@ -1,8 +1,11 @@
+/**
+ * Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
+ */
 (function( window, scaleApp, $ ){
 
   // container for all templates
   var templates = { };
-  
+
   var onInstantiate = function( instanceId, instanceOpts, sb ){
 
     var dfd = $.Deferred();
@@ -12,25 +15,25 @@
       loadMultiple( instanceOpts['templates'] )
         .done( function( res ){
             set( instanceId, res );
-            dfd.resolve(); 
+            dfd.resolve();
          })
-        .fail( function( err ){ 
+        .fail( function( err ){
           dfd.reject( err );
          })
-        .then( function(){ 
-          delete instanceOpts['templates']; 
+        .then( function(){
+          delete instanceOpts['templates'];
         });
 
     }else{
       dfd.resolve();
-    } 
+    }
 
     return dfd.promise();
   };
 
   /**
    * PrivateFunction: load
-   * 
+   *
    * Parameters:
    * (String) path
    */
@@ -39,13 +42,13 @@
     var dfd = $.Deferred();
 
     if( typeof path === "string" ){
- 
+
       $.get( path )
-				.done( function( html ){ 
-            dfd.resolve( 
+				.done( function( html ){
+            dfd.resolve(
               $('<script type="text/x-jquery-tmpl">' + html + '</script>')
-              .template() 
-            ); 
+              .template()
+            );
           })
 				.fail( function(){ dfd.reject("Could not load the template"); });
 
@@ -64,15 +67,15 @@
     var dfd = $.Deferred();
     var deferreds = [];
     var templates = {};
-    var onSuccess = function( key ){ 
-      return function( data ){ templates[ key ] = data; }; 
+    var onSuccess = function( key ){
+      return function( data ){ templates[ key ] = data; };
     };
 
     for( var i in tmpls ){
       deferreds.push( load( tmpls[i] ).done( new onSuccess( i ) ));
     }
 
-    $.when.apply( null, deferreds ).done(function(){ 
+    $.when.apply( null, deferreds ).done(function(){
       dfd.resolve( templates );
     });
 
@@ -122,9 +125,14 @@
     }
   };
 
-  scaleApp.onInstantiate( onInstantiate );
-
-  scaleApp.addPlugin('template', function( sb, instanceId ){
+  /**
+   * PrivateFunction: templatePlugin
+   *
+   * Parameters:
+   * (Object) sb          - sandbox
+   * (String) instanceId  -
+   */
+  var templatePlugin = function( sb, instanceId ){
 
     /**
     * Function: getTemplate
@@ -164,6 +172,12 @@
       'tmpl': tmpl
     });
 
+  };
+
+  // register plugin
+  scaleApp.registerPlugin('template', {
+    sandbox: templatePlugin,
+    onInstantiate: onInstantiate
   });
 
 }( window, window['scaleApp'], jQuery ));
