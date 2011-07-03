@@ -28,15 +28,18 @@
   // container for all templates
   var templates = { };
 
+  // container for all plugins
+  var plugins = { };
+
   // container for all functions that gets called when an instance gets created
   var onInstantiateFunctions = [];
 
   // local log functions
-  var log = function( msg, mod, level ){ 
+  var log = function( msg, mod, level ){
 
-    if( that['log'] && typeof that['log'][ level ] === "function" ){ 
-      that['log'][ level ]( msg, mod ); 
-    } 
+    if( that['log'] && typeof that['log'][ level ] === "function" ){
+      that['log'][ level ]( msg, mod );
+    }
   };
 
   var debug = function( msg, mod ){ log( msg, mod, "debug" ); };
@@ -50,7 +53,7 @@
    * Registers a function that gets executed when a module gets instantiated.
    *
    * Parameters:
-   * (Function) fn  - Callback function 
+   * (Function) fn  - Callback function
    */
   var onInstantiate = function( fn ){
     if( typeof fn === "function" ){
@@ -92,6 +95,12 @@
       $.extend( true, instanceOpts, mod['opt'], opt );
 
       var sb = new that['sandbox']( instanceId, instanceOpts );
+
+      // add plugins
+      $.each( plugins, function( id, plugin ){
+        var p = new plugin( sb );
+        $.extend( true, sb, p );
+      });
 
       instance = mod['creator']( sb );
 
@@ -433,14 +442,14 @@
    * PrivateFunction: publish
    *
    * Parameters:
-   * (String) topic             - The topic name  
+   * (String) topic             - The topic name
    * (Object) data              - The data that gets published
    * (Boolean) publishReference - If the data should be passed as a reference to
    *                              the other modules this parameter has to be set
-   *                              to *true*. 
+   *                              to *true*.
    *                              By default the data object gets copied so that
-   *                              other modules can't influence the original 
-   *                              object. 
+   *                              other modules can't influence the original
+   *                              object.
    */
   var publish = function( topic, data, publishReference ){
 
@@ -536,11 +545,23 @@
     return $( "#" + instanceId );
   };
 
+  var addPlugin = function( id, plugin ){
+
+    if( typeof id === "string" && typeof plugin === "function" ){
+      plugins[ id ] = plugins[ id ] || plugin;
+    }else{
+      error( "addPluggin expect an id and a function as parameters", name );
+    }
+
+  };
+
   // public core API
   that = ({
 
     'register': register,
     'onInstantiate':onInstantiate,
+
+    'addPlugin': addPlugin,
 
     'start': start,
     'startSubModule': startSubModule,
