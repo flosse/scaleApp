@@ -25,14 +25,13 @@
   // container for lists of submodules
   var subInstances = { };
 
-  // container for all templates
-  var templates = { };
-
   // container for all plugins
   var plugins = { };
 
   // container for all functions that gets called when an instance gets created
-  var onInstantiateFunctions = [];
+  var onInstantiateFunctions = {
+    '_always': []
+  };
 
   // local log functions
   var log = function( msg, mod, level ){
@@ -53,11 +52,23 @@
    * Registers a function that gets executed when a module gets instantiated.
    *
    * Parameters:
-   * (Function) fn  - Callback function
+   * (Function) fn      - Callback function
+   * (String) moduleId  - Only call if specified module ID gets instantiated
    */
-  var onInstantiate = function( fn ){
+  var onInstantiate = function( fn, moduleId ){
+
     if( typeof fn === "function" ){
-      onInstantiateFunctions.push( fn );
+
+      if( moduleId && typeof moduleId === "string" ){
+
+        if( !onInstantiateFunctions[ moduleId ] ){
+          onInstantiateFunctions[ moduleId ] = [];
+        }
+        onInstantiateFunctions[ moduleId ].push( fn );
+
+      }else{
+        onInstantiateFunctions['_always'].push( fn );
+      }
     }else{
       error( "onInstantiate expect a function as parameter", name );
     }
@@ -80,7 +91,11 @@
     var instance;
 
     var callSuccess = function(){
-      if( typeof success === "function" ){ success( instance ); }
+      if( typeof success === "function" ){
+        success( instance );
+      }else{
+        warn(" callback function is not a function", name );
+      }
     };
 
     var callError = function(){
@@ -98,7 +113,7 @@
 
       // add plugins
       $.each( plugins, function( id, plugin ){
-        var p = new plugin( sb );
+        var p = new plugin( sb, instanceId );
         $.extend( true, sb, p );
       });
 
@@ -107,24 +122,44 @@
       // store opt
       instance['opt'] = instanceOpts;
 
-      $.each( onInstantiateFunctions, function( i, fn ){
-        fn( instanceId, instanceOpts, sb );
-      });
+      callInstantiateFunctions( moduleId, instanceId, instanceOpts, sb )
+        .done( function(){ callSuccess(); })
+        .fail( function( err ){ callError( err ); });
 
-      if( instanceOpts['templates'] && that['template'] ){
-
-        that['template']['loadMultiple']( instanceOpts['templates'] )
-          .done( function( res ){
-              that['template']['set']( instanceId, res );
-              callSuccess(); })
-          .fail( function( err ){ callError( err ); })
-          .then( function(){ delete instanceOpts['templates']; });
-
-      } else { callSuccess(); }
     } else {
        error( "could not start module '" + moduleId +
         "' - module does not exist.", name );
     }
+  };
+
+  /**
+   * PrivateFunction: callInstantiateFunctions
+   *
+   * Parameters:
+   * (String) id  - The instance ID
+   * (Object) opt - The instance option object
+   * (Object) sb  - The sandbox
+   */
+  var callInstantiateFunctions = function( moduleId, instanceId, opt, sb ){
+
+    var dfd = $.Deferred();
+    var deferreds = [];
+
+    var addToDeferreds = function( functions ){
+      $.each( functions, function( i, fn ){
+        deferreds.push( fn( instanceId, opt, sb ) );
+      });
+    };
+
+    addToDeferreds( onInstantiateFunctions['_always'] );
+
+    if( onInstantiateFunctions[ moduleId ] ){
+      addToDeferreds( onInstantiateFunctions[ moduleId ] );
+    }
+
+    $.when.apply( null, deferreds ).done(function(){ dfd.resolve(); });
+
+    return dfd.promise();
   };
 
   /**
@@ -150,10 +185,6 @@
 
     if( opt['models'] ){
       if( typeof opt['models'] !== "object" ){ return false; }
-    }
-
-    if( opt['templates'] ){
-      if( typeof opt['templates'] !== "object" ){ return false; }
     }
 
     return true;

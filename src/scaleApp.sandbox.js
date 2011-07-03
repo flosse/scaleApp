@@ -212,38 +212,6 @@
     };
 
     /**
-    * Function: getTemplate
-    * Get a template by name.
-    *
-    * Parameters:
-    * (String) id - The template ID
-    *
-    * Returns:
-    * (Object) template - pre-rendered jQuery template
-    */
-    var getTemplate = function( id ){
-      return core.template['get']( instanceId, id );
-    };
-
-    /**
-    * Function: tmpl
-    * Render a specific template.
-    *
-    * Parameters:
-    * (String) id   - The template ID
-    * (Object) data - The template data object
-    */
-    var tmpl = function( id, data ){
-      if( typeof id === "string" ){
-        return $.tmpl( getTemplate( id ), data );
-      }else if( typeof id === "function" ){
-        return $.tmpl( id, data );
-      }else{
-        log['error']("type of 'id' is not valid", "sandbox of " + instanceId );
-      }
-    };
-
-    /**
       * Function: _
       * Get localized text.
       *
@@ -287,9 +255,6 @@
       'addController': addController,
 
       'observable': core.mvc['observable'],
-
-      'getTemplate': getTemplate,
-      'tmpl': tmpl,
 
       'getContainer': getContainer,
 

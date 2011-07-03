@@ -1,14 +1,32 @@
-/**
- * Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
- */
+(function( window, scaleApp, $ ){
 
-/**
- * PrivateClass: scaleApp.template
- */
-(function( window, core, undefined ){
-
-  // container for templates
+  // container for all templates
   var templates = { };
+  
+  var onInstantiate = function( instanceId, instanceOpts, sb ){
+
+    var dfd = $.Deferred();
+
+    if( instanceOpts['templates'] ){
+
+      loadMultiple( instanceOpts['templates'] )
+        .done( function( res ){
+            set( instanceId, res );
+            dfd.resolve(); 
+         })
+        .fail( function( err ){ 
+          dfd.reject( err );
+         })
+        .then( function(){ 
+          delete instanceOpts['templates']; 
+        });
+
+    }else{
+      dfd.resolve();
+    } 
+
+    return dfd.promise();
+  };
 
   /**
    * PrivateFunction: load
@@ -104,12 +122,48 @@
     }
   };
 
-  // publich API
-  core['template'] = core['template'] || ({
-    'load': load,
-    'loadMultiple': loadMultiple,
-    'get': get,
-    'add': add,
-    'set': set
+  scaleApp.onInstantiate( onInstantiate );
+
+  scaleApp.addPlugin('template', function( sb, instanceId ){
+
+    /**
+    * Function: getTemplate
+    * Get a template by name.
+    *
+    * Parameters:
+    * (String) id - The template ID
+    *
+    * Returns:
+    * (Object) template - pre-rendered jQuery template
+    */
+    var getTemplate = function( id ){
+      return get( instanceId, id );
+    };
+
+    /**
+    * Function: tmpl
+    * Render a specific template.
+    *
+    * Parameters:
+    * (String) id   - The template ID
+    * (Object) data - The template data object
+    */
+    var tmpl = function( id, data ){
+      if( typeof id === "string" ){
+        return $.tmpl( getTemplate( id ), data );
+      }else if( typeof id === "function" ){
+        return $.tmpl( id, data );
+      }else{
+        sb.error("type of 'id' is not valid", "sandbox of " + instanceId );
+      }
+    };
+
+    // Public API
+    return ({
+      'getTemplate': getTemplate,
+      'tmpl': tmpl
+    });
+
   });
-}( window, window['scaleApp'] ));
+
+}( window, window['scaleApp'], jQuery ));
