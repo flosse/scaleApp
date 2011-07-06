@@ -164,7 +164,7 @@
   var fatal = function( msg, module ){ log( logLevel.FATAL, msg, module ); };
 
   // public API
-  core['log'] = ({
+  var coreLog = ({
 
     'debug': debug,
     'info': info,
@@ -175,6 +175,73 @@
     'setLogLevel': setLogLevel,
     'getLogLevel': getLogLevel
 
+  });
+
+  var sbLog = function( sb, instanceId ){
+
+    return ({
+      /**
+      * Function: debug
+      * Log function for debugging.
+      *
+      * Parameters:
+      * (String) msg  - The log message
+      */
+      debug: function( msg ){
+        debug( msg, instanceId );
+      },
+
+      /**
+      * Function: info
+      * Log function for informational messages.
+      *
+      * Parameters:
+      * (String) msg  - The log message
+      */
+      info: function( msg ){
+        info( msg, instanceId );
+      },
+
+      /**
+      * Function: warn
+      * Log function for warn messages.
+      *
+      * Parameters:
+      * (String) msg  - The log message
+      */
+      warn: function( msg ){
+        warn( msg, instanceId );
+      },
+
+      /**
+      * Function: error
+      * Log function for error messages.
+      *
+      * Parameters:
+      * (String) msg  - The log message
+      */
+      error: function( msg ){
+        error( msg, instanceId );
+      },
+
+      /**
+      * Function: fatal
+      * Log function for fatal messages.
+      *
+      * Parameters:
+      * (String) msg  - The log message
+      */
+      fatal: function( msg ){
+        fatal( msg, instanceId );
+      }
+    });
+
+  };
+
+  // register plugin
+  scaleApp.registerPlugin('log', {
+    sandbox: sbLog,
+    core: coreLog
   });
 
 }( window, window['console'], window['scaleApp'] ));
