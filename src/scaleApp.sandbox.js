@@ -134,85 +134,6 @@
     };
 
     /**
-      * Function: getModel
-      * Get a specific model.
-      *
-      * Parameters:
-      * (String) id - The model ID
-      *
-      * Returns:
-      * (Object) model  - The model object
-      */
-    var getModel = function( id ){
-      return core.mvc['getModel']( instanceId, id );
-    };
-
-    /**
-      * Function: getView
-      * Get a specific view.
-      *
-      * Parameters:
-      * (String) id - The view id
-      *
-      * Returns:
-      * (Object) view - The view object
-      */
-    var getView = function( id ){
-      return core.mvc['getView']( instanceId, id );
-    };
-
-    /**
-      * Function: getController
-      * Get a specific controller.
-      *
-      * Parameters:
-      * (String) id   - The controller ID
-      *
-      * Returns:
-      * (Object) controller - The controller object
-      */
-    var getController = function( id ){
-      return core.mvc['getController']( instanceId, id );
-    };
-
-    /**
-      * Function: addModel
-      * Add a model.
-      *
-      * Paraneters:
-      * (String) id     - The model ID
-      * (Object) model  - The model object
-      */
-    var addModel = function( id , model ){
-      return core.mvc['addModel']( instanceId, id, model );
-    };
-
-    /**
-      * Function: addView
-      * Add a view.
-      *
-      * Parameters:
-      * (String) id    - The view ID
-      * (Object) view  - The view object
-      */
-    var addView = function( id, view ){
-      return core.mvc['addView']( instanceId, id, view );
-    };
-
-    /**
-      * Function: addController
-      * Add a controller.
-      *
-      * Parameters:
-      * (String) id         - The controller ID
-      * (Object) controller - The controller object
-      */
-    var addController = function( id, controller ){
-      return core.mvc['addController']( instanceId, id, controller );
-    };
-
-
-    /**
     * Function: getContainer
     * Get the DOM container of the module. 
     *
@@ -232,16 +153,6 @@
 
       'startSubModule': startSubModule,
       'stopSubModule': stopSubModule,
-
-      'getModel': getModel,
-      'getView': getView,
-      'getController': getController,
-
-      'addModel': addModel,
-      'addView': addView,
-      'addController': addController,
-
-      'observable': core.mvc['observable'],
 
       'getContainer': getContainer,
 

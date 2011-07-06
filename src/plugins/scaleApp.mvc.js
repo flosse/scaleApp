@@ -53,7 +53,7 @@
   var controllers = { };
 
   // register function that gets called after an instance was created
-  core['onInstantiate']( function( instanceId, opt ){
+  var onInstantiate = function( instanceId, opt ){
 
     if( opt['models'] ){
       mixinDefaultModel( opt['models'] );
@@ -66,7 +66,7 @@
       addObjects( controllers, instanceId, opt['controllers'] );
     }
 
-  });
+  };
 
   /**
    * PrivateFunction: mixinDefaultModel
@@ -146,97 +146,104 @@
     }
   };
 
-  /**
-  * PrivateFunction: addModel
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  * (Function) model
-  */
-  var addModel = function( instanceId, id, model ){
-    add( models, instanceId, id, model );
+  var mvcPlugin = function( sb, instanceId ){
+    
+    /**
+      * Function: getModel
+      * Get a specific model.
+      *
+      * Parameters:
+      * (String) id - The model ID
+      *
+      * Returns:
+      * (Object) model  - The model object
+      */
+    var getModel = function( id ){
+      return get( models, instanceId, id );
+    };
+
+    /**
+      * Function: getView
+      * Get a specific view.
+      *
+      * Parameters:
+      * (String) id - The view id
+      *
+      * Returns:
+      * (Object) view - The view object
+      */
+    var getView = function( id ){
+      return get( views, instanceId, id );
+    };
+
+    /**
+      * Function: getController
+      * Get a specific controller.
+      *
+      * Parameters:
+      * (String) id   - The controller ID
+      *
+      * Returns:
+      * (Object) controller - The controller object
+      */
+    var getController = function( id ){
+      return get( controllers, instanceId, id );
+    };
+
+    /**
+      * Function: addModel
+      * Add a model.
+      *
+      * Paraneters:
+      * (String) id     - The model ID
+      * (Object) model  - The model object
+      */
+    var addModel = function( id , model ){
+      return add( models, instanceId, id, view );
+    };
+
+    /**
+      * Function: addView
+      * Add a view.
+      *
+      * Parameters:
+      * (String) id    - The view ID
+      * (Object) view  - The view object
+      */
+    var addView = function( id, view ){
+      return add( views, instanceId, id, view );
+    };
+
+    /**
+      * Function: addController
+      * Add a controller.
+      *
+      * Parameters:
+      * (String) id         - The controller ID
+      * (Object) controller - The controller object
+      */
+    var addController = function( id, controller ){
+      return add( controllers, instanceId, id, controller );
+    };
+
+    return ({
+      'getModel': getModel,
+      'getView': getView,
+      'getController': getController,
+
+      'addModel': addModel,
+      'addView': addView,
+      'addController': addController,
+
+      'observable': observable
+
+    });
+
   };
 
-  /**
-  * PrivateFunction: addView
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  * (Function) view
-  */
-  var addView = function( instanceId, id, view ){
-    add( views, instanceId, id, view );
-  };
-
-  /**
-  * PrivateFunction: addController
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  * (Function) controller
-  */
-  var addController = function( instanceId, id, controller ){
-    add( controllers, instanceId, id, controller );
-  };
-
-  /**
-  * PrivateFunction: getModel
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  *
-  * Returns:
-  * (Object) model
-  */
-  var getModel = function( instanceId, id ){
-    return get( models, instanceId, id );
-  };
-
-  /**
-  * PrivateFunction: getView
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  *
-  * Returns:
-  * (Object) view
-  */
-  var getView = function( instanceId, id ){
-    return get( views, instanceId, id );
-  };
-
-
-  /**
-  * PrivateFunction: getController
-  *
-  * Paraneters:
-  * (String) instanceId
-  * (String) id
-  *
-  * Returns:
-  * (Object) controller
-  */
-  var getController = function( instanceId, id ){
-    return get( controllers, instanceId, id );
-  };
-
-  core.mvc = core.mvc || ({
-
-    'addModel': addModel,
-    'addView': addView,
-    'addController': addController,
-
-    'getModel': getModel,
-    'getView': getView,
-    'getController': getController,
-
-    'observable': observable
-
+  scaleApp.registerPlugin('mvc', {
+    sandbox: mvcPlugin,
+    onInstantiate: onInstantiate
   });
 
 }( window, window['scaleApp'] ));
