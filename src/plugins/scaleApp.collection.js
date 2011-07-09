@@ -65,7 +65,11 @@
      * Function: get
      */
     var get = function( id ){
-      return collection[ id ];
+      if( id ){
+        return collection[ id ];
+      }else{
+        return collection;
+      }
     };
 
     /**
