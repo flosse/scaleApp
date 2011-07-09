@@ -37,6 +37,8 @@
         $.each( this._subscribers, function( i, subscriber ){
           if( typeof subscriber['update'] === "function" ){
             subscriber['update']();
+          }else if( typeof subscriber === "function" ){
+            subscriber();
           }
         });
       }
@@ -241,8 +243,17 @@
 
   };
 
+  /**
+   * PrivateClass: corePlugin
+   */
+  var corePlugin = {
+    mvc: { observable:observable }
+  };
+
+  // register plugin
   scaleApp.registerPlugin('mvc', {
     sandbox: mvcPlugin,
+    core: corePlugin,
     onInstantiate: onInstantiate
   });
 
