@@ -11,14 +11,18 @@
   /**
   * PrivateFunction: mixin
   */
-  var mixin = function( receivingClass, givingClass ){
+  var mixin = function( receivingClass, givingClass, override ){
 
     var mix = function( giv, rec ){
 
         var empty = {};
 
-        $.extend( empty, giv, rec );
-        $.extend( rec, empty );
+        if( override === true ){
+          $.extend( rec, giv );
+        }else{
+          $.extend( empty, giv, rec );
+          $.extend( rec, empty );
+        }
     };
 
     switch( typeof givingClass + "-" + typeof receivingClass ){
