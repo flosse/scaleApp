@@ -4,37 +4,32 @@ TestCase("scaleApp.log tests", {
    
   },
 
-	// API	
-	"test that the scaleApp.log namespace exists": function(){    
-		assertEquals( "object", typeof( scaleApp.log ) );    
-  },
-
 	"test that scaleApp.log.debug is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.debug ) );    
+		assertEquals( "function", typeof( scaleApp.debug ) );    
   },
 
 	"test that scaleApp.log.info is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.info ) );    
+		assertEquals( "function", typeof( scaleApp.info ) );    
   },
 
 	"test that scaleApp.log.warn is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.warn ) );    
+		assertEquals( "function", typeof( scaleApp.warn ) );    
   },
 
 	"test that scaleApp.log.error is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.error ) );    
+		assertEquals( "function", typeof( scaleApp.error ) );    
   },
 
 	"test that scaleApp.log.fatal is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.fatal ) );    
+		assertEquals( "function", typeof( scaleApp.fatal ) );    
   },
 
 	"test that scaleApp.log.setLogLevel is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.setLogLevel ) );    
+		assertEquals( "function", typeof( scaleApp.setLogLevel ) );    
   },
 
 	"test that scaleApp.log.getLogLevel is a function": function(){    
-		assertEquals( "function", typeof( scaleApp.log.getLogLevel ) );    
+		assertEquals( "function", typeof( scaleApp.getLogLevel ) );    
   },
 
 });
