@@ -117,7 +117,7 @@
         $.extend( true, sb, p );
       });
 
-      instance = mod['creator']( sb );
+      instance = new mod['creator']( sb );
 
       // store opt
       instance['opt'] = instanceOpts;
@@ -214,7 +214,7 @@
       return false;
     }
 
-    var modObj = creator();
+    var modObj = new creator();
 
     if( typeof modObj             !== "object"   ||
         typeof modObj['init']     !== "function" ||
