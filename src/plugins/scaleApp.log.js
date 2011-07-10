@@ -165,17 +165,18 @@
 
   // public API
   var coreLog = ({
+     log : {
 
-    'debug': debug,
-    'info': info,
-    'warn': warn,
-    'error': error,
-    'fatal': fatal,
+      'debug': debug,
+      'info': info,
+      'warn': warn,
+      'error': error,
+      'fatal': fatal,
 
-    'setLogLevel': setLogLevel,
-    'getLogLevel': getLogLevel
+      'setLogLevel': setLogLevel,
+      'getLogLevel': getLogLevel
 
-  });
+    }});
 
   var sbLog = function( sb, instanceId ){
 

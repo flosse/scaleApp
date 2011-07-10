@@ -584,7 +584,7 @@
         plugins[ id ] = plugins[ id ] || plugin['sandbox'];
       }
       if( typeof plugin['core'] === "function" || typeof plugin['core'] === "object" ){
-        that['util']['mixin']( that, plugin['core'] );
+        that['util']['mixin']( that, plugin['core'], true );
       }
       if( typeof plugin['onInstantiate'] === "function" ){
         onInstantiate( plugin['onInstantiate'] );
