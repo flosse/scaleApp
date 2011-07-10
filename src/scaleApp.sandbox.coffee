@@ -1,5 +1,5 @@
 # Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
-scaleApp["sandbox"] = (instanceId, opt) ->
+scaleApp['sandbox'] = (instanceId, opt) ->
 
   # Function: subscribe
   # Subscribe to a topic.
@@ -15,7 +15,7 @@ scaleApp["sandbox"] = (instanceId, opt) ->
   # 
   # Parameters:
   # (String) topic  - The topic name
-  unsubscribe = (topic) -> scaleApp["unsubscribe"] instanceId, topic
+  unsubscribe = (topic) -> scaleApp.unsubscribe instanceId, topic
   
   # Function: publish
   # Publish an event.
@@ -30,7 +30,7 @@ scaleApp["sandbox"] = (instanceId, opt) ->
   #                              other modules can't influence the original 
   #                              object. 
   publish = (topic, data, publishReference) ->
-    scaleApp["publish"] topic, data, publishReference
+    scaleApp.publish topic, data, publishReference
   
   # Function: startSubModule
   # Start a submodule.
@@ -41,21 +41,21 @@ scaleApp["sandbox"] = (instanceId, opt) ->
   # (Object) opt            - The option object
   # (Function) fn           - Callback function
   startSubModule = (moduleId, subInstanceId, opt, fn) ->
-    scaleApp["startSubModule"] moduleId, subInstanceId, opt, instanceId, fn
+    scaleApp.startSubModule moduleId, subInstanceId, opt, instanceId, fn
   
   # Function: stopSubModule
   # Stop a submodule.
   #
   # Parameters:
   # (String) instanceId - The instance ID
-  stopSubModule = (instanceId) -> scaleApp["stop"] instanceId
+  stopSubModule = (instanceId) -> scaleApp.stop instanceId
   
   # Function: getContainer
   # Get the DOM container of the module. 
   # 
   # Returns:
   # (Object) container - The container
-  getContainer = -> scaleApp["getContainer"] instanceId
+  getContainer = -> scaleApp.getContainer instanceId
   
   'subscribe': subscribe
   'unsubscribe': unsubscribe
@@ -63,5 +63,5 @@ scaleApp["sandbox"] = (instanceId, opt) ->
   'startSubModule': startSubModule
   'stopSubModule': stopSubModule
   'getContainer': getContainer
-  'mixin': scaleApp["util"]["mixin"]
-  'count': scaleApp["util"]["countObjectKeys"]
+  'mixin': scaleApp.util.mixin
+  'count': scaleApp.util.countObjectKeys
