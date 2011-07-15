@@ -1,11 +1,15 @@
 # Copyright (c) 2011 Markus Kohlhase (mail@markus-kohlhase.de)
 
 # PrivateFunction: mixin
-mixin = (receivingClass, givingClass) ->
+mixin = (receivingClass, givingClass, override ) ->
+
   mix = (giv, rec) ->
     empty = {}
-    $.extend empty, giv, rec
-    $.extend rec, empty
+    if override is true
+      $.extend rec, giv
+    else
+      $.extend empty, giv, rec
+      $.extend rec, empty
 
   switch typeof givingClass + "-" + typeof receivingClass
     when "function-function"

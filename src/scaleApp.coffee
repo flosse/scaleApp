@@ -33,8 +33,7 @@ ERROR = "error"
 FATAL = "fatal"
 
 # local log functions
-log = (msg, mod, level) ->
-  that.log[level] msg, mod  if that.log and typeof that.log[level] is "function"
+log = (msg, mod, level) -> that[level] msg, mod if typeof that[level] is "function"
 
 #  Function: onInstantiate
 #  Registers a function that gets executed when a module gets instantiated.
@@ -427,7 +426,7 @@ registerPlugin = (id, plugin) ->
       plugins[id] = plugins[id] or plugin["sandbox"]
 
     if typeof plugin["core"] is "function" or typeof plugin["core"] is "object"
-      that.util.mixin that, plugin["core"]
+      that['util']['mixin'] that, plugin["core"], true
 
     if typeof plugin["onInstantiate"] is "function"
       onInstantiate plugin["onInstantiate"]

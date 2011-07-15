@@ -79,11 +79,11 @@ log = (level, msg, module) ->
         msg = module + ": " + msg
 
     switch level
-      when logLevel.DEBUG then console.debug  msg  if currentLogLevel <= logLevel.DEBUG
-      when logLevel.INFO  then console.info   msg  if currentLogLevel <= logLevel.INFO
-      when logLevel.WARN  then console.warn   msg  if currentLogLevel <= logLevel.WARN
-      when logLevel.ERROR then console.error  msg  if currentLogLevel <= logLevel.ERROR
-      when logLevel.FATAL then console.error  msg  if currentLogLevel <= logLevel.FATAL
+      when logLevel.DEBUG then console['debug'] msg  if currentLogLevel <= logLevel.DEBUG
+      when logLevel.INFO  then console['info']  msg  if currentLogLevel <= logLevel.INFO
+      when logLevel.WARN  then console['warn']  msg  if currentLogLevel <= logLevel.WARN
+      when logLevel.ERROR then console['error'] msg  if currentLogLevel <= logLevel.ERROR
+      when logLevel.FATAL then console['error'] msg  if currentLogLevel <= logLevel.FATAL
       else
         console["log"] msg
 
@@ -96,21 +96,21 @@ fatal = (msg, module) ->  log logLevel.FATAL, msg, module
 
 # public API
 coreLog =
-  debug:  debug
-  info:   info
-  warn:   warn
-  error:  error
-  fatal:  fatal
-  setLogLevel: setLogLevel
-  getLogLevel: getLogLevel
+  'debug':  debug
+  'info':   info
+  'warn':   warn
+  'error':  error
+  'fatal':  fatal
+  'setLogLevel': setLogLevel
+  'getLogLevel': getLogLevel
 
 sbLog = (sb, instanceId) ->
-  debug:  (msg) -> debug  msg, instanceId
-  info:   (msg) -> info   msg, instanceId
-  warn:   (msg) -> warn   msg, instanceId
-  error:  (msg) -> error  msg, instanceId
-  fatal:  (msg) -> fatal  msg, instanceId
+  'debug':  (msg) -> debug  msg, instanceId
+  'info':   (msg) -> info   msg, instanceId
+  'warn':   (msg) -> warn   msg, instanceId
+  'error':  (msg) -> error  msg, instanceId
+  'fatal':  (msg) -> fatal  msg, instanceId
 
 scaleApp.registerPlugin "log",
-  sandbox: sbLog
-  core: coreLog
+  'sandbox': sbLog
+  'core': coreLog
