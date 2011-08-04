@@ -75,11 +75,11 @@ onInstantiate = (instanceId, opt) ->
 
 sbPlugin = (sb, instanceId) ->
   i18n:
-    setLanguage: setLanguage
-    getBrowserLanguage: getBrowserLanguage
-    getLanguage: getLanguage
     subscribe: subscribe
     unsubscribe: unsubscribe
+  getBrowserLanguage: getBrowserLanguage
+  setLanguage: setLanguage
+  getLanguage: getLanguage
   _: (textId) -> get instanceId, textId
 
 corePlugin =
