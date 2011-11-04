@@ -1,17 +1,19 @@
 # scaleApp
-scaleApp is a tiny JavaScript framework for scalable One-Page-Applications. 
+scaleApp is a tiny JavaScript framework for scalable One-Page-Applications.
 The framework allows you to easily create complex web applications.
 
 ## Demo
 
-You can try out the [sample application](http://www.scaleapp.org/demo/fast/) that is build on 
+You can try out the [sample application](http://www.scaleapp.org/demo/fast/) that is build on
 [scaleApp](http://www.scaleapp.org). Also have a look at the [source code](http://github.com/flosse/FAST).
 
 
-## Dependencies
+## Plugins
 
-At the moment only jQuery and the jQuery.hotkeys plugin are required.
-You can use scaleApp.full.min.js that already contains all required libraries.
+- MVC
+- Collection
+- dom
+- util
 
 ## Usage
 

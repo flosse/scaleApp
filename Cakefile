@@ -150,8 +150,8 @@ task 'build:plugins', "Build #{coreName} plugins from source files", ->
       util.log err if err
 
       # copy js plugins
-      exec "cp #{pluginCoffeeDir}/*.js #{pluginTargetDir}/", (err, stdout, stderr) ->
-        util.log err if err
+      # exec "cp #{pluginCoffeeDir}/*.js #{pluginTargetDir}/", (err, stdout, stderr) ->
+      #   util.log err if err
 
        # for plugin, dep of pluginDeps
        #   do ->

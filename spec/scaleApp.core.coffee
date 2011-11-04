@@ -275,6 +275,15 @@ describe "scaleApp core", ->
           core: { }
         (expect scaleApp.registerPlugin plugin).toBeFalsy()
 
+      for name in keys
+        sbP = ->
+        sbP::[name] = ->
+        plugin =
+          id: "myPluginId"
+          sandbox: sbP
+          core: { }
+        (expect scaleApp.registerPlugin plugin).toBeFalsy()
+
     it "returns false if core plugin uses reserved keywords", ->
 
       keys = [

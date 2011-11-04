@@ -39,7 +39,6 @@ describe "dom plugin", ->
     div = document.createElement "div"
     div.setAttribute "id", "dummy"
     document.body.appendChild div
-    console.log document.body
 
     testIt = (sb) ->
       (expect sb.getContainer()).toEqual div

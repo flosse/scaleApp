@@ -9,6 +9,5 @@ class DOMPlugin
       else document.getElementById @sb.instanceId
 
 scaleApp.registerPlugin
-  version: "0.3"
   id: "dom"
   sandbox: DOMPlugin

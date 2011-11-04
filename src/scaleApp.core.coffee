@@ -5,6 +5,11 @@ instances = {}
 mediator = new Mediator "core"
 plugins = {}
 
+uniqueId = (length=8) ->
+ id = ""
+ id += Math.random().toString(36).substr(2) while id.length < length
+ id.substr 0, length
+
 # container for all functions that gets called when an instance gets created
 onInstantiateFunctions = _always: []
 
@@ -34,7 +39,7 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
 
   sb = new Sandbox core, instanceId, instanceOpts
 
-  for i,p of plugins when p
+  for i,p of plugins when p.sandbox?
     plugin = new p.sandbox sb
     sb[k] = v for k,v of plugin when plugin.hasOwnProperty k
 
@@ -124,7 +129,7 @@ stopAll = -> stop id for id of instances
 
 coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
   "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe"
-  "Mediator", "Sandbox", "unregisterAll" ]
+  "Mediator", "Sandbox", "unregisterAll", "uniqueId" ]
 
 sandboxKeywords = [ "core", "instanceId", "options", "publish"
   "subscribe", "unsubscribe" ]
@@ -136,12 +141,12 @@ registerPlugin = (plugin) ->
     throw new Error "plugin has no id" unless typeof plugin.id is "string"
 
     if typeof plugin.sandbox is "function"
-      for k in (i for i of new plugin.sandbox new Sandbox core, "")
+      for k of new plugin.sandbox new Sandbox core, ""
         throw new Error "plugin uses reserved keyword" if k in sandboxKeywords
       Sandbox::[k] = v for k, v of plugin.sandbox::
 
     if typeof plugin.core is "object"
-      for k in (i for i of plugin.core)
+      for k of plugin.core
         throw new Error "plugin uses reserved keyword" if k in coreKeywords
       core[k] = v for k, v of plugin.core
 
@@ -169,6 +174,7 @@ core =
   publish: mediator.publish
   subscribe: mediator.subscribe
   unsubscribe: mediator.unsubscribe
+  uniqueId: uniqueId
   Mediator: Mediator
   Sandbox: Sandbox
 

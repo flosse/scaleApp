@@ -17,6 +17,5 @@ class UtilPlugin
     else rec[k]=v for k,v of giv when not rec.hasOwnProperty k
 
 scaleApp.registerPlugin
-  version: "0.3"
   id: "util"
   sandbox: UtilPlugin
