@@ -4,6 +4,7 @@ modules = {}
 instances = {}
 mediator = new Mediator "core"
 plugins = {}
+error = (e) -> console?.error? e.message
 
 uniqueId = (length=8) ->
  id = ""
@@ -77,8 +78,8 @@ register = (moduleId, creator, opt = {}) ->
 
   try
     addModule moduleId, creator, opt
-  catch error
-    error? "could not register module: #{error}"
+  catch e
+    error new Error "could not register module: #{e.message}"
     false
 
 unregister = (id) ->
@@ -108,7 +109,7 @@ start = (moduleId, opt={}) ->
     true
 
   catch e
-    error? e
+    error e
     false
 
 stop = (id) ->
@@ -157,7 +158,7 @@ registerPlugin = (plugin) ->
     true
 
   catch e
-    error? e.message
+    error e
     false
 
 # define pupblic API
