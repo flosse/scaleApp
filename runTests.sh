@@ -20,6 +20,6 @@ else
   echo "Running '$TESTS'"
 fi
 
-java -jar $JSTD --reset --tests "$TESTS"
+#java -jar $JSTD --reset --tests "$TESTS"
 #java -jar $JSTD --reset --tests "all" --config jsTestDriverIit.conf
 java -jar $JSTD --reset --tests "all" --config jsTestDriver.conf
