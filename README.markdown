@@ -1,26 +1,31 @@
 # scaleApp
-scaleApp is a tiny JavaScript framework for scalable One-Page-Applications. 
+scaleApp is a tiny JavaScript framework for scalable One-Page-Applications.
 The framework allows you to easily create complex web applications.
 
 ## Demo
 
-You can try out the [sample application](http://www.scaleapp.org/demo/fast/) that is build on 
-[scaleApp](http://www.scaleapp.org). Also have a look at the [source code](http://github.com/flosse/FAST).
+You can try out the [sample application](http://www.scaleapp.org/demo/fast/)
+that is build on [scaleApp](http://www.scaleapp.org).
+Also have a look at the [source code](http://github.com/flosse/FAST).
 
 
-## Dependencies
+## Plugins
 
-At the moment only jQuery and the jQuery.hotkeys plugin are required.
-You can use scaleApp.full.min.js that already contains all required libraries.
+- MVC
+- Collection
+- dom
+- util
 
 ## Usage
 
-see [documentation](http://www.scaleapp.org/tutorial) on [scaleapp.org](http://www.scaleapp.org).
+see [documentation](http://www.scaleapp.org/tutorial) on
+[scaleapp.org](http://www.scaleapp.org).
 
 ## Testing
 
 scaleApp uses [JsTestDriver]( https://code.google.com/p/js-test-driver/ ).
-Make shure that Java is installed and the file "JsTestDriver-1.2.2.jar" is placed in the scaleApp directory.
+Make shure that Java is installed and the file "JsTestDriver-1.2.2.jar" is
+placed in the scaleApp directory.
 
 Run the tests:
 
@@ -28,7 +33,6 @@ Run the tests:
   2. open your browser and navigate to http://localhost:4224/
   3. click on "Capture This Browser"
   4. run the tests by executing runTests.sh
-
 
 ## Licence
 
