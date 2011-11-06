@@ -10,7 +10,7 @@ class Mediator
   # - (String) topic      - The topic name
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
-  subscribe: (channel, fn) ->
+  subscribe: (channel, fn) =>
     @channels[channel] = [] unless @channels[channel]?
     @channels[channel].push { context: @, callback: fn }
     @
@@ -22,10 +22,15 @@ class Mediator
   # - (String) topic      - The topic name
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
-  unsubscribe: (channel) ->
-    #for subscription in @channels[channel]
-    #  if subscription.context is @
-    #    # remove it
+  unsubscribe: (channel, cb) =>
+
+    removeCB = (array,fn) -> for sub,j in array
+      if sub.callback is fn then array.splice j,1; break
+
+    switch typeof channel
+      when "string" then removeCB @channels[channel], cb if @channels[channel]?
+      when "function" then removeCB ch, channel for k,ch of @channels
+
     @
 
   # ## Publish an event

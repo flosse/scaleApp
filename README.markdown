@@ -11,10 +11,10 @@ Also have a look at the [source code](http://github.com/flosse/FAST).
 
 ## Plugins
 
-- MVC
-- Collection
-- dom
-- util
+- mvc - simple MVC classes
+- dom - plugin for DOM manipulations (currently only used for `getContainer`)
+- util - collection of helper functions
+- i18n - plugin for multi language support
 
 ## Usage
 

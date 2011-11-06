@@ -22,8 +22,36 @@ describe "Mediator", ->
 
   describe "unsubscribe function", ->
 
-    it "is an accessible function", ->
-      (expect typeof @paul.unsubscribe).toEqual "function"
+    it "removes a subscription from a channel", ->
+      ch = "a channel"
+      cb1 = jasmine.createSpy "cb1"
+      cb2 = jasmine.createSpy "cb2"
+      @paul.subscribe ch, cb1
+      @paul.subscribe ch, cb2
+      @paul.publish ch, "hello"
+      @paul.unsubscribe ch, cb1
+      @paul.publish ch, "hello2"
+      (expect cb1.callCount).toEqual 1
+      (expect cb2.callCount).toEqual 2
+
+    it "removes a subscription from all channels", ->
+
+      ch1 = "channel1"
+      ch2 = "channel2"
+      cb1 = jasmine.createSpy "cb1"
+      cb2 = jasmine.createSpy "cb2"
+
+      @paul.subscribe ch1, cb1
+      @paul.subscribe ch2, cb1
+      @paul.subscribe ch1, cb2
+
+      @paul.unsubscribe cb1
+
+      @paul.publish ch1, "hello"
+      @paul.publish ch2, "hello"
+
+      (expect cb1).wasNotCalled()
+      (expect cb2).toHaveBeenCalled()
 
     it "returns the current context", ->
       (expect @paul.unsubscribe "my channel" ).toEqual @paul
