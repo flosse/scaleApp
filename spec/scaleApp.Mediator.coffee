@@ -95,6 +95,7 @@ describe "Mediator", ->
       @paul.subscribe  "a channel", @cb
       @peter.subscribe "a channel", @cb2
       @paul.publish "a channel", @data
+      @paul.publish "doees not exist", @data
       (expect @cb).toHaveBeenCalled()
       (expect @cb2).wasNotCalled()
 

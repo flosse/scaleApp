@@ -46,15 +46,16 @@ class Mediator
   #                              object.
   publish: (channel, data, publishReference) ->
 
-    for topic, subscription of @channels[channel]
+    if @channels[channel]?
+      for subscription in @channels[channel]
 
-      if publishReference isnt true
-        copy = {}
-        copy[k] = v for k,v of data
-        subscription.callback.apply subscription.context, [copy, topic]
+        if publishReference isnt true
+          copy = {}
+          copy[k] = v for k,v of data
+          subscription.callback.apply subscription.context, [copy, channel]
 
-      else
-        subscription.callback.apply subscription.context, [data, topic]
+        else
+          subscription.callback.apply subscription.context, [data, channel]
     @
 
   # ## Install Pub/Sub functions to an object
