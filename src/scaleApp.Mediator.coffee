@@ -44,7 +44,7 @@ class Mediator
   #                              By default the data object gets copied so that
   #                              other modules can't influence the original
   #                              object.
-  publish: (channel, data, publishReference) ->
+  publish: (channel, data, publishReference) =>
 
     if @channels[channel]?
       for subscription in @channels[channel]
