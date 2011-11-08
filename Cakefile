@@ -2,15 +2,15 @@ fs     = require 'fs'
 path   = require 'path'
 {exec} = require 'child_process'
 util   = require 'util'
-
-require.paths.push '/usr/local/lib/node_modules'
-coffee    = require 'coffee-script'
-uglify    = require 'uglify-js'
+coffee = require 'coffee-script'
+uglify = require 'uglify-js'
 
 coreName = "scaleApp"
 coreCoffeeDir   = 'src'
 pluginCoffeeDir  = 'src/plugins'
+moduleCoffeeDir  = 'src/modules'
 pluginTargetDir  = 'build/plugins'
+moduleTargetDir  = 'build/modules'
 libDir = 'lib'
 targetDir = 'build'
 
@@ -35,11 +35,13 @@ createTargetDir = (cb) ->
   util.log "create #{targetDir} directory"
   fs.mkdir targetDir, 0755, cb
 
-minify = (file, resNames, cb) ->
-  res = if resNames then "--reserved-names #{resNames.join ',' } " else ""
-  exec "uglifyjs -o #{file}.min.js #{res}#{file}.js", (err) ->
+minifyJsFile = (file, resNames, cb) ->
+  fs.readFile "#{file}.js", 'utf8', (err, code) ->
     util.log err if err
-    cb()
+    min = minify code, resNames
+    fs.writeFile "#{file}.min.js", min, 'utf8', (err) ->
+      util.log err if err
+      cb()
 
 minify = (code, resNames) -> uglify.uglify.gen_code(
   uglify.uglify.ast_squeeze(
@@ -75,10 +77,10 @@ minifyDir = (dir)->
       s.replace(".js","")
 
     for f in single
-      minifyFile "#{dir}/#{f}", reservedNames, ->
+      minifyJsFile "#{dir}/#{f}", reservedNames, ->
 
     for i in full
-      minifyFile "#{dir}/#{i}", null, ->
+      minifyJsFile "#{dir}/#{i}", null, ->
 
 concate = (files, type, cb) ->
   concateContents = new Array filesRemaining = files.length
@@ -100,6 +102,7 @@ checkTargetDir = (cb) -> path.exists targetDir, (exists) ->
 task 'build', 'Build all', ->
   invoke 'build:core'
   invoke 'build:plugins'
+  invoke 'build:modules'
 
 task 'build:core', 'Build a single JavaScript file from src files', ->
 
@@ -112,7 +115,7 @@ task 'build:core', 'Build a single JavaScript file from src files', ->
     concate files, "coffee", (content) ->
       targetName = "#{targetDir}/#{coreName}"
       code = coffee.compile content
-      fs.writeFile "#{targetName}.min.js", code, 'utf8', (err) ->
+      fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
         util.log err if err
 
 task 'build:full', "Builds a single file with all dependencies and plugins", ->
@@ -163,28 +166,37 @@ task 'build:plugins', "Build #{coreName} plugins from source files", ->
 
        #     concate "#{pluginTargetDir}/#{pluginName}.full", "js", (content) ->
        #       #  util.log err if err
+task 'build:modules', "Build #{coreName} modules from source files", ->
 
+  checkTargetDir ->
+
+    util.log "Building modules"
+    exec "coffee -c -o #{moduleTargetDir} #{moduleCoffeeDir}", (err, stdout, stderr) ->
+      util.log err if err
+
+task 'minify',         "Minify all js files", ->
+  invoke "build"
+  invoke "minify:core"
+  invoke "minify:plugins"
+  invoke "minify:modules"
+
+task 'minify:core',    "Minify the core",    -> minifyDir targetDir
 task 'minify:plugins', "Minify the plugins", -> minifyDir pluginTargetDir
-
-task 'minify:core', "Minify the core", -> minifyDir targetDir
+task 'minify:modules', "Minify the modules", -> minifyDir moduleTargetDir
 
 task 'test', "runs the tests", ->
 
-  exec "cake build:core", (err, stdout) ->
+  exec "cake build", (err, stdout) ->
     util.log err if err
     util.log stdout if stdout
 
-    exec "cake build:plugins", (err, stdout) ->
+    exec "coffee -c spec/", (err, stdout) ->
       util.log err if err
       util.log stdout if stdout
 
-      exec "coffee -c spec/", (err, stdout) ->
+      exec "./runTests.sh", (err, stdout) ->
         util.log err if err
         util.log stdout if stdout
-
-        exec "./runTests.sh", (err, stdout) ->
-          util.log err if err
-          util.log stdout if stdout
 
 task 'doc', "create docs", ->
   
