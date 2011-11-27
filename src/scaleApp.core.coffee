@@ -179,5 +179,5 @@ core =
   Mediator: Mediator
   Sandbox: Sandbox
 
-if not (global = (exports ? window)).scaleApp?
-  global.scaleApp = core
+exports[k]= v for k,v of core if exports?
+window.scaleApp = core if window?
