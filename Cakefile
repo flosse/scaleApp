@@ -20,16 +20,11 @@ coreCoffeeFiles  = [
   'scaleApp.core'
 ]
 
-reservedNames  = [
-  '$'
-  'jQuery'
-]
+reservedNames  = [ ]
 
-coreDepJsFiles  = [ 'jquery-1.6.2.min' ]
+coreDepJsFiles  = [ ]
 
-pluginDeps =
-  "template" : [ 'jquery.tmpl' ]
-  "hotkeys"  : [ 'jquery.hotkeys' ]
+pluginDeps = {}
 
 createTargetDir = (cb) ->
   util.log "create #{targetDir} directory"
@@ -50,7 +45,7 @@ minify = (code, resNames) -> uglify.uglify.gen_code(
       ,{ except: resNames }
     )
   )
-)
+)+';'
 
 filterJsFiles = (files) -> files.filter (s) -> (s.indexOf( ".js") isnt -1)
 
@@ -118,22 +113,25 @@ task 'build:core', 'Build a single JavaScript file from src files', ->
       fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
         util.log err if err
 
-task 'build:full', "Builds a single file with all dependencies and plugins", ->
+task 'build:full', "Builds a single file with all plugins", ->
 
-  libs = []
+  checkTargetDir ->
 
-  for f in coreDepJsFiles
-    libs.push "lib/#{f}"
+    fs.readdir pluginCoffeeDir, (err, files) ->
+      pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
 
-  for plugin, dep of pluginDeps
-    libs.push "lib/#{dep}"
+      pluginFiles = ("#{pluginCoffeeDir}/#{f.split(".coffee")[0]}" for f in pluginFiles)
+      coreFiles   = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
 
-  concate libs, "js", ->
-
-    allCoreFiles.push "#{targetDir}/#{coreName}"
-
-    allCoreFiles = []
-
+      all = [ coreFiles..., pluginFiles...]
+      concate all, "coffee", (content) ->
+        targetName = "#{targetDir}/#{coreName}.full"
+        code = coffee.compile content
+        min = minify code, reservedNames
+        fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
+          util.log err if err
+        fs.writeFile "#{targetName}.min.js", min, 'utf8', (err) ->
+          util.log err if err
 
 task 'watch', 'Watch prod source files and build changes', ->
   util.log "Watching for changes in #{coreCoffeeDir}/"
@@ -152,20 +150,6 @@ task 'build:plugins', "Build #{coreName} plugins from source files", ->
     exec "coffee -c -o #{pluginTargetDir} #{pluginCoffeeDir}", (err, stdout, stderr) ->
       util.log err if err
 
-      # copy js plugins
-      # exec "cp #{pluginCoffeeDir}/*.js #{pluginTargetDir}/", (err, stdout, stderr) ->
-      #   util.log err if err
-
-       # for plugin, dep of pluginDeps
-       #   do ->
-       #     libs = []
-       #     pluginName = "#{coreName}.#{plugin}"
-       #     libs.push "#{libDir}/#{f}" for f in dep
-       #     libs.push "#{pluginTargetDir}/#{pluginName}"
-       #     util.log n for n in libs
-
-       #     concate "#{pluginTargetDir}/#{pluginName}.full", "js", (content) ->
-       #       #  util.log err if err
 task 'build:modules', "Build #{coreName} modules from source files", ->
 
   checkTargetDir ->
