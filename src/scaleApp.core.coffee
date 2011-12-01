@@ -116,14 +116,19 @@ stop = (id) ->
   if instance = instances[id] then instance.destroy(); delete instances[id]
   else false
 
-startAll = (fn, opt) ->
+startAll = (cb, opt) ->
 
-  if fn instanceof Array
-    l = fn.length
-    start id, { callback: -> l-- } for id in fn
-  else
-    start id, module.options for id, module of modules when module
-  fn?()
+  if cb instanceof Array
+    mods = (modules[id] for id in cb when modules[id])
+    cb = opt
+  else mods = (mod for id,mod of modules)
+
+  count = mods.length
+
+  for m in mods
+    origCB = (o = m.options or {}).callback
+    o.callback = -> origCB?(); cb?() if (count-=1) is 0
+    start m.id, o
   true
 
 stopAll = -> stop id for id of instances

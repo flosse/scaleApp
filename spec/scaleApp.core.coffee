@@ -1,5 +1,9 @@
 describe "scaleApp core", ->
 
+  pause = (ms) ->
+    ms += (new Date).getTime()
+    continue while ms > new Date()
+
   beforeEach ->
     @validModule = (sb) ->
       init: ->
@@ -119,6 +123,8 @@ describe "scaleApp core", ->
   describe "startAll function", ->
 
     beforeEach ->
+      scaleApp.stopAll()
+      scaleApp.unregisterAll()
 
     it "is an accessible function", ->
       (expect typeof scaleApp.startAll).toEqual "function"
@@ -197,6 +203,30 @@ describe "scaleApp core", ->
 
       (expect scaleApp.startAll cb1).toBeTruthy()
       (expect cb1).toHaveBeenCalled()
+
+    it "calls the callback after defined modules have started", ->
+
+      finished = jasmine.createSpy "finish callback"
+
+      cb1 = jasmine.createSpy "first callback"
+      cb2 = jasmine.createSpy "second callback"
+
+      mod1 = (sb) ->
+        init: ->
+        destroy: ->
+
+      mod2 = (sb) ->
+        init: ->
+          (expect finished).wasNotCalled()
+          (expect cb2).wasNotCalled()
+          (expect cb1).toHaveBeenCalled()
+        destroy: ->
+
+      scaleApp.register "first", mod1, { callback: cb1 }
+      scaleApp.register "second", mod2, { callback: cb2 }
+
+      (expect scaleApp.startAll ["first","second"], finished).toBeTruthy()
+      (expect finished).toHaveBeenCalled()
 
   describe "stop function", ->
     it "is an accessible function", ->
