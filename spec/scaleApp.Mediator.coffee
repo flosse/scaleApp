@@ -92,12 +92,38 @@ describe "Mediator", ->
       @anObject = {}
 
     it "publishes data to a subscribed topic", ->
+
       @paul.subscribe  "a channel", @cb
       @peter.subscribe "a channel", @cb2
       @paul.publish "a channel", @data
       @paul.publish "doees not exist", @data
       (expect @cb).toHaveBeenCalled()
       (expect @cb2).wasNotCalled()
+
+    it "publishes a copy of data objects by default", ->
+
+      obj = {a:true,b:"x",c:{ y:0 }}
+      arr = ["a",1,false]
+
+      @paul.subscribe "obj", (data) ->
+        (expect data isnt obj).toBeTruthy()
+        (expect data.b).toEqual obj.b
+
+      @paul.subscribe "obj-ref", (data) ->
+        (expect data is obj).toBeTruthy()
+
+      @paul.subscribe "arr", (data) ->
+        (expect data isnt arr).toBeTruthy()
+        (expect data instanceof Array).toBeTruthy()
+
+      @paul.subscribe "arr-ref", (data) ->
+        (expect data is arr).toBeTruthy()
+        (expect data instanceof Array).toBeTruthy()
+
+      @paul.publish "obj", obj
+      @paul.publish "obj-ref", obj, true
+      @paul.publish "arr", arr
+      @paul.publish "arr-ref", arr, true
 
     it "does not publish data to other topics", ->
 
@@ -108,7 +134,7 @@ describe "Mediator", ->
     describe "auto subscription", ->
 
       # ! NOT IMPLEMENTED !
-      
+
       # it "publishes subtopics to parent topics", ->
 
       #   @paul.subscribe  "parentTopic", @cb

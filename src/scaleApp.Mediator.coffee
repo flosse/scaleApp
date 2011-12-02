@@ -50,8 +50,11 @@ class Mediator
       for subscription in @channels[channel]
 
         if publishReference isnt true and typeof data is "object"
-          copy = {}
-          copy[k] = v for k,v of data
+          if data instanceof Array
+            copy = (v for v in data)
+          else
+            copy = {}
+            copy[k] = v for k,v of data
           subscription.callback.apply subscription.context, [copy, channel]
 
         else
