@@ -78,3 +78,14 @@ describe "i18n plugin", ->
         cb()
       run()
       (expect cb).toHaveBeenCalled()
+
+    it "returns the key itself if nothing was found", ->
+      cb = jasmine.createSpy "a callback"
+      m = (@sb) ->
+        init: =>
+          (expect sb._ "nothing").toEqual "nothing"
+          cb()
+        destroy: ->
+      scaleApp.register "mod", m
+      scaleApp.start "mod"
+      (expect cb).toHaveBeenCalled()

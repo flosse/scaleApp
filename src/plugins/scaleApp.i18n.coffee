@@ -4,7 +4,7 @@ class SBPlugin
 
   _: (text) ->
     i18n = @sb.options.i18n
-    return text if typeof i18n is not "object"
+    return text if typeof i18n isnt "object"
     @sb.core.i18n.get i18n, text
 
   getLanguage: -> @sb.core.i18n.getLanguage()
