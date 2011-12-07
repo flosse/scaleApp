@@ -1,4 +1,4 @@
-VERSION = "0.3"
+VERSION = "0.3.1"
 
 modules = {}
 instances = {}
@@ -43,7 +43,7 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
 
   for i,p of plugins when p.sandbox?
     plugin = new p.sandbox sb
-    sb[k] = v for k,v of plugin when plugin.hasOwnProperty k
+    sb[k] = v for own k,v of plugin
 
   instance = new module.creator sb
   instance.options = instanceOpts
