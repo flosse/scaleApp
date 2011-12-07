@@ -13,8 +13,3 @@ class Sandbox
     throw new Error "core was not defined" unless @core?
     throw new Error "no id was specified"  unless instanceId?
     throw new Error "id is not a string"   unless typeof instanceId is "string"
-
-  # ## Pub/Sub functions
-  subscribe:   (args...) -> @core.subscribe   args..., @instanceId
-  unsubscribe: (args...) -> @core.unsubscribe args..., @instanceId
-  publish:     (args...) -> @core.publish     args..., @instanceId

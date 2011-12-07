@@ -30,14 +30,3 @@ describe "scaleApp Sanbox", ->
     it "stores the option object", ->
       myOpts = { settingOne: "its boring" }
       (expect (new scaleApp.Sandbox {}, "myId", myOpts).options).toEqual myOpts
-
-    describe "sandbox functions", ->
-
-      it "is has the accessible function 'subscribe'", ->
-        (expect typeof @sb.subscribe).toEqual "function"
-
-      it "is has the accessible function 'unsubscribe'", ->
-        (expect typeof @sb.unsubscribe).toEqual "function"
-
-      it "is has the accessible function 'publish'", ->
-        (expect typeof @sb.publish).toEqual "function"

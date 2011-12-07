@@ -1,7 +1,8 @@
 class Mediator
 
-  # ## Create a mediator
-  constructor: (@name="") -> @channels = {}
+  constructor: (obj) ->
+    @channels = {}
+    @installTo obj if obj
 
   # ## Subscribe to a topic
   #
@@ -10,10 +11,22 @@ class Mediator
   # - (String) topic      - The topic name
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
-  subscribe: (channel, fn) =>
+  # - (Object) context    - The context the function(s) belongs to
+  subscribe: (channel, fn, context=@) ->
+
     @channels[channel] = [] unless @channels[channel]?
-    @channels[channel].push { context: @, callback: fn }
-    @
+    that = @
+
+    if channel instanceof Array
+      @subscribe id, fn for id in channel
+    else if typeof channel is "object"
+      @subscribe k,v for k,v of channel
+    else
+      subscription = { context: context, callback: fn }
+      (
+        attach: -> that.channels[channel].push subscription; @
+        detach: -> Mediator.rm that, channel, subscription.callback; @
+      ).attach()
 
   # ## Unsubscribe from a topic
   #
@@ -22,15 +35,13 @@ class Mediator
   # - (String) topic      - The topic name
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
-  unsubscribe: (channel, cb) =>
-
-    removeCB = (array,fn) -> for sub,j in array
-      if sub.callback is fn then array.splice j,1; break
-
-    switch typeof channel
-      when "string" then removeCB @channels[channel], cb if @channels[channel]?
-      when "function" then removeCB ch, channel for k,ch of @channels
-
+  unsubscribe: (ch, cb) ->
+    switch typeof ch
+      when "string"
+        Mediator.rm @,ch,cb if typeof cb is "function"
+        Mediator.rm @,ch    if typeof cb is "undefined"
+      when "function"  then Mediator.rm @,id,ch for id of @channels
+      when "undefined" then Mediator.rm @,id    for id of @channels
     @
 
   # ## Publish an event
@@ -44,7 +55,7 @@ class Mediator
   #                              By default the data object gets copied so that
   #                              other modules can't influence the original
   #                              object.
-  publish: (channel, data, publishReference) =>
+  publish: (channel, data, publishReference) ->
 
     if @channels[channel]?
       for subscription in @channels[channel]
@@ -64,6 +75,12 @@ class Mediator
   # ## Install Pub/Sub functions to an object
   installTo: (obj) ->
     if typeof obj is "object"
-      obj.subscribe = @subscribe
-      obj.publish = @publish
+      obj.subscribe   = @subscribe
+      obj.unsubscribe = @unsubscribe
+      obj.publish     = @publish
+      obj.channels    = @channels
     @
+
+  @rm: (o, ch, cb) ->
+    o.channels[ch] = (s for s in o.channels[ch] when (
+      if cb? then s.callback isnt cb else s.context isnt o ))

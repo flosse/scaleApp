@@ -2,7 +2,7 @@ VERSION = "0.3"
 
 modules = {}
 instances = {}
-mediator = new Mediator "core"
+mediator = new Mediator
 plugins = {}
 error = (e) -> console?.error? e.message
 
@@ -39,6 +39,7 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
   instanceOpts[key] = val for key, val of opt if opt
 
   sb = new Sandbox core, instanceId, instanceOpts
+  mediator.installTo sb
 
   for i,p of plugins when p.sandbox?
     plugin = new p.sandbox sb
@@ -97,7 +98,7 @@ start = (moduleId, opt={}) ->
 
     throw new Error "module ID has to be a string" unless typeof moduleId is "string"
     throw new Error "second parameter has to be an object" unless typeof opt is "object"
-    throw new Error "modle does not exist" unless modules[moduleId]?
+    throw new Error "module does not exist" unless modules[moduleId]?
 
     instance = createInstance moduleId, opt.instanceId, opt.options
 
@@ -119,17 +120,21 @@ stop = (id) ->
 startAll = (cb, opt) ->
 
   if cb instanceof Array
-    mods = (modules[id] for id in cb when modules[id])
+    mods = (id for id in cb when modules[id])
     cb = opt
-  else mods = (mod for id,mod of modules)
+  else switch typeof cb
+    when "undefined","function" then mods = (id for id of modules)
 
-  count = mods.length
+  if mods?.length >= 1
+    o = {}; o[k] = v for own k,v of modules[mods[0]].options when v
+    origCB = o.callback
 
-  for m in mods
-    origCB = (o = m.options or {}).callback
-    o.callback = -> origCB?(); cb?() if (count-=1) is 0
-    start m.id, o
-  true
+    if mods[1..].length is 0
+      o.callback = -> origCB?(); cb?()
+    else
+      o.callback = -> origCB?(); startAll mods[1..], cb
+    start mods[0], o
+  else false
 
 stopAll = -> stop id for id of instances
 
@@ -177,12 +182,10 @@ core =
   stop: stop
   startAll: startAll
   stopAll: stopAll
-  publish: mediator.publish
-  subscribe: mediator.subscribe
-  unsubscribe: mediator.unsubscribe
   uniqueId: uniqueId
   Mediator: Mediator
   Sandbox: Sandbox
 
+mediator.installTo core
 exports[k]= v for k,v of core if exports?
 window.scaleApp = core if window?

@@ -109,6 +109,19 @@ describe "scaleApp core", ->
         (expect cb).toHaveBeenCalled()
         (expect initCB).toHaveBeenCalled()
 
+      it "it does not calls the callback function if an error occours", ->
+        cb = jasmine.createSpy "success callback"
+        initCB = jasmine.createSpy "init callback"
+        mod1 = (sb) ->
+          init: ->
+            initCB()
+            thisWillProcuceAnError()
+          destroy: ->
+        (expect scaleApp.register "anId", mod1).toBeTruthy()
+        (expect scaleApp.start "anId", { callback: cb }).toBeFalsy()
+        (expect initCB).toHaveBeenCalled()
+        (expect cb).wasNotCalled()
+
       it "starts a separate instance", ->
 
         initCB = jasmine.createSpy "init callback"
@@ -188,7 +201,7 @@ describe "scaleApp core", ->
 
     it "calls the callback function after all modules have started", ->
 
-      cb1 = jasmine.createSpy()
+      cb1 = jasmine.createSpy "callback"
 
       mod1 = (sb) ->
         init: -> (expect cb1).wasNotCalled()
@@ -228,6 +241,11 @@ describe "scaleApp core", ->
       (expect scaleApp.startAll ["first","second"], finished).toBeTruthy()
       (expect finished).toHaveBeenCalled()
 
+    it "does not call the callback if a modules couldn't start", ->
+      finished = jasmine.createSpy "finish callback"
+      (expect scaleApp.startAll ["x","y","z"], finished).toBeFalsy()
+      (expect finished).wasNotCalled()
+
   describe "stop function", ->
     it "is an accessible function", ->
       (expect typeof scaleApp.stop).toEqual "function"
@@ -261,8 +279,63 @@ describe "scaleApp core", ->
       (expect typeof scaleApp.subscribe).toEqual "function"
 
   describe "unsubscribe function", ->
+
     it "is an accessible function", ->
       (expect typeof scaleApp.unsubscribe).toEqual "function"
+
+    it "removes subscriptions from a channel", ->
+
+      globalA = jasmine.createSpy "global A"
+      globalB = jasmine.createSpy "global B"
+
+      mod = (sb) ->
+
+        init: ->
+          sb.subscribe "X", globalA
+          sb.subscribe "X", globalB
+          sb.subscribe "Y", globalB
+          switch sb.instanceId
+            when "a"
+              localCB = jasmine.createSpy "localA"
+              sb.subscribe "X", localCB
+            when "b"
+              localCB = jasmine.createSpy "localB"
+              sb.subscribe "X", localCB
+              sb.subscribe "Y", localCB
+
+          sb.subscribe "test1", ->
+            switch sb.instanceId
+              when "a"
+                (expect localCB.callCount).toEqual 3
+              when "b"
+                (expect localCB.callCount).toEqual 2
+
+          sb.subscribe "unregister", ->
+            if sb.instanceId is "b"
+              sb.unsubscribe "X"
+
+        destroy: ->
+
+      (expect scaleApp.unregisterAll()).toBeTruthy()
+      (expect scaleApp.register "mod", mod).toBeTruthy()
+      (expect scaleApp.start "mod", instanceId: "a").toBeTruthy()
+      (expect scaleApp.start "mod", instanceId: "b").toBeTruthy()
+
+      scaleApp.publish "X", "foo"
+      scaleApp.publish "Y", "bar"
+
+      (expect globalA.callCount).toEqual 2
+      (expect globalB.callCount).toEqual 4
+      scaleApp.publish "test"
+
+      scaleApp.publish "unregister"
+      scaleApp.publish "X", "foo"
+
+      (expect globalA.callCount).toEqual 3
+      (expect globalB.callCount).toEqual 5
+
+      scaleApp.publish "X"
+      scaleApp.publish "test1"
 
   describe "registerPlugin function", ->
 
@@ -291,10 +364,6 @@ describe "scaleApp core", ->
         "publish"
         "subscribe"
         "unsubscribe" ]
-
-      sbKeys = (k for k of new scaleApp.Sandbox {}, "")
-
-      (expect k in sbKeys).toBeTruthy() for k in keys
 
       for name in keys
         sbP = {}
