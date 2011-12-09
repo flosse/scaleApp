@@ -9,15 +9,21 @@ class Model extends scaleApp.Mediator
     switch typeof key
       when "object"
         @set k,v,true for k,v of key
-        @publish "changed", (k for k,v of key) if not silent
+        @publish Model.CHANGED, (k for k,v of key) if not silent
       when "string"
         if not (key in ["set","get"]) and @[key] isnt val
           @[key] = val
-          @publish "changed", [key] if not silent
+          @publish Model.CHANGED, [key] if not silent
       else console?.error? "key is not a string"
     @
 
-  change: -> @publish "changed"
+  change: (cb, context) ->
+    if typeof cb is "function"
+      @subscribe Model.CHANGED, cb, context
+    else
+      @publish Model.CHANGED
+
+  notify: -> @change()
 
   get: (key) -> @[key]
 
@@ -26,11 +32,13 @@ class Model extends scaleApp.Mediator
     json[k]=v for own k,v of @
     json
 
+  @CHANGED: "changed"
+
 class View
 
   constructor: (model) -> @setModel model if model
 
-  setModel: (@model) -> @model.subscribe "changed", @render, @
+  setModel: (@model) -> @model.change @render, @
 
   render: ->
 
