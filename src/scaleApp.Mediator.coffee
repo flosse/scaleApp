@@ -18,9 +18,9 @@ class Mediator
     that = @
 
     if channel instanceof Array
-      @subscribe id, fn for id in channel
+      @subscribe id, fn, context for id in channel
     else if typeof channel is "object"
-      @subscribe k,v for k,v of channel
+      @subscribe k,v,fn for k,v of channel
     else
       subscription = { context: context, callback: fn }
       (
