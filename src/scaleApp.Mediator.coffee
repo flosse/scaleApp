@@ -25,7 +25,7 @@ class Mediator
       subscription = { context: context, callback: fn }
       (
         attach: -> that.channels[channel].push subscription; @
-        detach: -> Mediator.rm that, channel, subscription.callback; @
+        detach: -> Mediator._rm that, channel, subscription.callback; @
       ).attach()
 
   # ## Unsubscribe from a topic
@@ -38,10 +38,11 @@ class Mediator
   unsubscribe: (ch, cb) ->
     switch typeof ch
       when "string"
-        Mediator.rm @,ch,cb if typeof cb is "function"
-        Mediator.rm @,ch    if typeof cb is "undefined"
-      when "function"  then Mediator.rm @,id,ch for id of @channels
-      when "undefined" then Mediator.rm @,id    for id of @channels
+        Mediator._rm @,ch,cb if typeof cb is "function"
+        Mediator._rm @,ch    if typeof cb is "undefined"
+      when "function"  then Mediator._rm @,id,ch      for id of @channels
+      when "undefined" then Mediator._rm @,id         for id of @channels
+      when "object"    then Mediator._rm @,id,null,ch for id of @channels
     @
 
   # ## Publish an event
@@ -81,6 +82,12 @@ class Mediator
       obj.channels    = @channels
     @
 
-  @rm: (o, ch, cb) ->
+  @_rm: (o, ch, cb, ctxt) ->
     o.channels[ch] = (s for s in o.channels[ch] when (
-      if cb? then s.callback isnt cb else s.context isnt o ))
+      if cb?
+        s.callback isnt cb
+      else if ctxt?
+        s.context isnt ctxt
+      else
+        s.context isnt o
+    ))
