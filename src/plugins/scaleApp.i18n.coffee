@@ -1,21 +1,8 @@
-class SBPlugin
-
-  constructor: (@sb) ->
-
-  _: (text) ->
-    i18n = @sb.options.i18n
-    return text if typeof i18n isnt "object"
-    @sb.core.i18n.get i18n, text
-
-  getLanguage: -> @sb.core.i18n.getLanguage()
-
-  onLanguageChanged: (fn) -> @sb.core.i18n.subscribe fn
-
 baseLanguage = "en"
- 
+
 getBrowserLanguage = ->
   (navigator.language or navigator.browserLanguage or baseLang).split("-")[0]
- 
+
 # Holds the current global language code.
 # By default the browsers language is used.
 lang = getBrowserLanguage()
@@ -24,9 +11,9 @@ mediator = new scaleApp.Mediator
 
 channelName = "i18n"
 
-subscribe = (fn) -> mediator.subscribe(channelName,fn)
+subscribe = -> mediator.subscribe channelName, arguments...
 
-unsubscribe = (fn) -> mediator.unsubscribe(channelName,fn)
+unsubscribe = -> mediator.unsubscribe channelName, arguments...
 
 getLanguage = -> lang
 
@@ -37,6 +24,21 @@ setLanguage = (code) ->
 
 get = (x, text) ->
   x[lang]?[text] ? ( x[lang.substring(0, 2)]?[text] ? ( x[baseLanguage]?[text] ? text ) )
+
+class SBPlugin
+
+  constructor: (@sb) ->
+
+  i18n:
+    subscribe: subscribe
+    unsubscribe: unsubscribe
+
+  _: (text) ->
+    i18n = @sb.options.i18n
+    return text if typeof i18n isnt "object"
+    get i18n, text
+
+  getLanguage: getLanguage
 
 scaleApp.registerPlugin
   id: "i18n"
