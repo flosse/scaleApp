@@ -1,0 +1,34 @@
+{
+  "name":         "scaleapp",
+  "version":      "0.3.3",
+  "main":         "./src/scaleApp",
+  "description":  "scaleApp is a JavaScript framework for scalable One-Page-Applications",
+  "author":       "Markus Kohlhase",
+  "homepage":     "http://www.scaleapp.org",
+  "bugs":         "http://github.com/flosse/scaleApp/issues",
+  "contributors": ["Markus Kohlhase"],
+  "licenses":     [{"type": "MIT"}],
+  "engine":       "node",
+  "devDependencies":
+  {
+    "jasmine-node":   ">=1.0.21",
+    "jsdom":          ">=0.2.12",
+    "coffee-script":  ">=1.2.0"
+  },
+  "repositories":
+  [
+    {
+      "type": "git",
+		  "path": "git://github.com/flosse/scaleApp.git"
+		}
+  ],
+  "maintainers":
+  [
+    {
+      "name":   "Markus Kohlhase",
+		  "email":  "mail@markus-kohlhase.de",
+		  "web":    "http://github.com/flosse/"
+	  }
+  ],
+  "scripts": { "test": "jasmine-node --coffee spec/" }
+}
