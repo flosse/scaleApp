@@ -2,6 +2,8 @@
 scaleApp is a tiny JavaScript framework for scalable One-Page-Applications.
 The framework allows you to easily create complex web applications.
 
+[![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
+
 ## Demo
 
 You can try out the [sample application](http://www.scaleapp.org/demo/fast/)
