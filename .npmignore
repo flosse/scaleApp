@@ -1,0 +1,4 @@
+src/*.coffee
+spec/
+Cakefile
+.npmignore
