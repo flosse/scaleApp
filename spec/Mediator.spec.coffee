@@ -1,7 +1,9 @@
+Mediator = require("../src/Mediator").Mediator
+
 describe "Mediator", ->
 
   beforeEach ->
-    @paul = new scaleApp.Mediator
+    @paul = new Mediator
 
   describe "subscribe function", ->
 
@@ -112,7 +114,7 @@ describe "Mediator", ->
       cb1 = jasmine.createSpy "cb1"
       cb2 = jasmine.createSpy "cb2"
       obj = {}
-      mediator = new scaleApp.Mediator
+      mediator = new Mediator
       mediator.installTo obj
 
       mediator.subscribe ch1, cb1
@@ -141,7 +143,7 @@ describe "Mediator", ->
       cb1 = jasmine.createSpy "cb1"
       cb2 = jasmine.createSpy "cb2"
       obj = {}
-      mediator = new scaleApp.Mediator
+      mediator = new Mediator
       mediator.installTo obj
 
       mediator.subscribe ch1, cb1
@@ -170,7 +172,7 @@ describe "Mediator", ->
 
     it "returns the current context", ->
       (expect @paul.publish "my channel", {}).toEqual @paul
-      (expect (new scaleApp.Mediator).subscribe "my channel", -> ).toNotEqual @paul
+      (expect (new Mediator).subscribe "my channel", -> ).toNotEqual @paul
 
   describe "installTo function", ->
 
@@ -181,7 +183,7 @@ describe "Mediator", ->
 
       cb = jasmine.createSpy()
       cb2 = jasmine.createSpy()
-      mediator = new scaleApp.Mediator
+      mediator = new Mediator
       myObj = {}
       mediator.installTo myObj
 
@@ -203,7 +205,7 @@ describe "Mediator", ->
 
     it "takes care of the context", ->
 
-      mediator = new scaleApp.Mediator
+      mediator = new Mediator
       myObj = {}
       empty = {}
       mediator.installTo myObj
@@ -218,7 +220,7 @@ describe "Mediator", ->
     it "installs the mediator functions on creation", ->
 
       myObj = {}
-      new scaleApp.Mediator myObj
+      new Mediator myObj
       (expect typeof myObj.subscribe).toEqual "function"
       (expect typeof myObj.publish).toEqual "function"
       (expect typeof myObj.unsubscribe).toEqual "function"
@@ -226,12 +228,12 @@ describe "Mediator", ->
 
     it "returns the current context", ->
       (expect @paul.installTo {}).toEqual @paul
-      (expect (new scaleApp.Mediator).installTo, {} ).toNotEqual @paul
+      (expect (new Mediator).installTo, {} ).toNotEqual @paul
 
   describe "Pub/Sub", ->
 
     beforeEach ->
-      @peter = new scaleApp.Mediator
+      @peter = new Mediator
       @data = { bla: "blub"}
       @cb = jasmine.createSpy()
       @cb2 = jasmine.createSpy()

@@ -91,3 +91,5 @@ class Mediator
       else
         s.context isnt o
     ))
+
+exports.Mediator = Mediator if exports?

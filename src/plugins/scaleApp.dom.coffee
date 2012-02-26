@@ -8,6 +8,9 @@ class DOMPlugin
       when "object"  then @sb.options.container
       else document.getElementById @sb.instanceId
 
-scaleApp.registerPlugin
+plugin =
   id: "dom"
   sandbox: DOMPlugin
+
+window.scaleApp.registerPlugin plugin if window.scaleApp?
+exports.Plugin = plugin if exports?

@@ -1,3 +1,8 @@
+scaleApp   = require("../../src/scaleApp").scaleApp
+plugin     = require("../../src/plugins/scaleApp.mvc").Plugin
+
+scaleApp.registerPlugin plugin
+
 describe "mvc plugin", ->
   
   describe "Model", ->
@@ -87,8 +92,8 @@ describe "mvc plugin", ->
 
     it "renders the view when the model state changed and the model exists", ->
 
-      cb1 = jasmine.createSpy "a first callback"
-      cb2 = jasmine.createSpy "a second callback"
+      cb1 = jasmine.createSpy "first callback"
+      cb2 = jasmine.createSpy "second callback"
 
       viewWithModel = new scaleApp.View @m
       viewWithoutModel = new scaleApp.View

@@ -15,9 +15,9 @@ libDir = 'lib'
 targetDir = 'build'
 
 coreCoffeeFiles  = [
-  'scaleApp.Mediator'
-  'scaleApp.Sandbox'
-  'scaleApp.core'
+  'Mediator'
+  'Sandbox'
+  'scaleApp'
 ]
 
 reservedNames  = [ ]
@@ -170,17 +170,9 @@ task 'minify:modules', "Minify the modules", -> minifyDir moduleTargetDir
 
 task 'test', "runs the tests", ->
 
-  exec "cake build", (err, stdout) ->
+  exec "jasmine-node --coffee spec/", (err, stdout) ->
     util.log err if err
     util.log stdout if stdout
-
-    exec "coffee -c spec/", (err, stdout) ->
-      util.log err if err
-      util.log stdout if stdout
-
-      exec "./runTests.sh", (err, stdout) ->
-        util.log err if err
-        util.log stdout if stdout
 
 task 'doc', "create docs", ->
   

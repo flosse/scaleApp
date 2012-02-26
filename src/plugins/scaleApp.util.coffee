@@ -16,6 +16,9 @@ class UtilPlugin
     if override is true then rec[k]=v for k,v of giv
     else rec[k]=v for k,v of giv when not rec.hasOwnProperty k
 
-scaleApp.registerPlugin
+plugin =
   id: "util"
   sandbox: UtilPlugin
+
+scaleApp.registerPlugin plugin if scaleApp?
+exports.Plugin = plugin if exports?

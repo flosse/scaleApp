@@ -1,4 +1,8 @@
-VERSION = "0.3.2"
+if typeof require is "function"
+  Mediator  = require("./Mediator").Mediator
+  Sandbox   = require("./Sandbox").Sandbox
+
+VERSION = "0.3.3"
 
 modules = {}
 instances = {}
@@ -114,7 +118,13 @@ start = (moduleId, opt={}) ->
     false
 
 stop = (id) ->
-  if instance = instances[id] then instance.destroy(); delete instances[id]
+  if instance = instances[id]
+
+    #i18n.unsubscribe instance
+    mediator.unsubscribe instance
+
+    instance.destroy()
+    delete instances[id]
   else false
 
 startAll = (cb, opt) ->
@@ -187,5 +197,5 @@ core =
   Sandbox: Sandbox
 
 mediator.installTo core
-exports[k]= v for k,v of core if exports?
-window.scaleApp = core if window?
+exports.scaleApp  = core if exports?
+window.scaleApp   = core if window?

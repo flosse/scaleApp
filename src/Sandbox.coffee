@@ -13,3 +13,5 @@ class Sandbox
     throw new Error "core was not defined" unless @core?
     throw new Error "no id was specified"  unless instanceId?
     throw new Error "id is not a string"   unless typeof instanceId is "string"
+
+exports.Sandbox = Sandbox if exports?

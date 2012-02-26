@@ -1,3 +1,5 @@
+scaleApp = window?.scaleApp or require?("../scaleApp").scaleApp
+
 class Model extends scaleApp.Mediator
 
   constructor: (obj) ->
@@ -20,7 +22,7 @@ class Model extends scaleApp.Mediator
   change: (cb, context) ->
     if typeof cb is "function"
       @subscribe Model.CHANGED, cb, context
-    else
+    else if arguments.length is 0
       @publish Model.CHANGED
 
   notify: -> @change()
@@ -38,7 +40,7 @@ class View
 
   constructor: (model) -> @setModel model if model
 
-  setModel: (@model) -> @model.change @render, @
+  setModel: (@model) -> @model.change (-> @render()), @
 
   render: ->
 
@@ -46,9 +48,12 @@ class Controller
 
   constructor: (@model, @view) ->
 
-scaleApp.registerPlugin
+plugin =
   id: "mvc"
   core:
     Model: Model
     View: View
     Controller: Controller
+
+scaleApp.registerPlugin plugin if window?.scaleApp?
+exports.Plugin = plugin if exports?

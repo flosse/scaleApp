@@ -1,3 +1,8 @@
+scaleApp  = require("../../src/scaleApp").scaleApp
+plugin    = require("../../src/plugins/scaleApp.i18n").Plugin
+
+scaleApp.registerPlugin plugin
+
 describe "i18n plugin", ->
 
   testIt = ->
@@ -40,8 +45,8 @@ describe "i18n plugin", ->
     cb = jasmine.createSpy "i18n callback"
 
     testIt = (sb) ->
-        sb.onLanguageChanged scb
-        scaleApp.i18n.setLanguage "de-CH"
+      sb.i18n.subscribe scb
+      scaleApp.i18n.setLanguage "de-CH"
 
     scaleApp.i18n.subscribe cb
     run()

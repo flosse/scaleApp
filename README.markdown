@@ -23,16 +23,12 @@ see [documentation](http://www.scaleapp.org/tutorial) on
 
 ## Testing
 
-scaleApp uses [JsTestDriver]( https://code.google.com/p/js-test-driver/ ).
-Make shure that Java is installed and the file "JsTestDriver-1.2.2.jar" is
-placed in the scaleApp directory.
+[jasmine-node](https://github.com/mhevery/jasmine-node)
+is required (`npm install -g jasmine-node`) for running the tests.
 
-Run the tests:
-
-  1. start the server ( startTestServer.sh )
-  2. open your browser and navigate to http://localhost:4224/
-  3. click on "Capture This Browser"
-  4. run the tests by executing runTests.sh
+```shell
+jasmine-node --coffee spec/
+```
 
 ## Licence
 

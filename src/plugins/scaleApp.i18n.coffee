@@ -1,13 +1,15 @@
+Mediator = window?.scaleApp?.Mediator or require?("../Mediator").Mediator
+
 baseLanguage = "en"
 
 getBrowserLanguage = ->
-  (navigator.language or navigator.browserLanguage or baseLang).split("-")[0]
+  (navigator?.language or navigator?.browserLanguage or baseLanguage).split("-")[0]
 
 # Holds the current global language code.
 # By default the browsers language is used.
 lang = getBrowserLanguage()
 
-mediator = new scaleApp.Mediator
+mediator = new Mediator
 
 channelName = "i18n"
 
@@ -40,7 +42,7 @@ class SBPlugin
 
   getLanguage: getLanguage
 
-scaleApp.registerPlugin
+plugin =
   id: "i18n"
   sandbox: SBPlugin
   core:
@@ -52,3 +54,6 @@ scaleApp.registerPlugin
       get: get
       subscribe: subscribe
       unsubscribe: unsubscribe
+
+window?.scaleApp.registerPlugin plugin if window?.scaleApp?
+exports.Plugin = plugin if exports?
