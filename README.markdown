@@ -5,6 +5,11 @@ The framework allows you to easily create complex web applications.
 
 [![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
 
+## Download latest version
+
+- [scaleApp 0.3.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.3)
+- [scaleApp 0.3.3.zip](https://github.com/flosse/scaleApp/zipball/v0.3.3)
+
 # Quick Start
 
 Link `scaleApp.min.js` in your HTML file:
