@@ -91,7 +91,7 @@ scaleApp.start( "myModuleId", {callback: function(){ /*...*/ } );
 ```
 
 All other options you pass are available through the sandbox:
-  
+
 ```javascript
 scaleApp.register( "mod", function(s){
   sb = s
@@ -113,7 +113,7 @@ scaleApp.startAll();
 
 To start some special modules at once you can pass an array with the module
 names:
-     
+
 ```javascript
 scaleApp.startAll(["moduleA","moduleB"]);
 ```
@@ -237,10 +237,16 @@ scaleApp.i18n.setLanguage( "de" );
 # Architecture
 
 scaleApp is inspired by the talk of Nicholas C. Zakas -
-["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw).
+["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw)
+([Slides](http://www.slideshare.net/nzakas/scalable-javascript-application-architecture)).
+There also is a little [Article](http://www.ubelly.com/2011/11/scalablejs/) that
+describes the basic ideas.
+
 Unlike his recommendations to abstract DOM manipulations and separating the
 framework from the base library, scaleApp does not implement any DOM methods.
 Just use one of your favorite libs (e.g. jQuery) as base library.
+Of course you can also implement all your needed DOM methods into the DOM plugin
+(`scaleApp.dom.coffee`) for a more clean and scaleable architecture.
 
 # Build
 
