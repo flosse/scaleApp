@@ -5,6 +5,9 @@ The framework allows you to easily create complex web applications.
 
 [![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
 
+scaleApp is inspired by the talk of Nicholas C. Zakas -
+["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw).
+
 ## Download latest version
 
 - [scaleApp 0.3.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.3)
@@ -18,38 +21,46 @@ Link `scaleApp.min.js` in your HTML file:
 
 If you're going to use it with node:
 
-    sudo npm -g install scaleapp
+```shell
+sudo npm -g install scaleapp
+```
+
+```javascript
+sa = require("scaleapp").scaleApp
+```
 
 ## Register modules
 
-Now you can register your modules:
-
-    scaleApp.register( "myModuleId", function( sb ){
-      return {
-        init:    function(){ /*...*/ },
-        destroy: function(){ /*...*/ }
-      };
-    });
+```javascript
+scaleApp.register( "myModuleId", function( sb ){
+  return {
+    init:    function(){ /*...*/ },
+    destroy: function(){ /*...*/ }
+  };
+});
+```
 
 As you can see the module is a function that takes the sandbox as a parameter
 and returns an object that has two functions `init` and `destroy`.
 Of course your module can be any usual class with those two functions.
 Here an coffee-script example:
 
-    class MyGreatModule
+```coffeescript
+ class MyGreatModule
 
-      constructor: (@sb) ->
-      init: -> alert "Hello world!"
-      destroy: -> alert "Bye bye!"
+   constructor: (@sb) ->
+   init: -> alert "Hello world!"
+   destroy: -> alert "Bye bye!"
 
-    scaleApp.register "myGreatModule", MyGreatModule
+ scaleApp.register "myGreatModule", MyGreatModule
+```
 
 The `init` function is called by the framework when the module is supposed to
 start. The `destroy` function is called when the module has to shut down.
 
-Of course you can also unregister a module:
+You can also unregister a module:
 
-    scaleApp.register("myGreatModule");
+    scaleApp.unregister("myGreatModule");
 
 ## Start modules
 
@@ -192,7 +203,7 @@ You can set the language globally by using the `setLanguage` method:
 # Architecture
 
 scaleApp is inspired by the talk of Nicholas C. Zakas -
-["Scalable JavaScript Application Architecture"](http://developer.yahoo.com/yui/theater/video.php?v=zakas-architecture).
+["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw).
 Unlike his recommendations to abstract DOM manipulations and separating the
 framework from the base library, scaleApp does not implement any DOM methods.
 Just use one of your favorite libs (e.g. jQuery) as base library.
