@@ -8,6 +8,22 @@ The framework allows you to easily create complex web applications.
 scaleApp is inspired by the talk of Nicholas C. Zakas -
 ["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw).
 
+## Features
+
++ loose coupling of modules
++ small & simple
++ no serverside dependencies
++ modules can be tested separately
++ replacing any module without affecting other modules
++ extendable with plugins
++ browser and node.js support
+
+## Extendable
+
+scaleApp itself is very small but it can be extended with plugins. There already
+are some plugins available (e.g. `mvc`, `i18n`, etc.) but you can easily define
+your own one.
+
 ## Download latest version
 
 - [scaleApp 0.3.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.3)
@@ -180,7 +196,9 @@ sb.subscribe( "somthingHappend", messageHandler );
 sb.subscribe( "aNiceTopic", messageHandler );
 ```
 
-## Multi language UIs
+# Plugins
+
+## i18n - Multi language UIs
 
 Link `scaleApp.i18n.min.js` in your HTML file:
 
@@ -217,22 +235,90 @@ You can set the language globally by using the `setLanguage` method:
 scaleApp.i18n.setLanguage( "de" );
 ```
 
-# Plugins
+## mvc - very simple MVC
 
-- mvc - very simple MVC classes
+Here is a sample use case for using the MVC plugin (in coffeescript).
+
+```coffeescript
+class MyModel extends scaleApp.Model name: "Noname"
+```
+
+```coffeescript
+class MyView extends scaleApp.View
+
+  constructor: (@model, @sb, @template) -> super @model
+
+  # The render method gets automatically called when the model changes
+  # The 'getContainer' method is provided by the dom plugin
+  render: -> @sb.getContainer.innerHTML = @template @model
+```
+
+```coffeescript
+class MyController extends scaleApp.Controller
+
+  changeName: (name) -> @model.set "name", name
+```
+
+```coffeescript
+registerModule "myModule", (@sb) ->
+
+  init: (opt) ->
+
+    # You can use any template engine you like. Here it's
+    # just a simple function
+    template = (model) -> "<h1>Hello #{model.name}</h1>"
+
+    @m = new MyModel
+    @v = new MyView @m, @sb, @template
+    @c = new MyController @m, @v
+
+    # listen to the "changeName" event
+    @sb.subscribe "changeName", @c.changeName, @c
+
+  destroy: ->
+    delete @c
+    delete @v
+    delete @m
+    @sb.unsubscribe @
+```
+
+```coffeescript
+scaleApp.publish "changeName", "Peter"
+```
+
+## Other plugins
+
 - dom - basic DOM manipulations (currently only used for `getContainer`)
 - util - some helper functions
-- i18n - multi language UIs
 
-# Features
+## Write your own plugin
 
-+ loose coupling of modules
-+ small & simple
-+ no serverside dependencies
-+ modules can be tested separately
-+ replacing any module without affecting other modules
-+ extendable with plugins
-+ browser and node.js support
+```coffeescript
+scaleApp.registerPlugin
+
+  # set the ID of your plugin
+  id: "myPlgin"
+
+  # define the core extensions
+  core:
+    myCoreFunction: -> alert "Hello core plugin"
+    myBoringProperty: "boring"
+
+  # define the sandbox extensions
+  sandbox: (@sb) ->
+    appendFoo: -> @sb.getContainer.append "foo"
+```
+
+Usage:
+
+```coffeescript
+scaleApp.myCoreFunction()   # alerts "Hello core plugin"
+
+class MyModule
+  constructor: (@sb) ->
+  init: -> @sb.appendFoo()  # appends "foo" to the container
+  destroy: ->
+```
 
 # Architecture
 
