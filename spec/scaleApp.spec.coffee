@@ -129,8 +129,11 @@ describe "scaleApp core", ->
         (expect cb).toHaveBeenCalled()
         (expect initCB).toHaveBeenCalled()
 
-      it "it does not calls the callback function if an error occours", ->
-        cb = jasmine.createSpy "success callback"
+      it "calls the callback function with an error if an error occours", ->
+        cb = jasmine.createSpy "callback"
+        call = (err)->
+          (expect err.message).toEqual "could not start module: thisWillProcuceAnError is not defined"
+          cb()
         initCB = jasmine.createSpy "init callback"
         mod1 = (sb) ->
           init: ->
@@ -138,9 +141,9 @@ describe "scaleApp core", ->
             thisWillProcuceAnError()
           destroy: ->
         (expect scaleApp.register "anId", mod1).toBeTruthy()
-        (expect scaleApp.start "anId", { callback: cb }).toBeFalsy()
+        (expect scaleApp.start "anId", { callback: call }).toBeFalsy()
         (expect initCB).toHaveBeenCalled()
-        (expect cb).wasNotCalled()
+        (expect cb).wasCalled()
 
       it "starts a separate instance", ->
 
@@ -261,10 +264,49 @@ describe "scaleApp core", ->
       (expect scaleApp.startAll ["first","second"], finished).toBeTruthy()
       (expect finished).toHaveBeenCalled()
 
-    it "does not call the callback if a modules couldn't start", ->
-      finished = jasmine.createSpy "finish callback"
-      (expect scaleApp.startAll ["x","y","z"], finished).toBeFalsy()
-      (expect finished).wasNotCalled()
+    it "calls the callback with an error if one or more modules couldn't start", ->
+      spy = jasmine.createSpy "spy"
+      spy1 = jasmine.createSpy "mod1 spy"
+      spy2 = jasmine.createSpy "mod2 spy"
+      mod1 = (sb) ->
+        init: -> spy1(); thisIsAnInvalidMethod()
+        destroy: ->
+      mod2 = (sb) ->
+        init: -> spy2()
+        destroy: ->
+      finished = (err) ->
+        (expect err.message).toEqual "these modules couldn't start: 'invalid'"
+        spy()
+      scaleApp.register "invalid", mod1
+      scaleApp.register "valid", mod2
+      (expect scaleApp.startAll ["invalid", "valid"], finished).toBeFalsy()
+      (expect spy).wasCalled()
+      (expect spy1).wasCalled()
+      (expect spy2).wasCalled()
+
+    it "calls the callback with an error if one or more modules don't exist", ->
+
+      spy = jasmine.createSpy "spy"
+      spy2 = jasmine.createSpy "mod spy"
+      mod = (sb) ->
+        init: -> spy2()
+        destroy: ->
+      scaleApp.register "valid", @validModule
+      scaleApp.register "x", mod
+      finished = (err) ->
+        (expect err.message).toEqual "these modules don't exist: 'invalid','y'"
+        spy()
+      (expect scaleApp.startAll ["valid","invalid", "x", "y"], finished).toBeFalsy()
+      (expect spy).wasCalled()
+      (expect spy2).wasCalled()
+
+    it "calls the callback without an error if module array is empty", ->
+      spy = jasmine.createSpy "spy"
+      finished = (err) ->
+        (expect err).toEqual null
+        spy()
+      (expect scaleApp.startAll [], finished).toBeTruthy()
+      (expect spy).wasCalled()
 
   describe "stop function", ->
     it "is an accessible function", ->

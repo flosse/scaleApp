@@ -110,13 +110,15 @@ start = (moduleId, opt={}) ->
 
     instance.init instance.options
     instance.running = true
-    opt.callback?()
+    opt.callback? null
     true
 
   catch e
     error e
+    opt.callback? new Error "could not start module: #{e.message}"
     false
 
+#TODO: support for callback
 stop = (id) ->
   if instance = instances[id]
 
@@ -130,27 +132,47 @@ stop = (id) ->
 startAll = (cb, opt) ->
 
   if cb instanceof Array
-    mods = (id for id in cb when modules[id])
-    cb = opt
+    mods = cb; cb = opt; opt = null
+    valid = (id for id in mods when modules[id]?)
+    if valid.length isnt mods.length
+      invalid = ("'#{id}'" for id in mods when not (id in valid))
+      invalidErr = new Error "these modules don't exist: #{invalid}"
+
   else switch typeof cb
-    when "undefined","function" then mods = (id for id of modules)
+    when "undefined","function" then mods = valid = (id for id of modules)
+    else mods = valid = []
 
-  if mods?.length >= 1
-    o = {}; o[k] = v for own k,v of modules[mods[0]].options when v
-    origCB = o.callback
+  if valid.length is mods.length is 0
+    cb? null; return true
 
-    if mods[1..].length is 0
-      o.callback = -> origCB?(); cb?()
-    else
-      o.callback = -> origCB?(); startAll mods[1..], cb
-    start mods[0], o
-  else false
+  count       = valid.length
+  startErrors = []
 
+  createCB = (originalCallback) ->
+    (err) ->
+      count--
+      originalCallback? err
+      if count is 0
+        if startErrors.length > 0
+          cb? new Error "these modules couldn't start: #{startErrors}"
+        else
+          cb? invalidErr
+
+  for m in valid
+    o = {}
+    modOpts = modules[m].options
+    o[k] = v for own k,v of modOpts when v
+    o.callback = createCB modOpts.callback
+    startErrors.push "'#{m}'" if not (start m, o)
+
+  startErrors.length is 0 and not invalidErr?
+
+#TODO: support for callback
 stopAll = -> stop id for id of instances
 
 coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
   "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe"
-  "Mediator", "Sandbox", "unregisterAll", "uniqueId" ]
+  "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"]
 
 sandboxKeywords = [ "core", "instanceId", "options", "publish"
   "subscribe", "unsubscribe" ]
