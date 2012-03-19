@@ -97,7 +97,7 @@ checkTargetDir = (cb) -> path.exists targetDir, (exists) ->
 task 'build', 'Build all', ->
   invoke 'build:core'
   invoke 'build:plugins'
-  invoke 'build:modules'
+  #invoke 'build:modules'
 
 task 'build:core', 'Build a single JavaScript file from src files', ->
 

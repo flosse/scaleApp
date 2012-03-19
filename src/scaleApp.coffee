@@ -155,6 +155,10 @@ coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
 sandboxKeywords = [ "core", "instanceId", "options", "publish"
   "subscribe", "unsubscribe" ]
 
+lsModules = -> (id for id,m of modules)
+
+lsInstances = -> (id for id,m of instances)
+
 registerPlugin = (plugin) ->
 
   try
@@ -193,6 +197,8 @@ core =
   startAll: startAll
   stopAll: stopAll
   uniqueId: uniqueId
+  lsInstances: lsInstances
+  lsModules: lsModules
   Mediator: Mediator
   Sandbox: Sandbox
 

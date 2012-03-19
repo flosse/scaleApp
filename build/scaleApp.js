@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, core, coreKeywords, createInstance, error, instances, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
+  var Mediator, Sandbox, VERSION, addModule, core, coreKeywords, createInstance, error, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
     __hasProp = Object.prototype.hasOwnProperty,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -417,6 +417,26 @@
 
   sandboxKeywords = ["core", "instanceId", "options", "publish", "subscribe", "unsubscribe"];
 
+  lsModules = function() {
+    var id, m, _results;
+    _results = [];
+    for (id in modules) {
+      m = modules[id];
+      _results.push(id);
+    }
+    return _results;
+  };
+
+  lsInstances = function() {
+    var id, m, _results;
+    _results = [];
+    for (id in instances) {
+      m = instances[id];
+      _results.push(id);
+    }
+    return _results;
+  };
+
   registerPlugin = function(plugin) {
     var k, v, _ref, _ref2;
     try {
@@ -470,6 +490,8 @@
     startAll: startAll,
     stopAll: stopAll,
     uniqueId: uniqueId,
+    lsInstances: lsInstances,
+    lsModules: lsModules,
     Mediator: Mediator,
     Sandbox: Sandbox
   };
