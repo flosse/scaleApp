@@ -1,4 +1,4 @@
-scaleApp   = require("../../src/scaleApp").scaleApp
+scaleApp   = require("../../src/scaleApp")
 plugin     = require("../../src/plugins/scaleApp.mvc").Plugin
 
 scaleApp.registerPlugin plugin
@@ -120,9 +120,3 @@ describe "mvc plugin", ->
       c = new scaleApp.Controller @m, @v
       (expect c.model).toEqual @m
       (expect c.view).toEqual @v
-
-
-
-
-
-      

@@ -26,8 +26,8 @@ your own one.
 
 ## Download latest version
 
-- [scaleApp 0.3.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.3)
-- [scaleApp 0.3.3.zip](https://github.com/flosse/scaleApp/zipball/v0.3.3)
+- [scaleApp 0.3.4.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.4)
+- [scaleApp 0.3.4.zip](https://github.com/flosse/scaleApp/zipball/v0.3.4)
 
 # Quick Start
 
@@ -44,7 +44,7 @@ sudo npm -g install scaleapp
 ```
 
 ```javascript
-var sa = require("scaleapp").scaleApp
+var sa = require("scaleapp")
 ```
 
 ## Register modules
@@ -76,7 +76,30 @@ scaleApp.register "myGreatModule", MyGreatModule
 The `init` function is called by the framework when the module is supposed to
 start. The `destroy` function is called when the module has to shut down.
 
-You can also unregister a module:
+## Asynchronous initialization
+
+You can also init or destroy you module in a asynchronous way:
+
+```coffeescript
+class MyAsyncModule
+
+  constructor: (@sb) ->
+
+  init: (options, done) ->
+    doSomethingAsync (err) ->
+      done err
+  destroy: (done) ->
+    doSomethingAsync (err) ->
+      done err
+
+scaleApp.register "myGreatModule", MyGreatModule
+end -> alert "now the initialization is done"
+scaleApp.start "myGreatModule", callback: end
+```
+
+## Unregister modules
+
+It's simple:
 
 ```javascript
 scaleApp.unregister("myGreatModule");
@@ -149,6 +172,13 @@ It's obvious:
 ```javascript
 scaleApp.stop("moduleB");
 scaleApp.stopAll();
+```
+
+## Listing modules and instances
+
+```javascript
+lsModules()   // returns an array of all registered module IDs
+lsInstances() // returns an array of all running instance IDs
 ```
 
 ## Publish/Subscribe

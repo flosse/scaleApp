@@ -1,4 +1,4 @@
-scaleApp  = require("../../src/scaleApp").scaleApp
+scaleApp  = require("../../src/scaleApp")
 plugin    = require("../../src/plugins/scaleApp.i18n").Plugin
 
 scaleApp.registerPlugin plugin

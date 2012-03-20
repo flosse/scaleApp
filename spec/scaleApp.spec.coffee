@@ -1,4 +1,4 @@
-scaleApp = require("../src/scaleApp").scaleApp
+scaleApp = require "../src/scaleApp"
 
 describe "scaleApp core", ->
 
@@ -8,8 +8,8 @@ describe "scaleApp core", ->
 
   beforeEach ->
     @validModule = (sb) ->
-      init: ->
-      destroy: ->
+      init: (opt, done) -> setTimeout done, 1
+      destroy: (done) -> setTimeout done, 1
 
   it "provides the global and accessible namespace scaleApp", ->
     (expect typeof scaleApp).toEqual "object"
@@ -116,18 +116,15 @@ describe "scaleApp core", ->
         scaleApp.start "myId"
         (expect scaleApp.start "myId").toBeFalsy()
 
-      it "calls the callback function after the start", ->
-
-        cb = jasmine.createSpy "success callback"
-        initCB = jasmine.createSpy "init callback"
+      it "calls the callback function after the initialization", ->
+        x = false
+        cb = -> x = true
         mod1 = (sb) ->
-          init: -> initCB()
+          init: (opt, done) -> setTimeout done, 1
           destroy: ->
-
         (expect scaleApp.register "anId", mod1).toBeTruthy()
         scaleApp.start "anId", { callback: cb }
-        (expect cb).toHaveBeenCalled()
-        (expect initCB).toHaveBeenCalled()
+        waitsFor -> x
 
       it "calls the callback function with an error if an error occours", ->
         cb = jasmine.createSpy "callback"
@@ -227,11 +224,11 @@ describe "scaleApp core", ->
       cb1 = jasmine.createSpy "callback"
 
       mod1 = (sb) ->
-        init: -> (expect cb1).wasNotCalled()
+        init: (opt, done)-> (expect cb1).wasNotCalled(); done()
         destroy: ->
 
       mod2 = (sb) ->
-        init: -> (expect cb1).wasNotCalled()
+        init: (opt, done)-> (expect cb1).wasNotCalled(); done()
         destroy: ->
 
       scaleApp.register "first", mod1
@@ -248,14 +245,15 @@ describe "scaleApp core", ->
       cb2 = jasmine.createSpy "second callback"
 
       mod1 = (sb) ->
-        init: ->
+        init: (opt, done)-> done()
         destroy: ->
 
       mod2 = (sb) ->
-        init: ->
+        init: (opt, done) ->
           (expect finished).wasNotCalled()
           (expect cb2).wasNotCalled()
           (expect cb1).toHaveBeenCalled()
+          done()
         destroy: ->
 
       scaleApp.register "first", mod1, { callback: cb1 }
@@ -265,9 +263,9 @@ describe "scaleApp core", ->
       (expect finished).toHaveBeenCalled()
 
     it "calls the callback with an error if one or more modules couldn't start", ->
-      spy = jasmine.createSpy "spy"
       spy1 = jasmine.createSpy "mod1 spy"
       spy2 = jasmine.createSpy "mod2 spy"
+      end = false
       mod1 = (sb) ->
         init: -> spy1(); thisIsAnInvalidMethod()
         destroy: ->
@@ -275,30 +273,32 @@ describe "scaleApp core", ->
         init: -> spy2()
         destroy: ->
       finished = (err) ->
-        (expect err.message).toEqual "these modules couldn't start: 'invalid'"
-        spy()
+        (expect err.message).toEqual "errors occoured in the following modules: 'invalid'"
+        end = true
       scaleApp.register "invalid", mod1
       scaleApp.register "valid", mod2
       (expect scaleApp.startAll ["invalid", "valid"], finished).toBeFalsy()
-      (expect spy).wasCalled()
       (expect spy1).wasCalled()
       (expect spy2).wasCalled()
 
+      waitsFor -> end
+
     it "calls the callback with an error if one or more modules don't exist", ->
 
-      spy = jasmine.createSpy "spy"
+      end = false
       spy2 = jasmine.createSpy "mod spy"
       mod = (sb) ->
-        init: -> spy2()
+        init: (opt, done)-> spy2(); done()
         destroy: ->
       scaleApp.register "valid", @validModule
       scaleApp.register "x", mod
       finished = (err) ->
         (expect err.message).toEqual "these modules don't exist: 'invalid','y'"
-        spy()
+        end = true
       (expect scaleApp.startAll ["valid","invalid", "x", "y"], finished).toBeFalsy()
-      (expect spy).wasCalled()
       (expect spy2).wasCalled()
+
+      waitsFor -> end
 
     it "calls the callback without an error if module array is empty", ->
       spy = jasmine.createSpy "spy"
@@ -309,10 +309,27 @@ describe "scaleApp core", ->
       (expect spy).wasCalled()
 
   describe "stop function", ->
+
+    beforeEach ->
+      scaleApp.stopAll()
+      scaleApp.unregisterAll()
+
     it "is an accessible function", ->
       (expect typeof scaleApp.stop).toEqual "function"
 
+    it "calls the callback afterwards", ->
+      end = false
+      (expect scaleApp.register "valid", @validModule).toBeTruthy()
+      (expect scaleApp.start "valid").toBeTruthy()
+      (expect scaleApp.stop "valid", -> end = true).toBeTruthy()
+
+      waitsFor -> end
+
   describe "stopAll function", ->
+
+    beforeEach ->
+      scaleApp.stopAll()
+      scaleApp.unregisterAll()
 
     it "is an accessible function", ->
       (expect typeof scaleApp.stopAll).toEqual "function"
@@ -331,6 +348,15 @@ describe "scaleApp core", ->
 
       (expect scaleApp.stopAll()).toBeTruthy()
       (expect cb1.callCount).toEqual 2
+
+    it "calls the callback afterwards", ->
+      end = false
+      (expect scaleApp.register "valid", @validModule).toBeTruthy()
+      (expect scaleApp.start "valid").toBeTruthy()
+      (expect scaleApp.start "valid", instanceId: "valid2").toBeTruthy()
+      (expect scaleApp.stopAll -> end = true).toBeTruthy()
+
+      waitsFor -> end
 
   describe "publish function", ->
     it "is an accessible function", ->
@@ -499,7 +525,7 @@ describe "scaleApp core", ->
       (expect scaleApp.start "nice").toBeTruthy()
 
     it "installs the core plugin", ->
-      scaleApp.registerPlugin @validPlugin
+      (expect scaleApp.registerPlugin @validPlugin).toBeTruthy()
       (expect scaleApp.aKey).toEqual "txt"
       (expect scaleApp.aFunc).toEqual @validPlugin.core.aFunc
       (expect scaleApp.aFunc).toNotEqual ->

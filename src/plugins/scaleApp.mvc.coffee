@@ -1,4 +1,4 @@
-scaleApp = window?.scaleApp or require?("../scaleApp").scaleApp
+scaleApp = window?.scaleApp or require? "../scaleApp"
 
 class Model extends scaleApp.Mediator
 
