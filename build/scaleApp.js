@@ -559,10 +559,17 @@
     lsInstances: lsInstances,
     lsModules: lsModules,
     Mediator: Mediator,
-    Sandbox: Sandbox
+    Sandbox: Sandbox,
+    subscribe: function() {
+      return mediator.subscribe.apply(mediator, arguments);
+    },
+    unsubscribe: function() {
+      return mediator.unsubscribe.apply(mediator, arguments);
+    },
+    publish: function() {
+      return mediator.publish.apply(mediator, arguments);
+    }
   };
-
-  mediator.installTo(core);
 
   if ((typeof exports !== "undefined" && exports !== null) && (typeof module !== "undefined" && module !== null)) {
     for (k in core) {

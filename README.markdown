@@ -26,8 +26,8 @@ your own one.
 
 ## Download latest version
 
-- [scaleApp 0.3.4.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.4)
-- [scaleApp 0.3.4.zip](https://github.com/flosse/scaleApp/zipball/v0.3.4)
+- [scaleApp 0.3.5.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.5)
+- [scaleApp 0.3.5.zip](https://github.com/flosse/scaleApp/zipball/v0.3.5)
 
 # Quick Start
 
