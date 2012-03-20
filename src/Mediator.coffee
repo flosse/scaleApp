@@ -67,10 +67,16 @@ class Mediator
           else
             copy = {}
             copy[k] = v for k,v of data
-          subscription.callback.apply subscription.context, [copy, channel]
+          try
+            subscription.callback.apply subscription.context, [copy, channel]
+          catch e
+            console?.error? e
 
         else
-          subscription.callback.apply subscription.context, [data, channel]
+          try
+            subscription.callback.apply subscription.context, [data, channel]
+          catch e
+            console?.error? e
     @
 
   # ## Install Pub/Sub functions to an object

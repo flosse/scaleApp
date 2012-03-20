@@ -249,6 +249,14 @@ describe "Mediator", ->
       (expect @cb).toHaveBeenCalled()
       (expect @cb2).wasNotCalled()
 
+    it "publishes data to all subscribers even if an error occours", ->
+      cb = jasmine.createSpy()
+      @paul.subscribe "channel", -> cb()
+      @paul.subscribe "channel", -> (throw new Error "err"); cb()
+      @paul.subscribe "channel", -> cb()
+      @paul.publish "channel"
+      (expect cb.callCount).toEqual 2
+
     it "publishes a copy of data objects by default", ->
 
       obj = {a:true,b:"x",c:{ y:0 }}
