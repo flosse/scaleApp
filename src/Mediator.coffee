@@ -14,7 +14,7 @@ class Mediator
   # - (Object) context    - The context the function(s) belongs to
   subscribe: (channel, fn, context=@) ->
 
-    @channels[channel] = [] unless @channels[channel]?
+    @channels[channel] ?= []
     that = @
 
     if channel instanceof Array
@@ -82,10 +82,7 @@ class Mediator
   # ## Install Pub/Sub functions to an object
   installTo: (obj) ->
     if typeof obj is "object"
-      obj.subscribe   = @subscribe
-      obj.unsubscribe = @unsubscribe
-      obj.publish     = @publish
-      obj.channels    = @channels
+      obj[k] = v for k,v of @
     @
 
   @_rm: (o, ch, cb, ctxt) ->

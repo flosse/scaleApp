@@ -243,10 +243,12 @@ describe "Mediator", ->
     it "publishes data to a subscribed topic", ->
 
       @paul.subscribe  "a channel", @cb
+      @paul.installTo @anObject
+      @anObject.subscribe "a channel", @cb
       @peter.subscribe "a channel", @cb2
       @paul.publish "a channel", @data
       @paul.publish "doees not exist", @data
-      (expect @cb).toHaveBeenCalled()
+      (expect @cb.callCount).toEqual 2
       (expect @cb2).wasNotCalled()
 
     it "publishes data to all subscribers even if an error occours", ->
