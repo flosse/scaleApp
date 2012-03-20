@@ -1,4 +1,5 @@
 src/*.coffee
 spec/
+build/
 Cakefile
 .npmignore
