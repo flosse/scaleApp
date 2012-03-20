@@ -237,8 +237,10 @@ core =
   lsModules: lsModules
   Mediator: Mediator
   Sandbox: Sandbox
+  subscribe: -> mediator.subscribe.apply mediator, arguments
+  unsubscribe: -> mediator.unsubscribe.apply mediator, arguments
+  publish: -> mediator.publish.apply mediator, arguments
 
-mediator.installTo core
 if exports? and module?
   exports[k] = v for k,v of core
 window.scaleApp = core if window?

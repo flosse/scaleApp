@@ -14,9 +14,9 @@
     }
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
-      var id, k, subscription, that, v, _i, _len, _results, _results2;
+      var id, k, subscription, that, v, _base, _i, _len, _results, _results2;
       if (context == null) context = this;
-      if (this.channels[channel] == null) this.channels[channel] = [];
+      if ((_base = this.channels)[channel] == null) _base[channel] = [];
       that = this;
       if (channel instanceof Array) {
         _results = [];
@@ -121,11 +121,12 @@
     };
 
     Mediator.prototype.installTo = function(obj) {
+      var k, v;
       if (typeof obj === "object") {
-        obj.subscribe = this.subscribe;
-        obj.unsubscribe = this.unsubscribe;
-        obj.publish = this.publish;
-        obj.channels = this.channels;
+        for (k in this) {
+          v = this[k];
+          obj[k] = v;
+        }
       }
       return this;
     };
@@ -561,10 +562,17 @@
     lsInstances: lsInstances,
     lsModules: lsModules,
     Mediator: Mediator,
-    Sandbox: Sandbox
+    Sandbox: Sandbox,
+    subscribe: function() {
+      return mediator.subscribe.apply(mediator, arguments);
+    },
+    unsubscribe: function() {
+      return mediator.unsubscribe.apply(mediator, arguments);
+    },
+    publish: function() {
+      return mediator.publish.apply(mediator, arguments);
+    }
   };
-
-  mediator.installTo(core);
 
   if ((typeof exports !== "undefined" && exports !== null) && (typeof module !== "undefined" && module !== null)) {
     for (k in core) {
