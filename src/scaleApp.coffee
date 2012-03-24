@@ -2,7 +2,7 @@ if typeof require is "function"
   Mediator  = require("./Mediator").Mediator
   Sandbox   = require("./Sandbox").Sandbox
 
-VERSION = "0.3.6"
+VERSION = "0.3.7"
 
 modules = {}
 instances = {}
@@ -136,7 +136,17 @@ stop = (id, cb) ->
     #i18n.unsubscribe instance
     mediator.unsubscribe instance
 
-    instance.destroy cb
+    # if the module wants destroy in an asynchronous way
+    if (getArgNames instance.destroy).length >= 1
+      # then define a callback
+      instance.destroy (err) ->
+        cb? err
+    else
+      # else call the callback directly after stopping
+      instance.destroy()
+      cb? null
+
+    # remove
     delete instances[id]
     true
   else false

@@ -176,7 +176,7 @@
     Sandbox = require("./Sandbox").Sandbox;
   }
 
-  VERSION = "0.3.6";
+  VERSION = "0.3.7";
 
   modules = {};
 
@@ -378,7 +378,14 @@
     var instance;
     if (instance = instances[id]) {
       mediator.unsubscribe(instance);
-      instance.destroy(cb);
+      if ((getArgNames(instance.destroy)).length >= 1) {
+        instance.destroy(function(err) {
+          return typeof cb === "function" ? cb(err) : void 0;
+        });
+      } else {
+        instance.destroy();
+        if (typeof cb === "function") cb(null);
+      }
       delete instances[id];
       return true;
     } else {

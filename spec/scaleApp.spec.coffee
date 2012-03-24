@@ -334,6 +334,16 @@ describe "scaleApp core", ->
 
       waitsFor -> end
 
+    it "supports synchronous stopping", ->
+      mod = (sb) ->
+        init: ->
+        destroy: ->
+      end = false
+      (expect scaleApp.register "mod", mod).toBeTruthy()
+      (expect scaleApp.start "mod").toBeTruthy()
+      (expect scaleApp.stop "mod", -> end = true).toBeTruthy()
+      (expect end).toEqual true
+
   describe "stopAll function", ->
 
     beforeEach ->
@@ -363,6 +373,19 @@ describe "scaleApp core", ->
       (expect scaleApp.register "valid", @validModule).toBeTruthy()
       (expect scaleApp.start "valid").toBeTruthy()
       (expect scaleApp.start "valid", instanceId: "valid2").toBeTruthy()
+      (expect scaleApp.stopAll -> end = true).toBeTruthy()
+
+      waitsFor -> end
+
+    it "calls the callback if not destroyed in a asynchronous way", ->
+      cb1 = jasmine.createSpy "destroy cb"
+      mod = (sb) ->
+        init: ->
+        destroy: -> cb1()
+      end = false
+      (expect scaleApp.register "syncDestroy", mod).toBeTruthy()
+      (expect scaleApp.start "syncDestroy").toBeTruthy()
+      (expect scaleApp.start "syncDestroy", instanceId: "second").toBeTruthy()
       (expect scaleApp.stopAll -> end = true).toBeTruthy()
 
       waitsFor -> end
