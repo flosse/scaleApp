@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, instances, k, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, v,
+  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, k, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, v,
     __hasProp = Object.prototype.hasOwnProperty,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -176,7 +176,7 @@
     Sandbox = require("./Sandbox").Sandbox;
   }
 
-  VERSION = "0.3.4";
+  VERSION = "0.3.6";
 
   modules = {};
 
@@ -330,6 +330,18 @@
     return _results;
   };
 
+  getArgNames = function(fn) {
+    var a, args, _i, _len, _results;
+    args = fn.toString().match(/function\b[^(]*\(([^)]*)\)/)[1];
+    args = args.split(/\s*,\s*/);
+    _results = [];
+    for (_i = 0, _len = args.length; _i < _len; _i++) {
+      a = args[_i];
+      if (a.trim() !== '') _results.push(a);
+    }
+    return _results;
+  };
+
   start = function(moduleId, opt) {
     var instance;
     if (opt == null) opt = {};
@@ -343,9 +355,14 @@
       if (modules[moduleId] == null) throw new Error("module does not exist");
       instance = createInstance(moduleId, opt.instanceId, opt.options);
       if (instance.running === true) throw new Error("module was already started");
-      instance.init(instance.options, function(err) {
-        return typeof opt.callback === "function" ? opt.callback(err) : void 0;
-      });
+      if ((getArgNames(instance.init)).length >= 2) {
+        instance.init(instance.options, function(err) {
+          return typeof opt.callback === "function" ? opt.callback(err) : void 0;
+        });
+      } else {
+        instance.init(instance.options);
+        if (typeof opt.callback === "function") opt.callback(null);
+      }
       instance.running = true;
       return true;
     } catch (e) {
@@ -372,18 +389,21 @@
   doForAll = function(modules, action, cb) {
     var actionCB, count, errors, m, _i, _len;
     count = modules.length;
-    errors = [];
-    actionCB = function() {
-      count--;
-      return checkEnd(count, errors, cb);
-    };
-    for (_i = 0, _len = modules.length; _i < _len; _i++) {
-      m = modules[_i];
-      if (!(!action(m, actionCB))) continue;
-      errors.push("'" + m + "'");
-      actionCB();
+    if (count === 0) {
+      if (typeof cb === "function") cb(null);
+      return true;
+    } else {
+      errors = [];
+      actionCB = function() {
+        count--;
+        return checkEnd(count, errors, cb);
+      };
+      for (_i = 0, _len = modules.length; _i < _len; _i++) {
+        m = modules[_i];
+        if (!action(m, actionCB)) errors.push("'" + m + "'");
+      }
+      return errors.length === 0;
     }
-    return errors.length === 0;
   };
 
   checkEnd = function(count, errors, cb) {
@@ -391,13 +411,13 @@
       if (errors.length > 0) {
         return typeof cb === "function" ? cb(new Error("errors occoured in the following modules: " + errors)) : void 0;
       } else {
-        return typeof cb === "function" ? cb() : void 0;
+        return typeof cb === "function" ? cb(null) : void 0;
       }
     }
   };
 
   startAll = function(cb, opt) {
-    var id, invalid, invalidErr, mods, startAction, valid, _ref;
+    var aCB, id, invalid, invalidErr, mods, startAction, valid, _ref;
     if (cb instanceof Array) {
       mods = cb;
       cb = opt;
@@ -411,38 +431,30 @@
         }
         return _results;
       })();
-      if (valid.length !== mods.length) {
-        invalid = (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = mods.length; _i < _len; _i++) {
-            id = mods[_i];
-            if (!(__indexOf.call(valid, id) >= 0)) _results.push("'" + id + "'");
-          }
-          return _results;
-        })();
-        invalidErr = new Error("these modules don't exist: " + invalid);
-      }
     } else {
-      switch (typeof cb) {
-        case "undefined":
-        case "function":
-          mods = valid = (function() {
-            var _results;
-            _results = [];
-            for (id in modules) {
-              _results.push(id);
-            }
-            return _results;
-          })();
-          break;
-        default:
-          mods = valid = [];
-      }
+      mods = valid = (function() {
+        var _results;
+        _results = [];
+        for (id in modules) {
+          _results.push(id);
+        }
+        return _results;
+      })();
     }
     if ((valid.length === (_ref = mods.length) && _ref === 0)) {
       if (typeof cb === "function") cb(null);
       return true;
+    } else if (valid.length !== mods.length) {
+      invalid = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = mods.length; _i < _len; _i++) {
+          id = mods[_i];
+          if (!(__indexOf.call(valid, id) >= 0)) _results.push("'" + id + "'");
+        }
+        return _results;
+      })();
+      invalidErr = new Error("these modules don't exist: " + invalid);
     }
     startAction = function(m, next) {
       var k, modOpts, o, v;
@@ -455,13 +467,14 @@
       }
       o.callback = function(err) {
         if (typeof modOpts.callback === "function") modOpts.callback(err);
-        return next();
+        return typeof next === "function" ? next() : void 0;
       };
       return start(m, o);
     };
-    return (doForAll(valid, startAction, function(err) {
-      return cb(err || invalidErr);
-    })) && !(invalidErr != null);
+    aCB = function(err) {
+      return typeof cb === "function" ? cb(err || invalidErr) : void 0;
+    };
+    return (doForAll(valid, startAction, aCB)) && !(invalidErr != null);
   };
 
   stopAll = function(cb) {

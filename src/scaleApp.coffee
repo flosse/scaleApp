@@ -2,7 +2,7 @@ if typeof require is "function"
   Mediator  = require("./Mediator").Mediator
   Sandbox   = require("./Sandbox").Sandbox
 
-VERSION = "0.3.4"
+VERSION = "0.3.6"
 
 modules = {}
 instances = {}
@@ -96,6 +96,11 @@ unregister = (id) ->
 
 unregisterAll = -> unregister id for id of modules
 
+getArgNames = (fn) ->
+  args = fn.toString().match(/function\b[^(]*\(([^)]*)\)/)[1]
+  args = args.split /\s*,\s*/
+  (a for a in args when a.trim() isnt '')
+
 start = (moduleId, opt={}) ->
 
   try
@@ -108,8 +113,15 @@ start = (moduleId, opt={}) ->
 
     throw new Error "module was already started" if instance.running is true
 
-    instance.init instance.options, (err) ->
-      opt.callback? err
+    # if the module wants to init in an asynchronous way
+    if (getArgNames instance.init).length >= 2
+      # then define a callback
+      instance.init instance.options, (err) -> opt.callback? err
+    else
+      # else call the callback directly after initialisation
+      instance.init instance.options
+      opt.callback? null
+
     instance.running = true
     true
 
@@ -132,40 +144,43 @@ stop = (id, cb) ->
 doForAll = (modules, action, cb)->
 
   count = modules.length
-  errors = []
+  if count is 0
+    cb? null
+    true
+  else
 
-  actionCB = ->
-    count--
-    checkEnd count, errors, cb
+    errors = []
 
-  for m in modules when not action m, actionCB
-    errors.push "'#{m}'"
-    actionCB()
+    actionCB = ->
+      count--
+      checkEnd count, errors, cb
 
-  errors.length is 0
+    for m in modules when not action m, actionCB
+      errors.push "'#{m}'"
+
+    errors.length is 0
 
 checkEnd = (count, errors, cb) ->
   if count is 0
     if errors.length > 0
       cb? new Error "errors occoured in the following modules: #{errors}"
     else
-      cb?()
+      cb? null
 
 startAll = (cb, opt) ->
 
   if cb instanceof Array
     mods = cb; cb = opt; opt = null
     valid = (id for id in mods when modules[id]?)
-    if valid.length isnt mods.length
-      invalid = ("'#{id}'" for id in mods when not (id in valid))
-      invalidErr = new Error "these modules don't exist: #{invalid}"
-
-  else switch typeof cb
-    when "undefined","function" then mods = valid = (id for id of modules)
-    else mods = valid = []
+  else
+    mods = valid = (id for id of modules)
 
   if valid.length is mods.length is 0
-    cb? null; return true
+    cb? null
+    return true
+  else if valid.length isnt mods.length
+    invalid = ("'#{id}'" for id in mods when not (id in valid))
+    invalidErr = new Error "these modules don't exist: #{invalid}"
 
   startAction = (m, next) ->
     o = {}
@@ -173,10 +188,12 @@ startAll = (cb, opt) ->
     o[k] = v for own k,v of modOpts when v
     o.callback = (err) ->
       modOpts.callback? err
-      next()
+      next?()
     start m, o
 
-  (doForAll valid, startAction, (err) -> cb err or invalidErr) and not invalidErr?
+  aCB = (err) ->
+    cb? err or invalidErr
+  (doForAll valid, startAction, aCB) and not invalidErr?
 
 stopAll = (cb) -> doForAll (id for id of instances)
   , ((m, next) -> stop m, next)

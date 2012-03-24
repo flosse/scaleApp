@@ -126,6 +126,15 @@ describe "scaleApp core", ->
         scaleApp.start "anId", { callback: cb }
         waitsFor -> x
 
+      it "calls the callback  immediately if no callback was defined", ->
+        cb = jasmine.createSpy()
+        mod1 = (sb) ->
+          init: (opt) ->
+          destroy: ->
+        (expect scaleApp.register "anId", mod1).toBeTruthy()
+        scaleApp.start "anId", { callback: cb }
+        (expect cb).toHaveBeenCalled()
+
       it "calls the callback function with an error if an error occours", ->
         cb = jasmine.createSpy "callback"
         call = (err)->
