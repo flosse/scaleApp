@@ -84,7 +84,7 @@ register = (moduleId, creator, opt = {}) ->
   try
     addModule moduleId, creator, opt
   catch e
-    error new Error "could not register module: #{e.message}"
+    error new Error "could not register module '#{moduleId}': #{e.message}"
     false
 
 unregister = (id) ->

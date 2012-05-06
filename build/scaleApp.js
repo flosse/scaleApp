@@ -1,19 +1,27 @@
 (function() {
   var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, k, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, v,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __hasProp = {}.hasOwnProperty,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Mediator = (function() {
 
+    Mediator.name = 'Mediator';
+
     function Mediator(obj) {
       this.channels = {};
-      if (obj) this.installTo(obj);
+      if (obj) {
+        this.installTo(obj);
+      }
     }
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
-      var id, k, subscription, that, v, _base, _i, _len, _results, _results2;
-      if (context == null) context = this;
-      if ((_base = this.channels)[channel] == null) _base[channel] = [];
+      var id, k, subscription, that, v, _base, _i, _len, _results, _results1;
+      if (context == null) {
+        context = this;
+      }
+      if ((_base = this.channels)[channel] == null) {
+        _base[channel] = [];
+      }
       that = this;
       if (channel instanceof Array) {
         _results = [];
@@ -23,12 +31,12 @@
         }
         return _results;
       } else if (typeof channel === "object") {
-        _results2 = [];
+        _results1 = [];
         for (k in channel) {
           v = channel[k];
-          _results2.push(this.subscribe(k, v, fn));
+          _results1.push(this.subscribe(k, v, fn));
         }
-        return _results2;
+        return _results1;
       } else {
         subscription = {
           context: context,
@@ -51,8 +59,12 @@
       var id;
       switch (typeof ch) {
         case "string":
-          if (typeof cb === "function") Mediator._rm(this, ch, cb);
-          if (typeof cb === "undefined") Mediator._rm(this, ch);
+          if (typeof cb === "function") {
+            Mediator._rm(this, ch, cb);
+          }
+          if (typeof cb === "undefined") {
+            Mediator._rm(this, ch);
+          }
           break;
         case "function":
           for (id in this.channels) {
@@ -81,9 +93,9 @@
           if (publishReference !== true && typeof data === "object") {
             if (data instanceof Array) {
               copy = (function() {
-                var _j, _len2, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
+                for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
                   v = data[_j];
                   _results.push(v);
                 }
@@ -100,7 +112,9 @@
               subscription.callback.apply(subscription.context, [copy, channel]);
             } catch (e) {
               if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") console.error(e);
+                if (typeof console.error === "function") {
+                  console.error(e);
+                }
               }
             }
           } else {
@@ -108,7 +122,9 @@
               subscription.callback.apply(subscription.context, [data, channel]);
             } catch (e) {
               if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") console.error(e);
+                if (typeof console.error === "function") {
+                  console.error(e);
+                }
               }
             }
           }
@@ -154,13 +170,21 @@
 
   Sandbox = (function() {
 
+    Sandbox.name = 'Sandbox';
+
     function Sandbox(core, instanceId, options) {
       this.core = core;
       this.instanceId = instanceId;
       this.options = options != null ? options : {};
-      if (this.core == null) throw new Error("core was not defined");
-      if (instanceId == null) throw new Error("no id was specified");
-      if (typeof instanceId !== "string") throw new Error("id is not a string");
+      if (this.core == null) {
+        throw new Error("core was not defined");
+      }
+      if (instanceId == null) {
+        throw new Error("no id was specified");
+      }
+      if (typeof instanceId !== "string") {
+        throw new Error("id is not a string");
+      }
     }
 
     return Sandbox;
@@ -192,7 +216,9 @@
 
   uniqueId = function(length) {
     var id;
-    if (length == null) length = 8;
+    if (length == null) {
+      length = 8;
+    }
     id = "";
     while (id.length < length) {
       id += Math.random().toString(36).substr(2);
@@ -224,10 +250,14 @@
   };
 
   createInstance = function(moduleId, instanceId, opt) {
-    var entry, i, instance, instanceOpts, k, key, module, n, p, plugin, sb, v, val, _i, _j, _len, _len2, _ref, _ref2, _ref3;
-    if (instanceId == null) instanceId = moduleId;
+    var entry, i, instance, instanceOpts, k, key, module, n, p, plugin, sb, v, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    if (instanceId == null) {
+      instanceId = moduleId;
+    }
     module = modules[moduleId];
-    if (instances[instanceId] != null) return instances[instanceId];
+    if (instances[instanceId] != null) {
+      return instances[instanceId];
+    }
     instanceOpts = {};
     _ref = module.options;
     for (key in _ref) {
@@ -244,7 +274,9 @@
     mediator.installTo(sb);
     for (i in plugins) {
       p = plugins[i];
-      if (!(p.sandbox != null)) continue;
+      if (!(p.sandbox != null)) {
+        continue;
+      }
       plugin = new p.sandbox(sb);
       for (k in plugin) {
         if (!__hasProp.call(plugin, k)) continue;
@@ -256,13 +288,13 @@
     instance.options = instanceOpts;
     instance.id = instanceId;
     instances[instanceId] = instance;
-    _ref2 = [instanceId, '_always'];
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-      n = _ref2[_i];
+    _ref1 = [instanceId, '_always'];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      n = _ref1[_i];
       if (onInstantiateFunctions[n] != null) {
-        _ref3 = onInstantiateFunctions[n];
-        for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
-          entry = _ref3[_j];
+        _ref2 = onInstantiateFunctions[n];
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          entry = _ref2[_j];
           entry.callback.apply(entry.context);
         }
       }
@@ -303,11 +335,13 @@
   };
 
   register = function(moduleId, creator, opt) {
-    if (opt == null) opt = {};
+    if (opt == null) {
+      opt = {};
+    }
     try {
       return addModule(moduleId, creator, opt);
     } catch (e) {
-      error(new Error("could not register module: " + e.message));
+      error(new Error("could not register module '" + moduleId + "': " + e.message));
       return false;
     }
   };
@@ -337,14 +371,18 @@
     _results = [];
     for (_i = 0, _len = args.length; _i < _len; _i++) {
       a = args[_i];
-      if (a.trim() !== '') _results.push(a);
+      if (a.trim() !== '') {
+        _results.push(a);
+      }
     }
     return _results;
   };
 
   start = function(moduleId, opt) {
     var instance;
-    if (opt == null) opt = {};
+    if (opt == null) {
+      opt = {};
+    }
     try {
       if (typeof moduleId !== "string") {
         throw new Error("module ID has to be a string");
@@ -352,16 +390,22 @@
       if (typeof opt !== "object") {
         throw new Error("second parameter has to be an object");
       }
-      if (modules[moduleId] == null) throw new Error("module does not exist");
+      if (modules[moduleId] == null) {
+        throw new Error("module does not exist");
+      }
       instance = createInstance(moduleId, opt.instanceId, opt.options);
-      if (instance.running === true) throw new Error("module was already started");
+      if (instance.running === true) {
+        throw new Error("module was already started");
+      }
       if ((getArgNames(instance.init)).length >= 2) {
         instance.init(instance.options, function(err) {
           return typeof opt.callback === "function" ? opt.callback(err) : void 0;
         });
       } else {
         instance.init(instance.options);
-        if (typeof opt.callback === "function") opt.callback(null);
+        if (typeof opt.callback === "function") {
+          opt.callback(null);
+        }
       }
       instance.running = true;
       return true;
@@ -384,7 +428,9 @@
         });
       } else {
         instance.destroy();
-        if (typeof cb === "function") cb(null);
+        if (typeof cb === "function") {
+          cb(null);
+        }
       }
       delete instances[id];
       return true;
@@ -397,7 +443,9 @@
     var actionCB, count, errors, m, _i, _len;
     count = modules.length;
     if (count === 0) {
-      if (typeof cb === "function") cb(null);
+      if (typeof cb === "function") {
+        cb(null);
+      }
       return true;
     } else {
       errors = [];
@@ -407,7 +455,9 @@
       };
       for (_i = 0, _len = modules.length; _i < _len; _i++) {
         m = modules[_i];
-        if (!action(m, actionCB)) errors.push("'" + m + "'");
+        if (!action(m, actionCB)) {
+          errors.push("'" + m + "'");
+        }
       }
       return errors.length === 0;
     }
@@ -434,7 +484,9 @@
         _results = [];
         for (_i = 0, _len = mods.length; _i < _len; _i++) {
           id = mods[_i];
-          if (modules[id] != null) _results.push(id);
+          if (modules[id] != null) {
+            _results.push(id);
+          }
         }
         return _results;
       })();
@@ -449,7 +501,9 @@
       })();
     }
     if ((valid.length === (_ref = mods.length) && _ref === 0)) {
-      if (typeof cb === "function") cb(null);
+      if (typeof cb === "function") {
+        cb(null);
+      }
       return true;
     } else if (valid.length !== mods.length) {
       invalid = (function() {
@@ -457,7 +511,9 @@
         _results = [];
         for (_i = 0, _len = mods.length; _i < _len; _i++) {
           id = mods[_i];
-          if (!(__indexOf.call(valid, id) >= 0)) _results.push("'" + id + "'");
+          if (!(__indexOf.call(valid, id) >= 0)) {
+            _results.push("'" + id + "'");
+          }
         }
         return _results;
       })();
@@ -470,10 +526,14 @@
       for (k in modOpts) {
         if (!__hasProp.call(modOpts, k)) continue;
         v = modOpts[k];
-        if (v) o[k] = v;
+        if (v) {
+          o[k] = v;
+        }
       }
       o.callback = function(err) {
-        if (typeof modOpts.callback === "function") modOpts.callback(err);
+        if (typeof modOpts.callback === "function") {
+          modOpts.callback(err);
+        }
         return typeof next === "function" ? next() : void 0;
       };
       return start(m, o);
@@ -523,12 +583,14 @@
   };
 
   registerPlugin = function(plugin) {
-    var k, v, _ref, _ref2;
+    var k, v, _ref, _ref1;
     try {
       if (typeof plugin !== "object") {
         throw new Error("plugin has to be an object");
       }
-      if (typeof plugin.id !== "string") throw new Error("plugin has no id");
+      if (typeof plugin.id !== "string") {
+        throw new Error("plugin has no id");
+      }
       if (typeof plugin.sandbox === "function") {
         for (k in new plugin.sandbox(new Sandbox(core, ""))) {
           if (__indexOf.call(sandboxKeywords, k) >= 0) {
@@ -547,11 +609,13 @@
             throw new Error("plugin uses reserved keyword");
           }
         }
-        _ref2 = plugin.core;
-        for (k in _ref2) {
-          v = _ref2[k];
+        _ref1 = plugin.core;
+        for (k in _ref1) {
+          v = _ref1[k];
           core[k] = v;
-          if (typeof exports !== "undefined" && exports !== null) exports[k] = v;
+          if (typeof exports !== "undefined" && exports !== null) {
+            exports[k] = v;
+          }
         }
       }
       if (typeof plugin.onInstantiate === "function") {
@@ -598,6 +662,8 @@
     }
   }
 
-  if (typeof window !== "undefined" && window !== null) window.scaleApp = core;
+  if (typeof window !== "undefined" && window !== null) {
+    window.scaleApp = core;
+  }
 
 }).call(this);

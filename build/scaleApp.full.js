@@ -1,22 +1,30 @@
 (function() {
   var Controller, DOMPlugin, Mediator, Model, SBPlugin, Sandbox, UtilPlugin, VERSION, View, addModule, baseLanguage, channelName, checkEnd, core, coreKeywords, createInstance, doForAll, error, get, getArgNames, getBrowserLanguage, getLanguage, instances, k, lang, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugin, plugins, register, registerPlugin, sandboxKeywords, scaleApp, setLanguage, start, startAll, stop, stopAll, subscribe, uniqueId, unregister, unregisterAll, unsubscribe, v, _ref,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __hasProp = {}.hasOwnProperty,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __slice = Array.prototype.slice,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __slice = [].slice;
 
   Mediator = (function() {
 
+    Mediator.name = 'Mediator';
+
     function Mediator(obj) {
       this.channels = {};
-      if (obj) this.installTo(obj);
+      if (obj) {
+        this.installTo(obj);
+      }
     }
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
-      var id, k, subscription, that, v, _base, _i, _len, _results, _results2;
-      if (context == null) context = this;
-      if ((_base = this.channels)[channel] == null) _base[channel] = [];
+      var id, k, subscription, that, v, _base, _i, _len, _results, _results1;
+      if (context == null) {
+        context = this;
+      }
+      if ((_base = this.channels)[channel] == null) {
+        _base[channel] = [];
+      }
       that = this;
       if (channel instanceof Array) {
         _results = [];
@@ -26,12 +34,12 @@
         }
         return _results;
       } else if (typeof channel === "object") {
-        _results2 = [];
+        _results1 = [];
         for (k in channel) {
           v = channel[k];
-          _results2.push(this.subscribe(k, v, fn));
+          _results1.push(this.subscribe(k, v, fn));
         }
-        return _results2;
+        return _results1;
       } else {
         subscription = {
           context: context,
@@ -54,8 +62,12 @@
       var id;
       switch (typeof ch) {
         case "string":
-          if (typeof cb === "function") Mediator._rm(this, ch, cb);
-          if (typeof cb === "undefined") Mediator._rm(this, ch);
+          if (typeof cb === "function") {
+            Mediator._rm(this, ch, cb);
+          }
+          if (typeof cb === "undefined") {
+            Mediator._rm(this, ch);
+          }
           break;
         case "function":
           for (id in this.channels) {
@@ -84,9 +96,9 @@
           if (publishReference !== true && typeof data === "object") {
             if (data instanceof Array) {
               copy = (function() {
-                var _j, _len2, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
+                for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
                   v = data[_j];
                   _results.push(v);
                 }
@@ -103,7 +115,9 @@
               subscription.callback.apply(subscription.context, [copy, channel]);
             } catch (e) {
               if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") console.error(e);
+                if (typeof console.error === "function") {
+                  console.error(e);
+                }
               }
             }
           } else {
@@ -111,7 +125,9 @@
               subscription.callback.apply(subscription.context, [data, channel]);
             } catch (e) {
               if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") console.error(e);
+                if (typeof console.error === "function") {
+                  console.error(e);
+                }
               }
             }
           }
@@ -157,13 +173,21 @@
 
   Sandbox = (function() {
 
+    Sandbox.name = 'Sandbox';
+
     function Sandbox(core, instanceId, options) {
       this.core = core;
       this.instanceId = instanceId;
       this.options = options != null ? options : {};
-      if (this.core == null) throw new Error("core was not defined");
-      if (instanceId == null) throw new Error("no id was specified");
-      if (typeof instanceId !== "string") throw new Error("id is not a string");
+      if (this.core == null) {
+        throw new Error("core was not defined");
+      }
+      if (instanceId == null) {
+        throw new Error("no id was specified");
+      }
+      if (typeof instanceId !== "string") {
+        throw new Error("id is not a string");
+      }
     }
 
     return Sandbox;
@@ -195,7 +219,9 @@
 
   uniqueId = function(length) {
     var id;
-    if (length == null) length = 8;
+    if (length == null) {
+      length = 8;
+    }
     id = "";
     while (id.length < length) {
       id += Math.random().toString(36).substr(2);
@@ -227,10 +253,14 @@
   };
 
   createInstance = function(moduleId, instanceId, opt) {
-    var entry, i, instance, instanceOpts, k, key, module, n, p, plugin, sb, v, val, _i, _j, _len, _len2, _ref, _ref2, _ref3;
-    if (instanceId == null) instanceId = moduleId;
+    var entry, i, instance, instanceOpts, k, key, module, n, p, plugin, sb, v, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    if (instanceId == null) {
+      instanceId = moduleId;
+    }
     module = modules[moduleId];
-    if (instances[instanceId] != null) return instances[instanceId];
+    if (instances[instanceId] != null) {
+      return instances[instanceId];
+    }
     instanceOpts = {};
     _ref = module.options;
     for (key in _ref) {
@@ -247,7 +277,9 @@
     mediator.installTo(sb);
     for (i in plugins) {
       p = plugins[i];
-      if (!(p.sandbox != null)) continue;
+      if (!(p.sandbox != null)) {
+        continue;
+      }
       plugin = new p.sandbox(sb);
       for (k in plugin) {
         if (!__hasProp.call(plugin, k)) continue;
@@ -259,13 +291,13 @@
     instance.options = instanceOpts;
     instance.id = instanceId;
     instances[instanceId] = instance;
-    _ref2 = [instanceId, '_always'];
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-      n = _ref2[_i];
+    _ref1 = [instanceId, '_always'];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      n = _ref1[_i];
       if (onInstantiateFunctions[n] != null) {
-        _ref3 = onInstantiateFunctions[n];
-        for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
-          entry = _ref3[_j];
+        _ref2 = onInstantiateFunctions[n];
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          entry = _ref2[_j];
           entry.callback.apply(entry.context);
         }
       }
@@ -306,11 +338,13 @@
   };
 
   register = function(moduleId, creator, opt) {
-    if (opt == null) opt = {};
+    if (opt == null) {
+      opt = {};
+    }
     try {
       return addModule(moduleId, creator, opt);
     } catch (e) {
-      error(new Error("could not register module: " + e.message));
+      error(new Error("could not register module '" + moduleId + "': " + e.message));
       return false;
     }
   };
@@ -340,14 +374,18 @@
     _results = [];
     for (_i = 0, _len = args.length; _i < _len; _i++) {
       a = args[_i];
-      if (a.trim() !== '') _results.push(a);
+      if (a.trim() !== '') {
+        _results.push(a);
+      }
     }
     return _results;
   };
 
   start = function(moduleId, opt) {
     var instance;
-    if (opt == null) opt = {};
+    if (opt == null) {
+      opt = {};
+    }
     try {
       if (typeof moduleId !== "string") {
         throw new Error("module ID has to be a string");
@@ -355,16 +393,22 @@
       if (typeof opt !== "object") {
         throw new Error("second parameter has to be an object");
       }
-      if (modules[moduleId] == null) throw new Error("module does not exist");
+      if (modules[moduleId] == null) {
+        throw new Error("module does not exist");
+      }
       instance = createInstance(moduleId, opt.instanceId, opt.options);
-      if (instance.running === true) throw new Error("module was already started");
+      if (instance.running === true) {
+        throw new Error("module was already started");
+      }
       if ((getArgNames(instance.init)).length >= 2) {
         instance.init(instance.options, function(err) {
           return typeof opt.callback === "function" ? opt.callback(err) : void 0;
         });
       } else {
         instance.init(instance.options);
-        if (typeof opt.callback === "function") opt.callback(null);
+        if (typeof opt.callback === "function") {
+          opt.callback(null);
+        }
       }
       instance.running = true;
       return true;
@@ -387,7 +431,9 @@
         });
       } else {
         instance.destroy();
-        if (typeof cb === "function") cb(null);
+        if (typeof cb === "function") {
+          cb(null);
+        }
       }
       delete instances[id];
       return true;
@@ -400,7 +446,9 @@
     var actionCB, count, errors, m, _i, _len;
     count = modules.length;
     if (count === 0) {
-      if (typeof cb === "function") cb(null);
+      if (typeof cb === "function") {
+        cb(null);
+      }
       return true;
     } else {
       errors = [];
@@ -410,7 +458,9 @@
       };
       for (_i = 0, _len = modules.length; _i < _len; _i++) {
         m = modules[_i];
-        if (!action(m, actionCB)) errors.push("'" + m + "'");
+        if (!action(m, actionCB)) {
+          errors.push("'" + m + "'");
+        }
       }
       return errors.length === 0;
     }
@@ -437,7 +487,9 @@
         _results = [];
         for (_i = 0, _len = mods.length; _i < _len; _i++) {
           id = mods[_i];
-          if (modules[id] != null) _results.push(id);
+          if (modules[id] != null) {
+            _results.push(id);
+          }
         }
         return _results;
       })();
@@ -452,7 +504,9 @@
       })();
     }
     if ((valid.length === (_ref = mods.length) && _ref === 0)) {
-      if (typeof cb === "function") cb(null);
+      if (typeof cb === "function") {
+        cb(null);
+      }
       return true;
     } else if (valid.length !== mods.length) {
       invalid = (function() {
@@ -460,7 +514,9 @@
         _results = [];
         for (_i = 0, _len = mods.length; _i < _len; _i++) {
           id = mods[_i];
-          if (!(__indexOf.call(valid, id) >= 0)) _results.push("'" + id + "'");
+          if (!(__indexOf.call(valid, id) >= 0)) {
+            _results.push("'" + id + "'");
+          }
         }
         return _results;
       })();
@@ -473,10 +529,14 @@
       for (k in modOpts) {
         if (!__hasProp.call(modOpts, k)) continue;
         v = modOpts[k];
-        if (v) o[k] = v;
+        if (v) {
+          o[k] = v;
+        }
       }
       o.callback = function(err) {
-        if (typeof modOpts.callback === "function") modOpts.callback(err);
+        if (typeof modOpts.callback === "function") {
+          modOpts.callback(err);
+        }
         return typeof next === "function" ? next() : void 0;
       };
       return start(m, o);
@@ -526,12 +586,14 @@
   };
 
   registerPlugin = function(plugin) {
-    var k, v, _ref, _ref2;
+    var k, v, _ref, _ref1;
     try {
       if (typeof plugin !== "object") {
         throw new Error("plugin has to be an object");
       }
-      if (typeof plugin.id !== "string") throw new Error("plugin has no id");
+      if (typeof plugin.id !== "string") {
+        throw new Error("plugin has no id");
+      }
       if (typeof plugin.sandbox === "function") {
         for (k in new plugin.sandbox(new Sandbox(core, ""))) {
           if (__indexOf.call(sandboxKeywords, k) >= 0) {
@@ -550,11 +612,13 @@
             throw new Error("plugin uses reserved keyword");
           }
         }
-        _ref2 = plugin.core;
-        for (k in _ref2) {
-          v = _ref2[k];
+        _ref1 = plugin.core;
+        for (k in _ref1) {
+          v = _ref1[k];
           core[k] = v;
-          if (typeof exports !== "undefined" && exports !== null) exports[k] = v;
+          if (typeof exports !== "undefined" && exports !== null) {
+            exports[k] = v;
+          }
         }
       }
       if (typeof plugin.onInstantiate === "function") {
@@ -601,13 +665,18 @@
     }
   }
 
-  if (typeof window !== "undefined" && window !== null) window.scaleApp = core;
+  if (typeof window !== "undefined" && window !== null) {
+    window.scaleApp = core;
+  }
 
   DOMPlugin = (function() {
+
+    DOMPlugin.name = 'DOMPlugin';
 
     function DOMPlugin(sb) {
       this.sb = sb;
       this.getContainer = __bind(this.getContainer, this);
+
     }
 
     DOMPlugin.prototype.getContainer = function() {
@@ -630,162 +699,13 @@
     sandbox: DOMPlugin
   };
 
-  if (window.scaleApp != null) window.scaleApp.registerPlugin(plugin);
-
-  if (typeof exports !== "undefined" && exports !== null) exports.Plugin = plugin;
-
-  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator").Mediator : void 0);
-
-  baseLanguage = "en";
-
-  getBrowserLanguage = function() {
-    return ((typeof navigator !== "undefined" && navigator !== null ? navigator.language : void 0) || (typeof navigator !== "undefined" && navigator !== null ? navigator.browserLanguage : void 0) || baseLanguage).split("-")[0];
-  };
-
-  lang = getBrowserLanguage();
-
-  mediator = new Mediator;
-
-  channelName = "i18n";
-
-  subscribe = function() {
-    return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  unsubscribe = function() {
-    return mediator.unsubscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  getLanguage = function() {
-    return lang;
-  };
-
-  setLanguage = function(code) {
-    if (typeof code === "string") {
-      lang = code;
-      return mediator.publish(channelName, lang);
-    }
-  };
-
-  get = function(x, text) {
-    var _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-    return (_ref2 = (_ref3 = x[lang]) != null ? _ref3[text] : void 0) != null ? _ref2 : (_ref4 = (_ref5 = x[lang.substring(0, 2)]) != null ? _ref5[text] : void 0) != null ? _ref4 : (_ref6 = (_ref7 = x[baseLanguage]) != null ? _ref7[text] : void 0) != null ? _ref6 : text;
-  };
-
-  SBPlugin = (function() {
-
-    function SBPlugin(sb) {
-      this.sb = sb;
-    }
-
-    SBPlugin.prototype.i18n = {
-      subscribe: subscribe,
-      unsubscribe: unsubscribe
-    };
-
-    SBPlugin.prototype._ = function(text) {
-      var i18n;
-      i18n = this.sb.options.i18n;
-      if (typeof i18n !== "object") return text;
-      return get(i18n, text);
-    };
-
-    SBPlugin.prototype.getLanguage = getLanguage;
-
-    return SBPlugin;
-
-  })();
-
-  plugin = {
-    id: "i18n",
-    sandbox: SBPlugin,
-    core: {
-      i18n: {
-        setLanguage: setLanguage,
-        getBrowserLanguage: getBrowserLanguage,
-        getLanguage: getLanguage,
-        baseLanguage: baseLanguage,
-        get: get,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe
-      }
-    }
-  };
-
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    if (typeof window !== "undefined" && window !== null) {
-      window.scaleApp.registerPlugin(plugin);
-    }
+  if (window.scaleApp != null) {
+    window.scaleApp.registerPlugin(plugin);
   }
 
-  if (typeof exports !== "undefined" && exports !== null) exports.Plugin = plugin;
-
-  UtilPlugin = (function() {
-
-    function UtilPlugin(sb) {}
-
-    UtilPlugin.prototype.countObjectKeys = function(o) {
-      var k, v;
-      if (typeof o === "object") {
-        return ((function() {
-          var _results;
-          _results = [];
-          for (k in o) {
-            v = o[k];
-            _results.push(k);
-          }
-          return _results;
-        })()).length;
-      }
-    };
-
-    UtilPlugin.prototype.mixin = function(receivingClass, givingClass, override) {
-      if (override == null) override = false;
-      switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
-        case "function-function":
-          return this.mix(givingClass.prototype, receivingClass.prototype, override);
-        case "function-object":
-          return this.mix(givingClass.prototype, receivingClass, override);
-        case "object-object":
-          return this.mix(givingClass, receivingClass, override);
-        case "object-function":
-          return this.mix(givingClass, receivingClass.prototype, override);
-      }
-    };
-
-    UtilPlugin.prototype.mix = function(giv, rec, override) {
-      var k, v, _results, _results2;
-      if (override === true) {
-        _results = [];
-        for (k in giv) {
-          v = giv[k];
-          _results.push(rec[k] = v);
-        }
-        return _results;
-      } else {
-        _results2 = [];
-        for (k in giv) {
-          v = giv[k];
-          if (!rec.hasOwnProperty(k)) _results2.push(rec[k] = v);
-        }
-        return _results2;
-      }
-    };
-
-    return UtilPlugin;
-
-  })();
-
-  plugin = {
-    id: "util",
-    sandbox: UtilPlugin
-  };
-
-  if (typeof scaleApp !== "undefined" && scaleApp !== null) {
-    scaleApp.registerPlugin(plugin);
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.Plugin = plugin;
   }
-
-  if (typeof exports !== "undefined" && exports !== null) exports.Plugin = plugin;
 
   scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
 
@@ -793,19 +713,25 @@
 
     __extends(Model, _super);
 
+    Model.name = 'Model';
+
     function Model(obj) {
       var k, v;
       Model.__super__.constructor.call(this);
       this.id = (obj != null ? obj.id : void 0) || scaleApp.uniqueId();
       for (k in obj) {
         v = obj[k];
-        if (!(this[k] != null)) this[k] = v;
+        if (!(this[k] != null)) {
+          this[k] = v;
+        }
       }
     }
 
     Model.prototype.set = function(key, val, silent) {
       var k, v;
-      if (silent == null) silent = false;
+      if (silent == null) {
+        silent = false;
+      }
       switch (typeof key) {
         case "object":
           for (k in key) {
@@ -827,7 +753,9 @@
         case "string":
           if (!(key === "set" || key === "get") && this[key] !== val) {
             this[key] = val;
-            if (!silent) this.publish(Model.CHANGED, [key]);
+            if (!silent) {
+              this.publish(Model.CHANGED, [key]);
+            }
           }
           break;
         default:
@@ -875,8 +803,12 @@
 
   View = (function() {
 
+    View.name = 'View';
+
     function View(model) {
-      if (model) this.setModel(model);
+      if (model) {
+        this.setModel(model);
+      }
     }
 
     View.prototype.setModel = function(model) {
@@ -893,6 +825,8 @@
   })();
 
   Controller = (function() {
+
+    Controller.name = 'Controller';
 
     function Controller(model, view) {
       this.model = model;
@@ -916,6 +850,175 @@
     scaleApp.registerPlugin(plugin);
   }
 
-  if (typeof exports !== "undefined" && exports !== null) exports.Plugin = plugin;
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.Plugin = plugin;
+  }
+
+  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator").Mediator : void 0);
+
+  baseLanguage = "en";
+
+  getBrowserLanguage = function() {
+    return ((typeof navigator !== "undefined" && navigator !== null ? navigator.language : void 0) || (typeof navigator !== "undefined" && navigator !== null ? navigator.browserLanguage : void 0) || baseLanguage).split("-")[0];
+  };
+
+  lang = getBrowserLanguage();
+
+  mediator = new Mediator;
+
+  channelName = "i18n";
+
+  subscribe = function() {
+    return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
+  };
+
+  unsubscribe = function() {
+    return mediator.unsubscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
+  };
+
+  getLanguage = function() {
+    return lang;
+  };
+
+  setLanguage = function(code) {
+    if (typeof code === "string") {
+      lang = code;
+      return mediator.publish(channelName, lang);
+    }
+  };
+
+  get = function(x, text) {
+    var _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+    return (_ref1 = (_ref2 = x[lang]) != null ? _ref2[text] : void 0) != null ? _ref1 : (_ref3 = (_ref4 = x[lang.substring(0, 2)]) != null ? _ref4[text] : void 0) != null ? _ref3 : (_ref5 = (_ref6 = x[baseLanguage]) != null ? _ref6[text] : void 0) != null ? _ref5 : text;
+  };
+
+  SBPlugin = (function() {
+
+    SBPlugin.name = 'SBPlugin';
+
+    function SBPlugin(sb) {
+      this.sb = sb;
+    }
+
+    SBPlugin.prototype.i18n = {
+      subscribe: subscribe,
+      unsubscribe: unsubscribe
+    };
+
+    SBPlugin.prototype._ = function(text) {
+      var i18n;
+      i18n = this.sb.options.i18n;
+      if (typeof i18n !== "object") {
+        return text;
+      }
+      return get(i18n, text);
+    };
+
+    SBPlugin.prototype.getLanguage = getLanguage;
+
+    return SBPlugin;
+
+  })();
+
+  plugin = {
+    id: "i18n",
+    sandbox: SBPlugin,
+    core: {
+      i18n: {
+        setLanguage: setLanguage,
+        getBrowserLanguage: getBrowserLanguage,
+        getLanguage: getLanguage,
+        baseLanguage: baseLanguage,
+        get: get,
+        subscribe: subscribe,
+        unsubscribe: unsubscribe
+      }
+    }
+  };
+
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+    if (typeof window !== "undefined" && window !== null) {
+      window.scaleApp.registerPlugin(plugin);
+    }
+  }
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.Plugin = plugin;
+  }
+
+  UtilPlugin = (function() {
+
+    UtilPlugin.name = 'UtilPlugin';
+
+    function UtilPlugin(sb) {}
+
+    UtilPlugin.prototype.countObjectKeys = function(o) {
+      var k, v;
+      if (typeof o === "object") {
+        return ((function() {
+          var _results;
+          _results = [];
+          for (k in o) {
+            v = o[k];
+            _results.push(k);
+          }
+          return _results;
+        })()).length;
+      }
+    };
+
+    UtilPlugin.prototype.mixin = function(receivingClass, givingClass, override) {
+      if (override == null) {
+        override = false;
+      }
+      switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
+        case "function-function":
+          return this.mix(givingClass.prototype, receivingClass.prototype, override);
+        case "function-object":
+          return this.mix(givingClass.prototype, receivingClass, override);
+        case "object-object":
+          return this.mix(givingClass, receivingClass, override);
+        case "object-function":
+          return this.mix(givingClass, receivingClass.prototype, override);
+      }
+    };
+
+    UtilPlugin.prototype.mix = function(giv, rec, override) {
+      var k, v, _results, _results1;
+      if (override === true) {
+        _results = [];
+        for (k in giv) {
+          v = giv[k];
+          _results.push(rec[k] = v);
+        }
+        return _results;
+      } else {
+        _results1 = [];
+        for (k in giv) {
+          v = giv[k];
+          if (!rec.hasOwnProperty(k)) {
+            _results1.push(rec[k] = v);
+          }
+        }
+        return _results1;
+      }
+    };
+
+    return UtilPlugin;
+
+  })();
+
+  plugin = {
+    id: "util",
+    sandbox: UtilPlugin
+  };
+
+  if (scaleApp != null) {
+    scaleApp.registerPlugin(plugin);
+  }
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.Plugin = plugin;
+  }
 
 }).call(this);

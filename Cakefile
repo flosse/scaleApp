@@ -26,9 +26,9 @@ coreDepJsFiles  = [ ]
 
 pluginDeps = {}
 
-createTargetDir = (cb) ->
+createTargetDir = ->
   util.log "create #{targetDir} directory"
-  fs.mkdir targetDir, 0755, cb
+  fs.mkdirSync targetDir
 
 minifyJsFile = (file, resNames, cb) ->
   fs.readFile "#{file}.js", 'utf8', (err, code) ->
@@ -88,11 +88,7 @@ concate = (files, type, cb) ->
       if --filesRemaining is 0
         cb concateContents.join '\n\n'
 
-checkTargetDir = (cb) -> path.exists targetDir, (exists) ->
-  if not exists then createTargetDir (err) ->
-    util.log err if err
-    cb()
-  else cb()
+checkTargetDir = -> if not path.exists(targetDir) then createTargetDir
 
 task 'build', 'Build all', ->
   invoke 'build:core'
@@ -101,37 +97,37 @@ task 'build', 'Build all', ->
 
 task 'build:core', 'Build a single JavaScript file from src files', ->
 
-  checkTargetDir ->
+  checkTargetDir()
 
-    util.log "Building #{coreName}"
-    coreContents = new Array remaining = coreCoffeeFiles.length
-    util.log "Appending #{coreCoffeeFiles.length} files to #{coreName}.coffee"
-    files = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
-    concate files, "coffee", (content) ->
-      targetName = "#{targetDir}/#{coreName}"
-      code = coffee.compile content
-      fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
-        util.log err if err
+  util.log "Building #{coreName}"
+  coreContents = new Array remaining = coreCoffeeFiles.length
+  util.log "Appending #{coreCoffeeFiles.length} files to #{coreName}.coffee"
+  files = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
+  concate files, "coffee", (content) ->
+    targetName = "#{targetDir}/#{coreName}"
+    code = coffee.compile content
+    fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
+      util.log err if err
 
 task 'build:full', "Builds a single file with all plugins", ->
 
-  checkTargetDir ->
+  checkTargetDir()
 
-    fs.readdir pluginCoffeeDir, (err, files) ->
-      pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
+  fs.readdir pluginCoffeeDir, (err, files) ->
+    pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
 
-      pluginFiles = ("#{pluginCoffeeDir}/#{f.split(".coffee")[0]}" for f in pluginFiles)
-      coreFiles   = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
+    pluginFiles = ("#{pluginCoffeeDir}/#{f.split(".coffee")[0]}" for f in pluginFiles)
+    coreFiles   = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
 
-      all = [ coreFiles..., pluginFiles...]
-      concate all, "coffee", (content) ->
-        targetName = "#{targetDir}/#{coreName}.full"
-        code = coffee.compile content
-        min = minify code, reservedNames
-        fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
-          util.log err if err
-        fs.writeFile "#{targetName}.min.js", min, 'utf8', (err) ->
-          util.log err if err
+    all = [ coreFiles..., pluginFiles...]
+    concate all, "coffee", (content) ->
+      targetName = "#{targetDir}/#{coreName}.full"
+      code = coffee.compile content
+      min = minify code, reservedNames
+      fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
+        util.log err if err
+      fs.writeFile "#{targetName}.min.js", min, 'utf8', (err) ->
+        util.log err if err
 
 task 'watch', 'Watch prod source files and build changes', ->
   util.log "Watching for changes in #{coreCoffeeDir}/"
@@ -144,19 +140,19 @@ task 'watch', 'Watch prod source files and build changes', ->
 
 task 'build:plugins', "Build #{coreName} plugins from source files", ->
 
-  checkTargetDir ->
+  checkTargetDir()
 
-    util.log "Building plugins"
-    exec "coffee -c -o #{pluginTargetDir} #{pluginCoffeeDir}", (err, stdout, stderr) ->
-      util.log err if err
+  util.log "Building plugins"
+  exec "coffee -c -o #{pluginTargetDir} #{pluginCoffeeDir}", (err, stdout, stderr) ->
+    util.log err if err
 
 task 'build:modules', "Build #{coreName} modules from source files", ->
 
-  checkTargetDir ->
+  checkTargetDir()
 
-    util.log "Building modules"
-    exec "coffee -c -o #{moduleTargetDir} #{moduleCoffeeDir}", (err, stdout, stderr) ->
-      util.log err if err
+  util.log "Building modules"
+  exec "coffee -c -o #{moduleTargetDir} #{moduleCoffeeDir}", (err, stdout, stderr) ->
+    util.log err if err
 
 task 'minify',         "Minify all js files", ->
   invoke "build"
@@ -175,9 +171,9 @@ task 'test', "runs the tests", ->
     util.log stdout if stdout
 
 task 'doc', "create docs", ->
-  
-  checkTargetDir ->
 
-    exec "docco #{coreCoffeeDir}/*.coffee #{pluginCoffeeDir}/*.coffee", (err,stdout) ->
-      util.log err if err
-      util.log stdout if stdout
+  checkTargetDir()
+
+  exec "docco #{coreCoffeeDir}/*.coffee #{pluginCoffeeDir}/*.coffee", (err,stdout) ->
+    util.log err if err
+    util.log stdout if stdout
