@@ -8,8 +8,8 @@ describe "scaleApp core", ->
 
   beforeEach ->
     @validModule = (sb) ->
-      init: (opt, done) -> setTimeout done, 1
-      destroy: (done) -> setTimeout done, 1
+      init: (opt, done) -> setTimeout done, 0
+      destroy: (done) -> setTimeout done, 0
 
   it "provides the global and accessible namespace scaleApp", ->
     (expect typeof scaleApp).toEqual "object"
@@ -120,7 +120,7 @@ describe "scaleApp core", ->
         x = false
         cb = -> x = true
         mod1 = (sb) ->
-          init: (opt, done) -> setTimeout done, 1
+          init: (opt, done) -> setTimeout done, 0
           destroy: ->
         (expect scaleApp.register "anId", mod1).toBeTruthy()
         scaleApp.start "anId", { callback: cb }
@@ -228,25 +228,42 @@ describe "scaleApp core", ->
       (expect cb2).wasNotCalled()
       (expect cb3).toHaveBeenCalled()
 
-    it "calls the callback function after all modules have started", ->
+    it "calls the callback function after all modules have started", (done) ->
 
-      cb1 = jasmine.createSpy "callback"
+      cb1 = jasmine.createSpy "counter"
 
-      mod1 = (sb) ->
-        init: (opt, done)-> (expect cb1).wasNotCalled(); done()
+      sync = (sb) ->
+        init: (opt)->
+          (expect cb1).wasNotCalled()
+          cb1()
         destroy: ->
 
-      mod2 = (sb) ->
-        init: (opt, done)-> (expect cb1).wasNotCalled(); done()
+      pseudoAsync = (sb) ->
+        init: (opt, done)->
+          (expect cb1.callCount).toEqual 1
+          cb1()
+          done()
         destroy: ->
 
-      scaleApp.register "first", mod1
-      scaleApp.register "second", mod2
+      async = (sb) ->
+        init: (opt, done)->
+          setTimeout (->
+            (expect cb1.callCount).toEqual 2
+            cb1()
+            done()
+          ), 0
+        destroy: ->
 
-      (expect scaleApp.startAll cb1).toBeTruthy()
-      (expect cb1).toHaveBeenCalled()
+      scaleApp.register "first", sync
+      scaleApp.register "second", async
+      scaleApp.register "third", pseudoAsync
 
-    it "calls the callback after defined modules have started", ->
+      (expect scaleApp.startAll ->
+        (expect cb1.callCount).toEqual 3
+        done()
+      ).toBeTruthy()
+
+    it "calls the callback after defined modules have started", (done) ->
 
       finished = jasmine.createSpy "finish callback"
 
@@ -254,22 +271,26 @@ describe "scaleApp core", ->
       cb2 = jasmine.createSpy "second callback"
 
       mod1 = (sb) ->
-        init: (opt, done)-> done()
+        init: (opt, done)->
+          setTimeout done, 0
+          (expect finished).wasNotCalled()
         destroy: ->
 
       mod2 = (sb) ->
         init: (opt, done) ->
+          setTimeout done, 0
           (expect finished).wasNotCalled()
-          (expect cb2).wasNotCalled()
-          (expect cb1).toHaveBeenCalled()
-          done()
         destroy: ->
 
       scaleApp.register "first", mod1, { callback: cb1 }
       scaleApp.register "second", mod2, { callback: cb2 }
 
-      (expect scaleApp.startAll ["first","second"], finished).toBeTruthy()
-      (expect finished).toHaveBeenCalled()
+      (expect scaleApp.startAll ["first","second"], ->
+        finished()
+        (expect cb1).wasCalled()
+        (expect cb2).wasCalled()
+        done()
+      ).toBeTruthy()
 
     it "calls the callback with an error if one or more modules couldn't start", ->
       spy1 = jasmine.createSpy "mod1 spy"
@@ -297,7 +318,9 @@ describe "scaleApp core", ->
       end = false
       spy2 = jasmine.createSpy "mod spy"
       mod = (sb) ->
-        init: (opt, done)-> spy2(); done()
+        init: (opt, done)->
+          spy2()
+          setTimeout done, 0
         destroy: ->
       scaleApp.register "valid", @validModule
       scaleApp.register "x", mod
