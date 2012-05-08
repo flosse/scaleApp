@@ -265,6 +265,12 @@ You can set the language globally by using the `setLanguage` method:
 scaleApp.i18n.setLanguage( "de" );
 ```
 
+You can also set a global i18n object which can be used by all modules:
+
+```javascript
+scaleApp.i18n.setGlobal( myGlobalObj );
+```
+
 ## mvc - very simple MVC
 
 Here is a sample use case for using the MVC plugin (in coffeescript).

@@ -31,6 +31,12 @@ describe "i18n plugin", ->
     es:
       something: "??"
 
+  globalObj =
+    en:
+      yes: "yes"
+    de:
+      yes: "ja"
+
   it "provides the method getBrowserLanguage", ->
     (expect typeof scaleApp.i18n.getBrowserLanguage ).toEqual "function"
 
@@ -38,6 +44,10 @@ describe "i18n plugin", ->
     lang = "en-US"
     scaleApp.i18n.setLanguage lang
     (expect lang).toEqual scaleApp.i18n.getLanguage()
+
+  it "has a method for setting a global object", ->
+    (expect typeof scaleApp.i18n.setGlobal).toEqual "function"
+    (expect scaleApp.i18n.setGlobal globalObj).toEqual true
 
   it "fires an event if the languages has changed", ->
 
@@ -55,6 +65,23 @@ describe "i18n plugin", ->
     (expect scb).toHaveBeenCalled()
 
   describe "get text function", ->
+
+    it "returns the global text if nothing was defined locally", ->
+
+      scaleApp.i18n.setGlobal globalObj
+      (expect scaleApp.i18n.get "yes").toEqual "ja"
+      (expect scaleApp.i18n.get "foo").toEqual "foo"
+      cb = jasmine.createSpy "a callback"
+      testIt = (sb) ->
+        scaleApp.i18n.setLanguage "de"
+        scaleApp.i18n.setGlobal globalObj
+        # yes is only defined globally
+        (expect sb._ "yes" ).toEqual "ja"
+        # helloWorld is only defined locally
+        (expect sb._ "helloWorld" ).toEqual "Hallo Welt"
+        cb()
+      run()
+      (expect cb).toHaveBeenCalled()
 
     it "returns english string if current language is not supported", ->
       cb = jasmine.createSpy "a callback"

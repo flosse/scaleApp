@@ -13,6 +13,8 @@ mediator = new Mediator
 
 channelName = "i18n"
 
+global = {}
+
 subscribe = -> mediator.subscribe channelName, arguments...
 
 unsubscribe = -> mediator.unsubscribe channelName, arguments...
@@ -24,8 +26,20 @@ setLanguage = (code) ->
     lang = code
     mediator.publish channelName, lang
 
-get = (x, text) ->
-  x[lang]?[text] ? ( x[lang.substring(0, 2)]?[text] ? ( x[baseLanguage]?[text] ? text ) )
+setGlobal = (obj) ->
+  if typeof(obj) is "object"
+    global= obj
+    true
+  else
+    false
+
+getText = (key, x, l) -> x[l]?[key] or global[l]?[key]
+
+get = (key, x={}) ->
+  getText(key, x, lang)                 or
+  getText(key, x, lang.substring(0,2))  or
+  getText(key, x, baseLanguage)         or
+  key
 
 class SBPlugin
 
@@ -35,10 +49,7 @@ class SBPlugin
     subscribe: subscribe
     unsubscribe: unsubscribe
 
-  _: (text) ->
-    i18n = @sb.options.i18n
-    return text if typeof i18n isnt "object"
-    get i18n, text
+  _: (text) -> get text, @sb.options.i18n
 
   getLanguage: getLanguage
 
@@ -54,6 +65,7 @@ plugin =
       get: get
       subscribe: subscribe
       unsubscribe: unsubscribe
+      setGlobal: setGlobal
 
 window?.scaleApp.registerPlugin plugin if window?.scaleApp?
 exports.Plugin = plugin if exports?
