@@ -1,12 +1,32 @@
 # What is scaleApp?
 
-scaleApp is a tiny JavaScript framework for scalable One-Page-Applications.
+scaleApp is a tiny JavaScript framework for scalable
+[One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
 The framework allows you to easily create complex web applications.
 
 [![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
 
-scaleApp is inspired by the talk of Nicholas C. Zakas -
-["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw).
+You can dynamically start and stop/destroy modules that acts as small parts of
+your whole application.
+
+## Architecture overview
+
+scaleApp is based on a decoupled, event-driven architecture that is inspired by
+the talk of Nicholas C. Zakas -
+["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw)
+([Slides](http://www.slideshare.net/nzakas/scalable-javascript-application-architecture)).
+There also is a little [Article](http://www.ubelly.com/2011/11/scalablejs/) that
+describes the basic ideas.
+
+![scaleApp architecture](https://raw.github.com/flosse/scaleApp/master/architecture.png)
+
+Unlike Zakas recommendations to abstract DOM manipulations and separating the
+framework from the base library, scaleApp does not implement any DOM methods.
+
+Instead scaleApp can be extended by plugins. So you can just use one of your
+favorite libs (e.g. jQuery) as base library or you are going to implement all
+your needed DOM methods into the DOM plugin (`scaleApp.dom.coffee`) for a more
+clean and scaleable architecture.
 
 ## Features
 
@@ -355,21 +375,6 @@ class MyModule
   init: -> @sb.appendFoo()  # appends "foo" to the container
   destroy: ->
 ```
-
-# Architecture
-
-scaleApp is inspired by the talk of Nicholas C. Zakas -
-["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw)
-([Slides](http://www.slideshare.net/nzakas/scalable-javascript-application-architecture)).
-There also is a little [Article](http://www.ubelly.com/2011/11/scalablejs/) that
-describes the basic ideas.
-
-Unlike his recommendations to abstract DOM manipulations and separating the
-framework from the base library, scaleApp does not implement any DOM methods.
-Just use one of your favorite libs (e.g. jQuery) as base library.
-Of course you can also implement all your needed DOM methods into the DOM plugin
-(`scaleApp.dom.coffee`) for a more clean and scaleable architecture.
-
 # Build
 
 ```shell

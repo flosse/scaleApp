@@ -5,8 +5,6 @@
 
   Mediator = (function() {
 
-    Mediator.name = 'Mediator';
-
     function Mediator(obj) {
       this.channels = {};
       if (obj) {
@@ -15,11 +13,11 @@
     }
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
-      var id, k, subscription, that, v, _base, _i, _len, _results, _results1;
+      var id, k, subscription, that, v, _base, _i, _len, _ref, _results, _results1;
       if (context == null) {
         context = this;
       }
-      if ((_base = this.channels)[channel] == null) {
+      if ((_ref = (_base = this.channels)[channel]) == null) {
         _base[channel] = [];
       }
       that = this;
@@ -169,8 +167,6 @@
   }
 
   Sandbox = (function() {
-
-    Sandbox.name = 'Sandbox';
 
     function Sandbox(core, instanceId, options) {
       this.core = core;

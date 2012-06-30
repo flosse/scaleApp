@@ -1,5 +1,5 @@
 (function() {
-  var Controller, DOMPlugin, Mediator, Model, SBPlugin, Sandbox, UtilPlugin, VERSION, View, addModule, baseLanguage, channelName, checkEnd, core, coreKeywords, createInstance, doForAll, error, get, getArgNames, getBrowserLanguage, getLanguage, instances, k, lang, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugin, plugins, register, registerPlugin, sandboxKeywords, scaleApp, setLanguage, start, startAll, stop, stopAll, subscribe, uniqueId, unregister, unregisterAll, unsubscribe, v, _ref,
+  var Controller, DOMPlugin, Mediator, Model, SBPlugin, Sandbox, UtilPlugin, VERSION, View, addModule, baseLanguage, channelName, checkEnd, core, coreKeywords, createInstance, doForAll, error, get, getArgNames, getBrowserLanguage, getLanguage, getText, global, instances, k, lang, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugin, plugins, register, registerPlugin, sandboxKeywords, scaleApp, setGlobal, setLanguage, start, startAll, stop, stopAll, subscribe, uniqueId, unregister, unregisterAll, unsubscribe, v, _ref,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -868,6 +868,8 @@
 
   channelName = "i18n";
 
+  global = {};
+
   subscribe = function() {
     return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
   };
@@ -887,9 +889,25 @@
     }
   };
 
-  get = function(x, text) {
-    var _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-    return (_ref1 = (_ref2 = x[lang]) != null ? _ref2[text] : void 0) != null ? _ref1 : (_ref3 = (_ref4 = x[lang.substring(0, 2)]) != null ? _ref4[text] : void 0) != null ? _ref3 : (_ref5 = (_ref6 = x[baseLanguage]) != null ? _ref6[text] : void 0) != null ? _ref5 : text;
+  setGlobal = function(obj) {
+    if (typeof obj === "object") {
+      global = obj;
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  getText = function(key, x, l) {
+    var _ref1, _ref2;
+    return ((_ref1 = x[l]) != null ? _ref1[key] : void 0) || ((_ref2 = global[l]) != null ? _ref2[key] : void 0);
+  };
+
+  get = function(key, x) {
+    if (x == null) {
+      x = {};
+    }
+    return getText(key, x, lang) || getText(key, x, lang.substring(0, 2)) || getText(key, x, baseLanguage) || key;
   };
 
   SBPlugin = (function() {
@@ -906,12 +924,7 @@
     };
 
     SBPlugin.prototype._ = function(text) {
-      var i18n;
-      i18n = this.sb.options.i18n;
-      if (typeof i18n !== "object") {
-        return text;
-      }
-      return get(i18n, text);
+      return get(text, this.sb.options.i18n);
     };
 
     SBPlugin.prototype.getLanguage = getLanguage;
@@ -931,7 +944,8 @@
         baseLanguage: baseLanguage,
         get: get,
         subscribe: subscribe,
-        unsubscribe: unsubscribe
+        unsubscribe: unsubscribe,
+        setGlobal: setGlobal
       }
     }
   };
