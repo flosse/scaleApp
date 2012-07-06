@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   width="400"
+   height="300"
+   id="svg2">
+  <defs
+     id="defs4">
+    <marker
+       refX="0"
+       refY="0"
+       orient="auto"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         id="path3812"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt" />
+    </marker>
+    <marker
+       refX="0"
+       refY="0"
+       orient="auto"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         id="path3815"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt" />
+    </marker>
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter5447">
+      <feFlood
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.84999999999999998"
+         id="feFlood5449" />
+      <feComposite
+         in2="SourceGraphic"
+         operator="in"
+         in="flood"
+         result="composite1"
+         id="feComposite5451" />
+      <feGaussianBlur
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur5453" />
+      <feOffset
+         result="offset"
+         dy="0"
+         dx="0"
+         id="feOffset5455" />
+      <feComposite
+         in2="offset"
+         operator="over"
+         in="SourceGraphic"
+         result="composite2"
+         id="feComposite5457" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-752.36218)"
+     id="layer1">
+    <rect
+       width="173.756"
+       height="75.709938"
+       rx="14.700858"
+       ry="14.700858"
+       x="111.10719"
+       y="910.14569"
+       id="rect2985"
+       style="fill:#ff2e2e;fill-opacity:1;stroke:#980000;stroke-width:0.99999994;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <text
+       x="175.98058"
+       y="968.5166"
+       transform="scale(1.0005569,0.9994434)"
+       id="text3773"
+       xml:space="preserve"
+       style="font-size:16.86974525px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="175.98058"
+         y="968.5166"
+         id="tspan3775">Core</tspan></text>
+    <g
+       id="g5562">
+      <path
+         d="m 971.50376,409.28244 a 100.85526,54.887218 0 1 1 -201.71052,0 100.85526,54.887218 0 1 1 201.71052,0 z"
+         transform="matrix(0.29165894,0,0,0.29133434,86.073479,850.62707)"
+         id="path3796"
+         style="opacity:0.6;fill:#ffb4b4;fill-opacity:1;stroke:#980000;stroke-width:3.43057179;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         x="320.25436"
+         y="973.38147"
+         transform="scale(1.0005569,0.9994434)"
+         id="text3798"
+         xml:space="preserve"
+         style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.6;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+           x="320.25436"
+           y="973.38147"
+           id="tspan3800">Plugin</tspan></text>
+    </g>
+    <rect
+       width="346.21399"
+       height="34.245937"
+       rx="13.056572"
+       ry="13.056572"
+       x="24.3009"
+       y="1010.7646"
+       id="rect2987"
+       style="opacity:0.6;fill:#a5a5a5;fill-opacity:1;stroke:#7a7a7a;stroke-opacity:1" />
+    <text
+       x="117.20268"
+       y="1031.4363"
+       transform="scale(1.0005569,0.9994434)"
+       id="text3802"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.6;fill:#4c4c4c;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="117.20268"
+         y="1031.4363"
+         id="tspan3804">Base Library   <tspan
+   id="tspan5513"
+   style="font-weight:normal;fill:#4c4c4c;fill-opacity:1;-inkscape-font-specification:Sans">( e.g jQuery )</tspan></tspan></text>
+    <rect
+       width="98.011856"
+       height="33"
+       rx="7.8782101"
+       ry="7.8782101"
+       x="290.99997"
+       y="776.17444"
+       id="rect2989"
+       style="fill:#83eb97;fill-opacity:1;stroke:#006212;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter5447)" />
+    <text
+       x="312.82971"
+       y="802.91559"
+       transform="scale(1.0005569,0.9994434)"
+       id="text2999"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="312.82971"
+         y="802.91559"
+         id="tspan3001">Sandbox</tspan></text>
+    <use
+       transform="translate(-139.99999,-1e-6)"
+       id="use4998"
+       x="0"
+       y="0"
+       width="1052.3622"
+       height="744.09448"
+       xlink:href="#rect2989" />
+    <use
+       transform="translate(-279.99997,0)"
+       id="use5000"
+       style="filter:url(#filter5447)"
+       x="0"
+       y="0"
+       width="1052.3622"
+       height="744.09448"
+       xlink:href="#rect2989" />
+    <text
+       x="172.90764"
+       y="802.91559"
+       transform="scale(1.0005569,0.9994434)"
+       id="text5002"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="172.90764"
+         y="802.91559"
+         id="tspan5004">Sandbox</tspan></text>
+    <text
+       x="32.98558"
+       y="802.91559"
+       transform="scale(1.0005569,0.9994434)"
+       id="text5006"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="32.98558"
+         y="802.91559"
+         id="tspan5008">Sandbox</tspan></text>
+    <rect
+       width="77.543739"
+       height="25.636303"
+       rx="5.6508074"
+       ry="5.6508074"
+       x="300.74402"
+       y="762.84467"
+       id="rect3771"
+       style="fill:#646464;fill-opacity:1;stroke:#262626;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter5447)" />
+    <text
+       x="316.4624"
+       y="690.12439"
+       transform="matrix(1.0005569,0,0,0.9994434,0,90)"
+       id="text2995"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="316.4624"
+         y="690.12439"
+         id="tspan2997">Module</tspan></text>
+    <rect
+       width="77.543739"
+       height="25.636303"
+       rx="5.6508074"
+       ry="5.6508074"
+       x="160.74402"
+       y="762.84467"
+       id="rect5021"
+       style="fill:#646464;fill-opacity:1;stroke:#262626;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter5447)" />
+    <text
+       x="176.5403"
+       y="690.12439"
+       transform="matrix(1.0005569,0,0,0.9994434,0,90)"
+       id="text5023"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="176.5403"
+         y="690.12439"
+         id="tspan5025">Module</tspan></text>
+    <rect
+       width="77.543739"
+       height="25.636303"
+       rx="5.6508074"
+       ry="5.6508074"
+       x="20.744019"
+       y="762.84467"
+       id="rect5027"
+       style="fill:#646464;fill-opacity:1;stroke:#262626;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter5447)" />
+    <text
+       x="36.618202"
+       y="690.12439"
+       transform="matrix(1.0005569,0,0,0.9994434,0,90)"
+       id="text5029"
+       xml:space="preserve"
+       style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="36.618202"
+         y="690.12439"
+         id="tspan5031">Module</tspan></text>
+    <g
+       transform="matrix(0.82257932,0,0,0.82257932,167.5757,224.83158)"
+       id="g5094"
+       style="fill:#ffde01;fill-opacity:1;filter:url(#filter5447)">
+      <rect
+         width="6.6822085"
+         height="65.931122"
+         rx="0"
+         ry="0"
+         x="36.083923"
+         y="742.75317"
+         id="rect5088"
+         style="fill:#ffde01;fill-opacity:1;stroke:none" />
+      <path
+         d="m 60.618995,98.79709 -19.189303,0 -19.189305,-10e-7 9.594652,-16.618424 9.594652,-16.618425 9.594652,16.618424 z"
+         transform="matrix(0.49067794,0,0,0.49067794,19.096392,699.56336)"
+         id="path5090"
+         style="fill:#ffde01;fill-opacity:1;stroke:none" />
+      <use
+         transform="matrix(-1,0,0,-1,78.850055,1551.7732)"
+         id="use5092"
+         style="fill:#ffde01;fill-opacity:1"
+         x="0"
+         y="0"
+         width="400"
+         height="400"
+         xlink:href="#path5090" />
+    </g>
+    <use
+       transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,-635.57147,394.20992)"
+       id="use5471"
+       x="0"
+       y="0"
+       width="400"
+       height="400"
+       xlink:href="#g5094" />
+    <use
+       transform="matrix(0,1,-1,0,1146.9421,746.93032)"
+       id="use5473"
+       style="stroke:#ffde01;stroke-opacity:1"
+       x="0"
+       y="0"
+       width="400"
+       height="400"
+       xlink:href="#use5471" />
+    <g
+       transform="translate(-265.11478,114.30576)"
+       id="use5490">
+      <path
+         d="m 971.50376,409.28244 a 100.85526,54.887218 0 1 1 -201.71052,0 100.85526,54.887218 0 1 1 201.71052,0 z"
+         transform="matrix(0.29165894,0,0,0.29133434,71.188287,736.32131)"
+         id="path5553"
+         style="opacity:0.6;fill:#ffb4b4;fill-opacity:1;stroke:#980000;stroke-width:3.43057179;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         x="305.37747"
+         y="859.01208"
+         transform="scale(1.0005569,0.9994434)"
+         id="text5555"
+         xml:space="preserve"
+         style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.6;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+           x="305.37747"
+           y="859.01208"
+           id="tspan5557">Plugin</tspan></text>
+    </g>
+    <g
+       id="g5567">
+      <path
+         d="m 971.50376,409.28244 a 100.85526,54.887218 0 1 1 -201.71052,0 100.85526,54.887218 0 1 1 201.71052,0 z"
+         transform="matrix(0.29165894,0,0,0.29133434,86.073479,806.89819)"
+         id="path5504"
+         style="opacity:0.6;fill:#83eb97;fill-opacity:1;stroke:#006212;stroke-width:3.43057179;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         x="320.25436"
+         y="929.62805"
+         transform="scale(1.0005569,0.9994434)"
+         id="text5506"
+         xml:space="preserve"
+         style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.6;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+           x="320.25436"
+           y="929.62805"
+           id="tspan5508"
+           style="fill:#000000;fill-opacity:1;stroke:none">Plugin</tspan></text>
+    </g>
+    <rect
+       width="144.25777"
+       height="23.81012"
+       rx="7.8128753"
+       ry="7.8128753"
+       x="128.96519"
+       y="916.66187"
+       id="rect5517"
+       style="fill:#ffde01;fill-opacity:1;stroke:#980000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <text
+       x="172.75819"
+       y="933.16364"
+       transform="scale(1.0005569,0.9994434)"
+       id="text5519"
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+         x="172.75819"
+         y="933.16364"
+         id="tspan5521"
+         style="font-size:10.943326px">Mediator</tspan></text>
+    <g
+       transform="translate(-279.99997,30.042063)"
+       id="use5528">
+      <path
+         d="m 971.50376,409.28244 a 100.85526,54.887218 0 1 1 -201.71052,0 100.85526,54.887218 0 1 1 201.71052,0 z"
+         transform="matrix(0.29165894,0,0,0.29133434,86.073479,776.85613)"
+         id="path5542"
+         style="opacity:0.6;fill:#83eb97;fill-opacity:1;stroke:#006212;stroke-width:3.43057179;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         x="320.25436"
+         y="899.56927"
+         transform="scale(1.0005569,0.9994434)"
+         id="text5544"
+         xml:space="preserve"
+         style="font-size:10.943326px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.6;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"><tspan
+           x="320.25436"
+           y="899.56927"
+           id="tspan5546"
+           style="fill:#000000;fill-opacity:1;stroke:none">Plugin</tspan></text>
+    </g>
+  </g>
+</svg>
