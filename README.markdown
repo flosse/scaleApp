@@ -242,8 +242,52 @@ var messageHandler = function( data, topic ){
 ... and it can listen to one or more channels:
 
 ```javascript
-sb.subscribe( "somthingHappend", messageHandler );
-sb.subscribe( "aNiceTopic", messageHandler );
+sub1 = sb.subscribe( "somthingHappend", messageHandler );
+sub2 = sb.subscribe( "aNiceTopic", messageHandler );
+```
+Or just do it at once:
+
+```javascript
+sb.subscribe({
+  topicA: cbA
+  topicB: cbB
+  topicC: cbC
+});
+```
+
+You can also subscribe to several channels at once:
+
+```javascript
+sb.subscribe(["a", "b"], cb);
+```
+
+#### attache and detache
+
+A subscription can be detached and attached again:
+
+```javascript
+sub.detach(); // don't listen any more
+sub.attach(); // receive upcoming messages
+```
+
+#### Unsubscribe
+
+You can unsubscribe a function from a channel
+
+```javascript
+sb.unsubscribe("a-channel", callback);
+```
+
+And you can remove a callback function from all channels
+
+```javascript
+sb.unsubscribe(callback);
+```
+
+Or remove all subscriptions from a channel:
+
+```javascript
+sb.unsubscribe("channelName");
 ```
 
 # Plugins
