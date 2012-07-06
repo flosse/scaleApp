@@ -4,7 +4,7 @@ coffee = require 'coffee-script'
 uglify = require 'uglify-js'
 
 srcDir    = 'src'
-targetDir = 'build'
+targetDir = 'lib'
 
 coreFiles  = [ 'Mediator', 'Sandbox', 'scaleApp' ]
 
@@ -64,8 +64,7 @@ task 'compile', 'compiles to JS', ->
 
 task 'bundle', 'create browser bundles', (opts) ->
 
-  checkTargetDir()
-  dir = "#{targetDir}/bundles"
+  dir = "bundles"
   checkDir dir
 
   files = ("#{srcDir}/#{f}" for f in coreFiles)

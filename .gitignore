@@ -1,3 +1,4 @@
 *.swp
 spec/*.js
 spec/**/*.js
+lib/
