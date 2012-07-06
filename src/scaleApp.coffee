@@ -1,6 +1,6 @@
 if typeof require is "function"
-  Mediator  = require("./Mediator").Mediator
-  Sandbox   = require("./Sandbox").Sandbox
+  Mediator  = require "./Mediator"
+  Sandbox   = require "./Sandbox"
 
 VERSION = "0.3.7"
 

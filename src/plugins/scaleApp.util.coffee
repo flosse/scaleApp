@@ -21,4 +21,4 @@ plugin =
   sandbox: UtilPlugin
 
 scaleApp.registerPlugin plugin if scaleApp?
-exports.Plugin = plugin if exports?
+module.exports = plugin if module?.exports?

@@ -1,14 +1,9 @@
 (function() {
-  var Controller, DOMPlugin, Mediator, Model, SBPlugin, Sandbox, UtilPlugin, VERSION, View, addModule, baseLanguage, channelName, checkEnd, core, coreKeywords, createInstance, doForAll, error, get, getArgNames, getBrowserLanguage, getLanguage, getText, global, instances, k, lang, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugin, plugins, register, registerPlugin, sandboxKeywords, scaleApp, setGlobal, setLanguage, start, startAll, stop, stopAll, subscribe, uniqueId, unregister, unregisterAll, unsubscribe, v, _ref,
+  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, k, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, v,
     __hasProp = {}.hasOwnProperty,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Mediator = (function() {
-
-    Mediator.name = 'Mediator';
 
     function Mediator(obj) {
       this.channels = {};
@@ -18,11 +13,11 @@
     }
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
-      var id, k, subscription, that, v, _base, _i, _len, _results, _results1;
+      var id, k, subscription, that, v, _base, _i, _len, _ref, _results, _results1;
       if (context == null) {
         context = this;
       }
-      if ((_base = this.channels)[channel] == null) {
+      if ((_ref = (_base = this.channels)[channel]) == null) {
         _base[channel] = [];
       }
       that = this;
@@ -167,13 +162,11 @@
 
   })();
 
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Mediator = Mediator;
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = Mediator;
   }
 
   Sandbox = (function() {
-
-    Sandbox.name = 'Sandbox';
 
     function Sandbox(core, instanceId, options) {
       this.core = core;
@@ -194,13 +187,13 @@
 
   })();
 
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Sandbox = Sandbox;
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = Sandbox;
   }
 
   if (typeof require === "function") {
-    Mediator = require("./Mediator").Mediator;
-    Sandbox = require("./Sandbox").Sandbox;
+    Mediator = require("./Mediator");
+    Sandbox = require("./Sandbox");
   }
 
   VERSION = "0.3.7";
@@ -667,372 +660,6 @@
 
   if (typeof window !== "undefined" && window !== null) {
     window.scaleApp = core;
-  }
-
-  DOMPlugin = (function() {
-
-    DOMPlugin.name = 'DOMPlugin';
-
-    function DOMPlugin(sb) {
-      this.sb = sb;
-      this.getContainer = __bind(this.getContainer, this);
-
-    }
-
-    DOMPlugin.prototype.getContainer = function() {
-      switch (typeof this.sb.options.container) {
-        case "string":
-          return document.getElementById(this.sb.options.container);
-        case "object":
-          return this.sb.options.container;
-        default:
-          return document.getElementById(this.sb.instanceId);
-      }
-    };
-
-    return DOMPlugin;
-
-  })();
-
-  plugin = {
-    id: "dom",
-    sandbox: DOMPlugin
-  };
-
-  if (window.scaleApp != null) {
-    window.scaleApp.registerPlugin(plugin);
-  }
-
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Plugin = plugin;
-  }
-
-  scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
-
-  Model = (function(_super) {
-
-    __extends(Model, _super);
-
-    Model.name = 'Model';
-
-    function Model(obj) {
-      var k, v;
-      Model.__super__.constructor.call(this);
-      this.id = (obj != null ? obj.id : void 0) || scaleApp.uniqueId();
-      for (k in obj) {
-        v = obj[k];
-        if (!(this[k] != null)) {
-          this[k] = v;
-        }
-      }
-    }
-
-    Model.prototype.set = function(key, val, silent) {
-      var k, v;
-      if (silent == null) {
-        silent = false;
-      }
-      switch (typeof key) {
-        case "object":
-          for (k in key) {
-            v = key[k];
-            this.set(k, v, true);
-          }
-          if (!silent) {
-            this.publish(Model.CHANGED, (function() {
-              var _results;
-              _results = [];
-              for (k in key) {
-                v = key[k];
-                _results.push(k);
-              }
-              return _results;
-            })());
-          }
-          break;
-        case "string":
-          if (!(key === "set" || key === "get") && this[key] !== val) {
-            this[key] = val;
-            if (!silent) {
-              this.publish(Model.CHANGED, [key]);
-            }
-          }
-          break;
-        default:
-          if (typeof console !== "undefined" && console !== null) {
-            if (typeof console.error === "function") {
-              console.error("key is not a string");
-            }
-          }
-      }
-      return this;
-    };
-
-    Model.prototype.change = function(cb, context) {
-      if (typeof cb === "function") {
-        return this.subscribe(Model.CHANGED, cb, context);
-      } else if (arguments.length === 0) {
-        return this.publish(Model.CHANGED);
-      }
-    };
-
-    Model.prototype.notify = function() {
-      return this.change();
-    };
-
-    Model.prototype.get = function(key) {
-      return this[key];
-    };
-
-    Model.prototype.toJSON = function() {
-      var json, k, v;
-      json = {};
-      for (k in this) {
-        if (!__hasProp.call(this, k)) continue;
-        v = this[k];
-        json[k] = v;
-      }
-      return json;
-    };
-
-    Model.CHANGED = "changed";
-
-    return Model;
-
-  })(scaleApp.Mediator);
-
-  View = (function() {
-
-    View.name = 'View';
-
-    function View(model) {
-      if (model) {
-        this.setModel(model);
-      }
-    }
-
-    View.prototype.setModel = function(model) {
-      this.model = model;
-      return this.model.change((function() {
-        return this.render();
-      }), this);
-    };
-
-    View.prototype.render = function() {};
-
-    return View;
-
-  })();
-
-  Controller = (function() {
-
-    Controller.name = 'Controller';
-
-    function Controller(model, view) {
-      this.model = model;
-      this.view = view;
-    }
-
-    return Controller;
-
-  })();
-
-  plugin = {
-    id: "mvc",
-    core: {
-      Model: Model,
-      View: View,
-      Controller: Controller
-    }
-  };
-
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    scaleApp.registerPlugin(plugin);
-  }
-
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Plugin = plugin;
-  }
-
-  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator").Mediator : void 0);
-
-  baseLanguage = "en";
-
-  getBrowserLanguage = function() {
-    return ((typeof navigator !== "undefined" && navigator !== null ? navigator.language : void 0) || (typeof navigator !== "undefined" && navigator !== null ? navigator.browserLanguage : void 0) || baseLanguage).split("-")[0];
-  };
-
-  lang = getBrowserLanguage();
-
-  mediator = new Mediator;
-
-  channelName = "i18n";
-
-  global = {};
-
-  subscribe = function() {
-    return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  unsubscribe = function() {
-    return mediator.unsubscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  getLanguage = function() {
-    return lang;
-  };
-
-  setLanguage = function(code) {
-    if (typeof code === "string") {
-      lang = code;
-      return mediator.publish(channelName, lang);
-    }
-  };
-
-  setGlobal = function(obj) {
-    if (typeof obj === "object") {
-      global = obj;
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  getText = function(key, x, l) {
-    var _ref1, _ref2;
-    return ((_ref1 = x[l]) != null ? _ref1[key] : void 0) || ((_ref2 = global[l]) != null ? _ref2[key] : void 0);
-  };
-
-  get = function(key, x) {
-    if (x == null) {
-      x = {};
-    }
-    return getText(key, x, lang) || getText(key, x, lang.substring(0, 2)) || getText(key, x, baseLanguage) || key;
-  };
-
-  SBPlugin = (function() {
-
-    SBPlugin.name = 'SBPlugin';
-
-    function SBPlugin(sb) {
-      this.sb = sb;
-    }
-
-    SBPlugin.prototype.i18n = {
-      subscribe: subscribe,
-      unsubscribe: unsubscribe
-    };
-
-    SBPlugin.prototype._ = function(text) {
-      return get(text, this.sb.options.i18n);
-    };
-
-    SBPlugin.prototype.getLanguage = getLanguage;
-
-    return SBPlugin;
-
-  })();
-
-  plugin = {
-    id: "i18n",
-    sandbox: SBPlugin,
-    core: {
-      i18n: {
-        setLanguage: setLanguage,
-        getBrowserLanguage: getBrowserLanguage,
-        getLanguage: getLanguage,
-        baseLanguage: baseLanguage,
-        get: get,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe,
-        setGlobal: setGlobal
-      }
-    }
-  };
-
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    if (typeof window !== "undefined" && window !== null) {
-      window.scaleApp.registerPlugin(plugin);
-    }
-  }
-
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Plugin = plugin;
-  }
-
-  UtilPlugin = (function() {
-
-    UtilPlugin.name = 'UtilPlugin';
-
-    function UtilPlugin(sb) {}
-
-    UtilPlugin.prototype.countObjectKeys = function(o) {
-      var k, v;
-      if (typeof o === "object") {
-        return ((function() {
-          var _results;
-          _results = [];
-          for (k in o) {
-            v = o[k];
-            _results.push(k);
-          }
-          return _results;
-        })()).length;
-      }
-    };
-
-    UtilPlugin.prototype.mixin = function(receivingClass, givingClass, override) {
-      if (override == null) {
-        override = false;
-      }
-      switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
-        case "function-function":
-          return this.mix(givingClass.prototype, receivingClass.prototype, override);
-        case "function-object":
-          return this.mix(givingClass.prototype, receivingClass, override);
-        case "object-object":
-          return this.mix(givingClass, receivingClass, override);
-        case "object-function":
-          return this.mix(givingClass, receivingClass.prototype, override);
-      }
-    };
-
-    UtilPlugin.prototype.mix = function(giv, rec, override) {
-      var k, v, _results, _results1;
-      if (override === true) {
-        _results = [];
-        for (k in giv) {
-          v = giv[k];
-          _results.push(rec[k] = v);
-        }
-        return _results;
-      } else {
-        _results1 = [];
-        for (k in giv) {
-          v = giv[k];
-          if (!rec.hasOwnProperty(k)) {
-            _results1.push(rec[k] = v);
-          }
-        }
-        return _results1;
-      }
-    };
-
-    return UtilPlugin;
-
-  })();
-
-  plugin = {
-    id: "util",
-    sandbox: UtilPlugin
-  };
-
-  if (scaleApp != null) {
-    scaleApp.registerPlugin(plugin);
-  }
-
-  if (typeof exports !== "undefined" && exports !== null) {
-    exports.Plugin = plugin;
   }
 
 }).call(this);

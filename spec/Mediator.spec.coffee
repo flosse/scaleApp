@@ -1,4 +1,4 @@
-Mediator = require("../src/Mediator").Mediator
+Mediator = require "../src/Mediator"
 
 describe "Mediator", ->
 

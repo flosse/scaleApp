@@ -1,4 +1,4 @@
-Sandbox = require("../src/Sandbox").Sandbox
+Sandbox = require "../src/Sandbox"
 
 describe "scaleApp Sanbox", ->
 

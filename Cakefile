@@ -1,42 +1,12 @@
 fs     = require 'fs'
-path   = require 'path'
 {exec} = require 'child_process'
-util   = require 'util'
 coffee = require 'coffee-script'
 uglify = require 'uglify-js'
 
-coreName = "scaleApp"
-coreCoffeeDir   = 'src'
-pluginCoffeeDir  = 'src/plugins'
-moduleCoffeeDir  = 'src/modules'
-pluginTargetDir  = 'build/plugins'
-moduleTargetDir  = 'build/modules'
-libDir = 'lib'
+srcDir    = 'src'
 targetDir = 'build'
 
-coreCoffeeFiles  = [
-  'Mediator'
-  'Sandbox'
-  'scaleApp'
-]
-
-reservedNames  = [ ]
-
-coreDepJsFiles  = [ ]
-
-pluginDeps = {}
-
-createTargetDir = ->
-  util.log "create #{targetDir} directory"
-  fs.mkdirSync targetDir
-
-minifyJsFile = (file, resNames, cb) ->
-  fs.readFile "#{file}.js", 'utf8', (err, code) ->
-    util.log err if err
-    min = minify code, resNames
-    fs.writeFile "#{file}.min.js", min, 'utf8', (err) ->
-      util.log err if err
-      cb()
+coreFiles  = [ 'Mediator', 'Sandbox', 'scaleApp' ]
 
 minify = (code, resNames) -> uglify.uglify.gen_code(
   uglify.uglify.ast_squeeze(
@@ -47,133 +17,92 @@ minify = (code, resNames) -> uglify.uglify.gen_code(
   )
 )+';'
 
-filterJsFiles = (files) -> files.filter (s) -> (s.indexOf( ".js") isnt -1)
-
-filterFullFiles = (files) -> files.filter (s) -> (s.indexOf(".full.js") isnt -1)
-
-filterSingleFiles = (files) -> files.filter (s) ->
-  not (s.indexOf( ".full.js") isnt -1) and
-  not (s.indexOf( ".js.") isnt -1) and
-  not (s.indexOf( ".min.js") isnt -1) and
-  (s.indexOf( ".js") isnt -1)
-
-minifyDir = (dir)->
-
-  fs.readdir dir, (err, files) ->
-    util.log err if err
-
-    single = filterSingleFiles files
-    full = filterFullFiles files
-
-    single = single.map (s) ->
-      s.replace(".js","")
-
-    full = full.map (s) ->
-      s.replace(".js","")
-
-    for f in single
-      minifyJsFile "#{dir}/#{f}", reservedNames, ->
-
-    for i in full
-      minifyJsFile "#{dir}/#{i}", null, ->
-
-concate = (files, type, cb) ->
+concate = (files, type, wrapEach, cb) ->
+  if not cb?
+    cb = wrapEach
+    wrapEach = true
   concateContents = new Array filesRemaining = files.length
-  util.log "concate #{filesRemaining} files"
 
   for file, index in files then do (file, index) ->
     fs.readFile "#{file}.#{type}", 'utf8', (err, fileContents) ->
-      util.log err if err
+      console.log err if err
       concateContents[index] = fileContents
       if --filesRemaining is 0
-        cb concateContents.join '\n\n'
+        if type is 'coffee'
+          if wrapEach
+            cb (coffee.compile c for c in concateContents).join '\n'
+          else
+            cb coffee.compile concateContents.join '\n'
+        else
+          cb concateContents.join '\n'
 
-checkTargetDir = -> if not path.exists(targetDir) then createTargetDir
+checkDir = (d) -> fs.mkdirSync d if not fs.existsSync d
+checkTargetDir = -> checkDir targetDir
 
-task 'build', 'Build all', ->
-  invoke 'build:core'
-  invoke 'build:plugins'
-  #invoke 'build:modules'
+watchDir = (dir) ->
 
-task 'build:core', 'Build a single JavaScript file from src files', ->
-
-  checkTargetDir()
-
-  util.log "Building #{coreName}"
-  coreContents = new Array remaining = coreCoffeeFiles.length
-  util.log "Appending #{coreCoffeeFiles.length} files to #{coreName}.coffee"
-  files = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
-  concate files, "coffee", (content) ->
-    targetName = "#{targetDir}/#{coreName}"
-    code = coffee.compile content
-    fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
-      util.log err if err
-
-task 'build:full', "Builds a single file with all plugins", ->
-
-  checkTargetDir()
-
-  fs.readdir pluginCoffeeDir, (err, files) ->
-    pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
-
-    pluginFiles = ("#{pluginCoffeeDir}/#{f.split(".coffee")[0]}" for f in pluginFiles)
-    coreFiles   = ("#{coreCoffeeDir}/#{f}" for f in coreCoffeeFiles)
-
-    all = [ coreFiles..., pluginFiles...]
-    concate all, "coffee", (content) ->
-      targetName = "#{targetDir}/#{coreName}.full"
-      code = coffee.compile content
-      min = minify code, reservedNames
-      fs.writeFile "#{targetName}.js", code, 'utf8', (err) ->
-        util.log err if err
-      fs.writeFile "#{targetName}.min.js", min, 'utf8', (err) ->
-        util.log err if err
-
-task 'watch', 'Watch prod source files and build changes', ->
-  util.log "Watching for changes in #{coreCoffeeDir}/"
-
-  for file in coreCoffeeDir then do (file) ->
-    fs.watchFile "#{coreCoffeeDir}/#{file}.coffee", (curr, prev) ->
+  console.log "Watching for changes in #{dir}"
+  files = fs.readdirSync "#{dir}"
+  files = ("#{dir}/#{f}" for f in files when f.indexOf('.coffee') isnt -1)
+  for file in files then do (file) ->
+    fs.watchFile file, (curr, prev) ->
       if +curr.mtime isnt +prev.mtime
-        util.log "Saw change in #{coreCoffeeDir}/#{file}.coffee"
+        console.log "Saw change in #{file}"
         invoke 'build'
 
-task 'build:plugins', "Build #{coreName} plugins from source files", ->
+task 'build', 'Build all', ->
+  invoke 'compile'
+  invoke 'bundle'
+
+option '-p',    '--include-plugins [PLUGIN_NAMES]', "bundles scaleApp with defined plugins"
+
+task 'compile', 'compiles to JS', ->
+
+  exec "coffee -c -o #{targetDir} #{srcDir}", (err, stdout, stderr) ->
+    console.error err if err
+    console.error stderr if stderr
+
+task 'bundle', 'create browser bundles', (opts) ->
 
   checkTargetDir()
+  dir = "#{targetDir}/bundles"
+  checkDir dir
 
-  util.log "Building plugins"
-  exec "coffee -c -o #{pluginTargetDir} #{pluginCoffeeDir}", (err, stdout, stderr) ->
-    util.log err if err
+  files = ("#{srcDir}/#{f}" for f in coreFiles)
 
-task 'build:modules', "Build #{coreName} modules from source files", ->
+  concate files, "coffee", false, (core) ->
+    targetName = "#{dir}/scaleApp"
 
-  checkTargetDir()
+    if opts['include-plugins']?
+      plugins = opts['include-plugins'].split ','
+      plugins  = ("#{srcDir}/plugins/scaleApp.#{f}" for f in plugins)
+      concate plugins, "coffee", (pluginCode) ->
+        code = core+pluginCode
+        fs.writeFileSync "#{targetName}.custom.js", code, 'utf8'
+        fs.writeFileSync "#{targetName}.custom.min.js", (minify code), 'utf8'
 
-  util.log "Building modules"
-  exec "coffee -c -o #{moduleTargetDir} #{moduleCoffeeDir}", (err, stdout, stderr) ->
-    util.log err if err
+    else
+      fs.writeFile "#{targetName}.js", core, 'utf8', (err) ->
+        console.error err if err
+      fs.writeFile "#{targetName}.min.js",(minify core), 'utf8', (err) ->
+        console.error err if err
 
-task 'minify',         "Minify all js files", ->
+      fs.readdir "#{srcDir}/plugins", (err, files) ->
+        pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
+        pluginFiles = ("#{srcDir}/plugins/#{f.split(".coffee")[0]}" for f in pluginFiles)
+        concate pluginFiles, "coffee", (pluginCode) ->
+          code = core+pluginCode
+          fs.writeFile "#{targetName}.full.js", code, 'utf8', (err) ->
+            console.error err if err
+          fs.writeFile "#{targetName}.full.min.js", (minify code), 'utf8', (err) ->
+            console.error err if err
+
+task 'watch', 'Watch source files and build changes', ->
+
   invoke "build"
-  invoke "minify:core"
-  invoke "minify:plugins"
-  invoke "minify:modules"
-
-task 'minify:core',    "Minify the core",    -> minifyDir targetDir
-task 'minify:plugins', "Minify the plugins", -> minifyDir pluginTargetDir
-task 'minify:modules', "Minify the modules", -> minifyDir moduleTargetDir
-
-task 'test', "runs the tests", ->
-
-  exec "jasmine-node --coffee spec/", (err, stdout) ->
-    util.log err if err
-    util.log stdout if stdout
+  watchDir "#{srcDir}"
+  watchDir "#{srcDir}/plugins"
 
 task 'doc', "create docs", ->
-
-  checkTargetDir()
-
-  exec "docco #{coreCoffeeDir}/*.coffee #{pluginCoffeeDir}/*.coffee", (err,stdout) ->
-    util.log err if err
-    util.log stdout if stdout
+  exec "docco #{srcDir}/*.coffee #{srcDir}/plugins/*.coffee", (err, stdout) ->
+    console.error err if err

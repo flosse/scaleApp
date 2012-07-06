@@ -13,7 +13,8 @@
   {
     "jasmine-node":   ">=1.0.21",
     "jsdom":          ">=0.2.12",
-    "coffee-script":  ">=1.2.0"
+    "coffee-script":  ">=1.3.3",
+    "uglify-js":      ">=1.2.6"
   },
   "repositories":
   [

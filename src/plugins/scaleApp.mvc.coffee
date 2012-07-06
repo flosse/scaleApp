@@ -56,4 +56,4 @@ plugin =
     Controller: Controller
 
 scaleApp.registerPlugin plugin if window?.scaleApp?
-exports.Plugin = plugin if exports?
+module.exports = plugin if module?.exports?

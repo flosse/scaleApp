@@ -95,4 +95,4 @@ class Mediator
         s.context isnt o
     ))
 
-exports.Mediator = Mediator if exports?
+module.exports = Mediator if module?.exports?

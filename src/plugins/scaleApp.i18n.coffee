@@ -1,4 +1,4 @@
-Mediator = window?.scaleApp?.Mediator or require?("../Mediator").Mediator
+Mediator = window?.scaleApp?.Mediator or require? "../Mediator"
 
 baseLanguage = "en"
 
@@ -68,4 +68,4 @@ plugin =
       setGlobal: setGlobal
 
 window?.scaleApp.registerPlugin plugin if window?.scaleApp?
-exports.Plugin = plugin if exports?
+module.exports = plugin if module?.exports?

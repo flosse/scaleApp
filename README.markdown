@@ -64,7 +64,7 @@ sudo npm -g install scaleapp
 ```
 
 ```javascript
-var sa = require("scaleapp")
+var sa = require("scaleapp");
 ```
 
 ## Register modules
@@ -375,17 +375,23 @@ class MyModule
   init: -> @sb.appendFoo()  # appends "foo" to the container
   destroy: ->
 ```
-# Build
+# Build browser bundles
+
+Just type
 
 ```shell
-cake build
+cake bundle
 ```
+that will create `scaleApp.js`, `scaleApp.min.js`, `scaleApp.full.js` and
+`scaleApp.full.min.js` whithin the `build/bundles/` directory.
 
-if you want all plugins included
+If you want scaleApp bundled with special plugins type
 
 ```shell
-cake build:full
+cake -p [PLUGIN_NAME] bundle
 ```
+e.g. `cake -p dom,mvc bundle` creates the file `scaleApp.custom.js` that
+contains scaleApp itself the dom plugin and the mvc plugin.
 
 # Testing
 
@@ -393,7 +399,7 @@ cake build:full
 is required (`npm install -g jasmine-node`) for running the tests.
 
 ```shell
-cake test
+npm test
 ```
 
 # Demo
