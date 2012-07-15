@@ -10,8 +10,8 @@ class Sandbox
   # - (String) instanceId - The instance id
   # - (Object) options    - The options object for that instance
   constructor: (@core, @instanceId, @options = {}) ->
-    throw new Error "core was not defined" unless @core?
-    throw new Error "no id was specified"  unless instanceId?
-    throw new Error "id is not a string"   unless typeof instanceId is "string"
+    throw new TypeError "core was not defined" unless @core?
+    throw new TypeError "no id was specified"  unless instanceId?
+    throw new TypeError "id is not a string"   unless typeof instanceId is "string"
 
 module.exports = Sandbox if module?.exports?

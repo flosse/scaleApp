@@ -96,6 +96,17 @@ scaleApp.register "myGreatModule", MyGreatModule
 The `init` function is called by the framework when the module is supposed to
 start. The `destroy` function is called when the module has to shut down.
 
+### Show registered modules
+
+```javascript
+scaleApp.lsModules() // returns an array of module names
+```
+### Show running instances
+
+```javascript
+scaleApp.lsInstances() // returns an array of instance names
+```
+
 ## Asynchronous initialization
 
 You can also init or destroy you module in a asynchronous way:

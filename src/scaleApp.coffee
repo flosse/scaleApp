@@ -268,6 +268,5 @@ core =
   unsubscribe: -> mediator.unsubscribe.apply mediator, arguments
   publish: -> mediator.publish.apply mediator, arguments
 
-if exports? and module?
-  exports[k] = v for k,v of core
+module.exports  = core if module?.exports?
 window.scaleApp = core if window?

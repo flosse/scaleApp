@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, k, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, v,
+  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -173,13 +173,13 @@
       this.instanceId = instanceId;
       this.options = options != null ? options : {};
       if (this.core == null) {
-        throw new Error("core was not defined");
+        throw new TypeError("core was not defined");
       }
       if (instanceId == null) {
-        throw new Error("no id was specified");
+        throw new TypeError("no id was specified");
       }
       if (typeof instanceId !== "string") {
-        throw new Error("id is not a string");
+        throw new TypeError("id is not a string");
       }
     }
 
@@ -651,11 +651,8 @@
     }
   };
 
-  if ((typeof exports !== "undefined" && exports !== null) && (typeof module !== "undefined" && module !== null)) {
-    for (k in core) {
-      v = core[k];
-      exports[k] = v;
-    }
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = core;
   }
 
   if (typeof window !== "undefined" && window !== null) {

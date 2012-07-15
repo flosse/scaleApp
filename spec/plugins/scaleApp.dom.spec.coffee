@@ -1,76 +1,48 @@
-fs        = require 'fs'
-jsdom     = require 'jsdom'
-coffee    = require 'coffee-script'
+describe "dom plugin", ->
 
-scaleAppSource  =  fs.readFileSync "./src/Mediator.coffee"
-scaleAppSource  += "\n" + fs.readFileSync "./src/Sandbox.coffee"
-scaleAppSource  += "\n" + fs.readFileSync "./src/scaleApp.coffee"
-scaleAppSource  = coffee.compile scaleAppSource
-pluginSource    = fs.readFileSync "./src/plugins/scaleApp.dom.coffee"
-pluginSource    = coffee.compile pluginSource + "\n"
+  before ->
+    @scaleApp  = window.scaleApp
 
-describe "dom simulation", ->
+    # helper method
+    @run = (fn, opt={}) =>
 
-  it "loads the dom", ->
+        # create module
+        mod = (sb) ->
+          init: -> fn sb
+          destroy: ->
 
-    window   = null
-    scaleApp = null
+        # register module
+        @scaleApp.register "myId", mod
 
-    jsdom.env
-      html: '<html><body></body></html>'
-      src: [ scaleAppSource, pluginSource ]
-      done: (errors, w) ->
-        scaleApp = w.scaleApp
-        window = w
+        # start that moudle
+        @scaleApp.start "myId", options: opt
 
-    waitsFor -> !!window
+    @dummy = { a: "dummy" }
 
-    runs -> (expect window.scaleApp).toBeDefined()
+  after ->
+    @scaleApp.stopAll()
+    @scaleApp.unregisterAll()
 
-    describe "dom plugin", ->
-    
-      testIt = ->
-      dummy = { a: "dummy" }
-      run = -> scaleApp.start "myId"
-    
-      mod = (@sb) ->
-        init: =>
-          testIt @sb
-        destroy: ->
-    
-      beforeEach ->
-        scaleApp.register "myId", mod
-    
-      afterEach ->
-        scaleApp.stopAll()
-        scaleApp.unregisterAll()
-    
-      it "installs itself to the sandbox", ->
-    
-        cb = jasmine.createSpy "a callback"
-    
-        testIt = (sb) ->
-          (expect typeof sb.getContainer).toEqual "function"
-          cb()
-    
-        run()
-        (expect cb).toHaveBeenCalled()
-    
-      it "returns the object that was defined in the option object", ->
-        testIt = (sb) ->
-          (expect sb.getContainer()).toEqual dummy
-        scaleApp.start "myId", { options: { container: dummy } }
-    
-      it "returns the dom object which id was defined in the option object", ->
-    
-        cb = jasmine.createSpy "a callback"
-    
-        div = window.document.createElement "div"
-        div.setAttribute "id", "dummy"
-        window.document.body.appendChild div
-    
-        testIt = (sb) ->
-          (expect sb.getContainer()).toEqual div
-          cb()
-        scaleApp.start "myId", { options: { container: "dummy" } }
-        (expect cb).toHaveBeenCalled()
+  it "installs itself to the sandbox", (done) ->
+
+    @run (sb) ->
+      (expect typeof sb.getContainer).toEqual "function"
+      done()
+
+  it "returns the object that was defined in the option object", (done) ->
+    test = (sb) =>
+      (expect sb.getContainer()).toBe @dummy
+      done()
+    @run test, container: @dummy
+
+  it "returns the dom object which id was defined in the option object", (done) ->
+
+    div = window.document.createElement "div"
+    div.setAttribute "id", "dummy"
+    window.document.body.appendChild div
+
+    test = (sb) ->
+      (expect sb.getContainer()).toBe div
+      done()
+
+    @run test, container: "dummy"

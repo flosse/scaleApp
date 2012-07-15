@@ -86,15 +86,18 @@ task 'bundle', 'create browser bundles', (opts) ->
       fs.writeFile "#{targetName}.min.js",(minify core), 'utf8', (err) ->
         console.error err if err
 
-      fs.readdir "#{srcDir}/plugins", (err, files) ->
-        pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
-        pluginFiles = ("#{srcDir}/plugins/#{f.split(".coffee")[0]}" for f in pluginFiles)
-        concate pluginFiles, "coffee", (pluginCode) ->
-          code = core+pluginCode
-          fs.writeFile "#{targetName}.full.js", code, 'utf8', (err) ->
-            console.error err if err
-          fs.writeFile "#{targetName}.full.min.js", (minify code), 'utf8', (err) ->
-            console.error err if err
+      pluginPath = "#{srcDir}/plugins"
+
+      if fs.existsSync pluginPath
+        fs.readdir pluginPath, (err, files) ->
+          pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
+          pluginFiles = ("#{pluginPath}/#{f.split(".coffee")[0]}" for f in pluginFiles)
+          concate pluginFiles, "coffee", (pluginCode) ->
+            code = core+pluginCode
+            fs.writeFile "#{targetName}.full.js", code, 'utf8', (err) ->
+              console.error err if err
+            fs.writeFile "#{targetName}.full.min.js", (minify code), 'utf8', (err) ->
+              console.error err if err
 
 task 'watch', 'Watch source files and build changes', ->
 
