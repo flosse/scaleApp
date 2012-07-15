@@ -41,13 +41,13 @@ clean and scaleable architecture.
 ## Extendable
 
 scaleApp itself is very small but it can be extended with plugins. There already
-are some plugins available (e.g. `mvc`, `i18n`, etc.) but you can easily define
-your own one.
+are some plugins available (e.g. `mvc`, `i18n`, `permission`, etc.) but you can
+easily define your own one.
 
 ## Download latest version
 
-- [scaleApp 0.3.6.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.6)
-- [scaleApp 0.3.6.zip](https://github.com/flosse/scaleApp/zipball/v0.3.6)
+- [scaleApp 0.3.7.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.7)
+- [scaleApp 0.3.7.zip](https://github.com/flosse/scaleApp/zipball/v0.3.7)
 
 # Quick Start
 
@@ -472,9 +472,6 @@ e.g. `cake -p dom,mvc bundle` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
 # Testing
-
-[jasmine-node](https://github.com/mhevery/jasmine-node)
-is required (`npm install -g jasmine-node`) for running the tests.
 
 ```shell
 npm test
