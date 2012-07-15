@@ -397,10 +397,33 @@ registerModule "myModule", (@sb) ->
 scaleApp.publish "changeName", "Peter"
 ```
 
+## permission - controll all messages
+
+If you include the `permission` plugin, all `Mediator` methods will be rejected
+by default to enforce you to permit any message method explicitely.
+
+```coffeescript
+scaleApp.addPermission "instanceA", "subscribe"
+scaleApp.addPermission "instanceB", "publish"
+```
+
+Now `instanceA` is allowed to subscribe to a channel but `instanceB` cannot
+subscribe. Therefore `instanceB` can publish data and `instanceB` can not.
+
+Of course you can remove a permission at any time:
+
+```coffeescript
+scaleApp.removePermission "moduleA", "publish"
+```
+
+## util - some helper functions
+
+ - `sb.mixin(receivingClass, givingClass, override=false)`
+ - `sb.countObjectKeys(object)`
+
 ## Other plugins
 
 - dom - basic DOM manipulations (currently only used for `getContainer`)
-- util - some helper functions
 
 ## Write your own plugin
 

@@ -661,6 +661,94 @@
 
 }).call(this);
 (function() {
+  var Mediator, SBPlugin, addPermission, grantAction, hasPermission, permissions, plugin, removePermission, tweakSandboxMethod, _ref;
+
+  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator") : void 0);
+
+  permissions = {};
+
+  addPermission = function(id, action) {
+    var p, _ref1;
+    p = (_ref1 = permissions[id]) != null ? _ref1 : permissions[id] = {};
+    return p[action] = true;
+  };
+
+  removePermission = function(id, action) {
+    var p;
+    p = permissions[id];
+    if (!(p != null)) {
+      return false;
+    } else {
+      delete p[action];
+      return true;
+    }
+  };
+
+  hasPermission = function(id, action) {
+    var p, _ref1;
+    p = (_ref1 = permissions[id]) != null ? _ref1[action] : void 0;
+    if (p != null) {
+      return true;
+    } else {
+      console.warn("" + id + " has no permissions for '" + action + "'");
+      return false;
+    }
+  };
+
+  grantAction = function(sb, action, method, args) {
+    var p;
+    p = hasPermission(sb.instanceId, action);
+    if (p === true) {
+      return method.apply(sb, args);
+    } else {
+      return false;
+    }
+  };
+
+  tweakSandboxMethod = function(sb, methodName) {
+    var originalMethod;
+    originalMethod = sb[methodName];
+    if (typeof originalMethod === "function") {
+      return sb[methodName] = function() {
+        return grantAction(sb, methodName, originalMethod, arguments);
+      };
+    }
+  };
+
+  SBPlugin = (function() {
+
+    function SBPlugin(sb) {
+      tweakSandboxMethod(sb, "subscribe");
+      tweakSandboxMethod(sb, "publish");
+      tweakSandboxMethod(sb, "unsubscribe");
+    }
+
+    return SBPlugin;
+
+  })();
+
+  plugin = {
+    id: "permission",
+    sandbox: SBPlugin,
+    core: {
+      permission: {
+        add: addPermission,
+        remove: removePermission
+      }
+    }
+  };
+
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+    window.scaleApp.registerPlugin(plugin);
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = plugin;
+  }
+
+}).call(this);
+
+(function() {
   var DOMPlugin, plugin,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -961,7 +1049,28 @@
 }).call(this);
 
 (function() {
-  var UtilPlugin, plugin;
+  var UtilPlugin, mix, plugin;
+
+  mix = function(giv, rec, override) {
+    var k, v, _results, _results1;
+    if (override === true) {
+      _results = [];
+      for (k in giv) {
+        v = giv[k];
+        _results.push(rec[k] = v);
+      }
+      return _results;
+    } else {
+      _results1 = [];
+      for (k in giv) {
+        v = giv[k];
+        if (!rec.hasOwnProperty(k)) {
+          _results1.push(rec[k] = v);
+        }
+      }
+      return _results1;
+    }
+  };
 
   UtilPlugin = (function() {
 
@@ -988,34 +1097,13 @@
       }
       switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
         case "function-function":
-          return this.mix(givingClass.prototype, receivingClass.prototype, override);
+          return mix(givingClass.prototype, receivingClass.prototype, override);
         case "function-object":
-          return this.mix(givingClass.prototype, receivingClass, override);
+          return mix(givingClass.prototype, receivingClass, override);
         case "object-object":
-          return this.mix(givingClass, receivingClass, override);
+          return mix(givingClass, receivingClass, override);
         case "object-function":
-          return this.mix(givingClass, receivingClass.prototype, override);
-      }
-    };
-
-    UtilPlugin.prototype.mix = function(giv, rec, override) {
-      var k, v, _results, _results1;
-      if (override === true) {
-        _results = [];
-        for (k in giv) {
-          v = giv[k];
-          _results.push(rec[k] = v);
-        }
-        return _results;
-      } else {
-        _results1 = [];
-        for (k in giv) {
-          v = giv[k];
-          if (!rec.hasOwnProperty(k)) {
-            _results1.push(rec[k] = v);
-          }
-        }
-        return _results1;
+          return mix(givingClass, receivingClass.prototype, override);
       }
     };
 

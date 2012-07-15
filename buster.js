@@ -24,6 +24,12 @@ config["node-mvc-plugin"] = {
   extensions: [require("buster-coffee")]
 };
 
+config["node-permission-plugin"] = {
+  environment: "node",
+  specs: ["spec/plugins/scaleApp.permission.spec.coffee"],
+  extensions: [require("buster-coffee")]
+};
+
 config["browser-core"] = {
   environment: "browser",
   specs: ["spec/*.spec.coffee"],
@@ -48,6 +54,14 @@ config["browser-mvc-plugin"] = {
   extends: "browser-core",
   specs: ["spec/plugins/scaleApp.mvc.spec.coffee"],
   sources: ["lib/plugins/scaleApp.mvc.js"]
+};
+
+config["browser-permission-plugin"] = {
+  environment: "browser",
+  specs: ["spec/plugins/scaleApp.permission.spec.coffee"],
+  specHelpers: ["spec/browserSetup.coffee"],
+  sources: ["bundles/scaleApp.min.js", "lib/plugins/scaleApp.permission.js"],
+  extensions: [require("buster-coffee")],
 };
 
 config["browser-dom-plugin"] = {
