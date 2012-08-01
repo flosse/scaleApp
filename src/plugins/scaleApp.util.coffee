@@ -23,3 +23,4 @@ plugin =
 
 scaleApp.registerPlugin plugin if scaleApp?
 module.exports = plugin if module?.exports?
+define -> plugin if define?.amd?

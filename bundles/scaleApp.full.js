@@ -191,7 +191,7 @@
     module.exports = Sandbox;
   }
 
-  if (typeof require === "function") {
+  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
   }
@@ -659,6 +659,12 @@
     window.scaleApp = core;
   }
 
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return core;
+    }
+  });
+
 }).call(this);
 (function() {
   var Mediator, SBPlugin, addPermission, grantAction, hasPermission, permissions, plugin, removePermission, tweakSandboxMethod, _ref;
@@ -746,6 +752,12 @@
     module.exports = plugin;
   }
 
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return plugin;
+    }
+  });
+
 }).call(this);
 
 (function() {
@@ -787,6 +799,12 @@
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
     module.exports = plugin;
   }
+
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return plugin;
+    }
+  });
 
 }).call(this);
 
@@ -936,6 +954,12 @@
     module.exports = plugin;
   }
 
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return plugin;
+    }
+  });
+
 }).call(this);
 
 (function() {
@@ -1046,6 +1070,12 @@
     module.exports = plugin;
   }
 
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return plugin;
+    }
+  });
+
 }).call(this);
 
 (function() {
@@ -1123,5 +1153,11 @@
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
     module.exports = plugin;
   }
+
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return plugin;
+    }
+  });
 
 }).call(this);

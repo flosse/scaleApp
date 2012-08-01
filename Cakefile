@@ -39,11 +39,13 @@ concate = (files, type, wrapEach, cb) ->
 checkDir = (d) -> fs.mkdirSync d if not fs.existsSync d
 checkTargetDir = -> checkDir targetDir
 
+isCoffeeFile = (f) -> (f.indexOf('.coffee') isnt -1) and (f[0] isnt '.')
+
 watchDir = (dir) ->
 
   console.log "Watching for changes in #{dir}"
   files = fs.readdirSync "#{dir}"
-  files = ("#{dir}/#{f}" for f in files when f.indexOf('.coffee') isnt -1)
+  files = ("#{dir}/#{f}" for f in files when isCoffeeFile f)
   for file in files then do (file) ->
     fs.watchFile file, (curr, prev) ->
       if +curr.mtime isnt +prev.mtime
@@ -90,7 +92,7 @@ task 'bundle', 'create browser bundles', (opts) ->
 
       if fs.existsSync pluginPath
         fs.readdir pluginPath, (err, files) ->
-          pluginFiles = files.filter (s) -> (s.indexOf( ".coffee") isnt -1)
+          pluginFiles = files.filter (s) -> isCoffeeFile s
           pluginFiles = ("#{pluginPath}/#{f.split(".coffee")[0]}" for f in pluginFiles)
           concate pluginFiles, "coffee", (pluginCode) ->
             code = core+pluginCode

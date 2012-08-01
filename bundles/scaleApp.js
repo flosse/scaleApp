@@ -191,7 +191,7 @@
     module.exports = Sandbox;
   }
 
-  if (typeof require === "function") {
+  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
   }
@@ -658,5 +658,11 @@
   if (typeof window !== "undefined" && window !== null) {
     window.scaleApp = core;
   }
+
+  define(function() {
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      return core;
+    }
+  });
 
 }).call(this);

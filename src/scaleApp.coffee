@@ -1,4 +1,4 @@
-if typeof require is "function"
+if module?.exports? and typeof require is "function"
   Mediator  = require "./Mediator"
   Sandbox   = require "./Sandbox"
 
@@ -270,3 +270,4 @@ core =
 
 module.exports  = core if module?.exports?
 window.scaleApp = core if window?
+define -> core if define?.amd?
