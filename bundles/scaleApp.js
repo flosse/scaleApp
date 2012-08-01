@@ -659,10 +659,10 @@
     window.scaleApp = core;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return core;
-    }
-  });
+    });
+  }
 
 }).call(this);

@@ -659,11 +659,11 @@
     window.scaleApp = core;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return core;
-    }
-  });
+    });
+  }
 
 }).call(this);
 (function() {
@@ -752,11 +752,11 @@
     module.exports = plugin;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return plugin;
-    }
-  });
+    });
+  }
 
 }).call(this);
 
@@ -800,11 +800,11 @@
     module.exports = plugin;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return plugin;
-    }
-  });
+    });
+  }
 
 }).call(this);
 
@@ -954,11 +954,11 @@
     module.exports = plugin;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return plugin;
-    }
-  });
+    });
+  }
 
 }).call(this);
 
@@ -1070,11 +1070,11 @@
     module.exports = plugin;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return plugin;
-    }
-  });
+    });
+  }
 
 }).call(this);
 
@@ -1154,10 +1154,10 @@
     module.exports = plugin;
   }
 
-  define(function() {
-    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
       return plugin;
-    }
-  });
+    });
+  }
 
 }).call(this);

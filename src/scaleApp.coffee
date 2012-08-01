@@ -270,4 +270,4 @@ core =
 
 module.exports  = core if module?.exports?
 window.scaleApp = core if window?
-define -> core if define?.amd?
+(define -> core) if define?.amd?
