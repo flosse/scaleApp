@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
+  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -200,11 +200,13 @@
     Sandbox = require("./Sandbox");
   }
 
-  VERSION = "0.3.7";
+  VERSION = "0.3.8";
 
   modules = {};
 
   instances = {};
+
+  instanceOpts = {};
 
   mediator = new Mediator;
 
@@ -249,8 +251,32 @@
     }
   };
 
+  getInstanceOptions = function(instanceId, module, opt) {
+    var io, key, o, val, _ref;
+    o = {};
+    _ref = module.options;
+    for (key in _ref) {
+      val = _ref[key];
+      o[key] = val;
+    }
+    io = instanceOpts[instanceId];
+    if (io) {
+      for (key in io) {
+        val = io[key];
+        o[key] = val;
+      }
+    }
+    if (opt) {
+      for (key in opt) {
+        val = opt[key];
+        o[key] = val;
+      }
+    }
+    return o;
+  };
+
   createInstance = function(moduleId, instanceId, opt) {
-    var entry, i, instance, instanceOpts, k, key, module, n, p, plugin, sb, v, val, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    var entry, i, instance, k, module, n, p, plugin, sb, v, _i, _j, _len, _len1, _ref, _ref1;
     if (instanceId == null) {
       instanceId = moduleId;
     }
@@ -258,18 +284,7 @@
     if (instances[instanceId] != null) {
       return instances[instanceId];
     }
-    instanceOpts = {};
-    _ref = module.options;
-    for (key in _ref) {
-      val = _ref[key];
-      instanceOpts[key] = val;
-    }
-    if (opt) {
-      for (key in opt) {
-        val = opt[key];
-        instanceOpts[key] = val;
-      }
-    }
+    instanceOpts = getInstanceOptions(instanceId, module, opt);
     sb = new Sandbox(core, instanceId, instanceOpts);
     mediator.installTo(sb);
     for (i in plugins) {
@@ -288,13 +303,13 @@
     instance.options = instanceOpts;
     instance.id = instanceId;
     instances[instanceId] = instance;
-    _ref1 = [instanceId, '_always'];
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      n = _ref1[_i];
+    _ref = [instanceId, '_always'];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      n = _ref[_i];
       if (onInstantiateFunctions[n] != null) {
-        _ref2 = onInstantiateFunctions[n];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          entry = _ref2[_j];
+        _ref1 = onInstantiateFunctions[n];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          entry = _ref1[_j];
           entry.callback.apply(entry.context);
         }
       }
@@ -305,26 +320,26 @@
   addModule = function(moduleId, creator, opt) {
     var modObj;
     if (typeof moduleId !== "string") {
-      throw new Error("moudule ID has to be a string");
+      throw new TypeError("module ID has to be a string");
     }
     if (typeof creator !== "function") {
-      throw new Error("creator has to be a constructor function");
+      throw new TypeError("creator has to be a constructor function");
     }
     if (typeof opt !== "object") {
-      throw new Error("option parameter has to be an object");
+      throw new TypeError("option parameter has to be an object");
     }
     modObj = new creator();
     if (typeof modObj !== "object") {
-      throw new Error("creator has to return an object");
+      throw new TypeError("creator has to return an object");
     }
     if (typeof modObj.init !== "function") {
-      throw new Error("module has to have an init function");
+      throw new TypeError("module has to have an init function");
     }
     if (typeof modObj.destroy !== "function") {
-      throw new Error("module has to have a destroy function");
+      throw new TypeError("module has to have a destroy function");
     }
     if (modules[moduleId] != null) {
-      throw new Error("module " + moduleId + " was already registered");
+      throw new TypeError("module " + moduleId + " was already registered");
     }
     modules[moduleId] = {
       creator: creator,
@@ -344,6 +359,28 @@
       error(new Error("could not register module '" + moduleId + "': " + e.message));
       return false;
     }
+  };
+
+  setInstanceOptions = function(instanceId, opt) {
+    var k, v, _ref, _results;
+    if (opt == null) {
+      opt = {};
+    }
+    if (typeof instanceId !== "string") {
+      throw new TypeError("instance ID has to be a string");
+    }
+    if (typeof opt !== "object") {
+      throw new TypeError("option parameter has to be an object");
+    }
+    if ((_ref = instanceOpts[instanceId]) == null) {
+      instanceOpts[instanceId] = {};
+    }
+    _results = [];
+    for (k in opt) {
+      v = opt[k];
+      _results.push(instanceOpts[instanceId][k] = v);
+    }
+    return _results;
   };
 
   unregister = function(id) {
@@ -558,9 +595,9 @@
     }), cb);
   };
 
-  coreKeywords = ["VERSION", "register", "unregister", "registerPlugin", "start", "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"];
+  coreKeywords = ["VERSION", "register", "unregister", "registerPlugin", "start", "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on", "emit", "setInstanceOptions", "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"];
 
-  sandboxKeywords = ["core", "instanceId", "options", "publish", "subscribe", "unsubscribe"];
+  sandboxKeywords = ["core", "instanceId", "options", "publish", "emit", "on", "subscribe", "unsubscribe"];
 
   lsModules = function() {
     var id, m, _results;
@@ -635,6 +672,7 @@
     unregister: unregister,
     unregisterAll: unregisterAll,
     registerPlugin: registerPlugin,
+    setInstanceOptions: setInstanceOptions,
     start: start,
     stop: stop,
     startAll: startAll,
@@ -647,10 +685,16 @@
     subscribe: function() {
       return mediator.subscribe.apply(mediator, arguments);
     },
+    on: function() {
+      return mediator.subscribe.apply(mediator, arguments);
+    },
     unsubscribe: function() {
       return mediator.unsubscribe.apply(mediator, arguments);
     },
     publish: function() {
+      return mediator.publish.apply(mediator, arguments);
+    },
+    emit: function() {
       return mediator.publish.apply(mediator, arguments);
     }
   };
@@ -1034,6 +1078,7 @@
 
     SBPlugin.prototype.i18n = {
       subscribe: subscribe,
+      on: subscribe,
       unsubscribe: unsubscribe
     };
 
@@ -1058,6 +1103,7 @@
         baseLanguage: baseLanguage,
         get: get,
         subscribe: subscribe,
+        on: subscribe,
         unsubscribe: unsubscribe,
         setGlobal: setGlobal
       }

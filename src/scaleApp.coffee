@@ -2,13 +2,14 @@ if module?.exports? and typeof require is "function"
   Mediator  = require "./Mediator"
   Sandbox   = require "./Sandbox"
 
-VERSION = "0.3.7"
+VERSION = "0.3.8"
 
-modules = {}
-instances = {}
-mediator = new Mediator
-plugins = {}
-error = (e) -> console?.error? e.message
+modules       = {}
+instances     = {}
+instanceOpts  = {}
+mediator      = new Mediator
+plugins       = {}
+error         = (e) -> console?.error? e.message
 
 uniqueId = (length=8) ->
  id = ""
@@ -30,18 +31,32 @@ onInstantiate = (fn, moduleId) ->
   else if not moduleId?
     onInstantiateFunctions._always.push entry
 
+getInstanceOptions = (instanceId, module, opt) ->
+
+  # Merge default options and instance options and start options,
+  # without modifying the defaults.
+  o = {}
+
+  # first copy default module options
+  o[key] = val for key, val of module.options
+
+  # then copy instance options
+  io = instanceOpts[instanceId]
+  o[key] = val for key, val of io if io
+
+  # and fineally copy start options
+  o[key] = val for key, val of opt if opt
+
+  # return options
+  o
+
 createInstance = (moduleId, instanceId=moduleId, opt) ->
 
   module = modules[moduleId]
 
   return instances[instanceId] if instances[instanceId]?
 
-  # Merge default options and instance options,
-  # without modifying the defaults.
-  instanceOpts = {}
-  instanceOpts[key] = val for key, val of module.options
-  instanceOpts[key] = val for key, val of opt if opt
-
+  instanceOpts = getInstanceOptions instanceId, module, opt
   sb = new Sandbox core, instanceId, instanceOpts
   mediator.installTo sb
 
@@ -49,9 +64,9 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
     plugin = new p.sandbox sb
     sb[k] = v for own k,v of plugin
 
-  instance = new module.creator sb
-  instance.options = instanceOpts
-  instance.id = instanceId
+  instance              = new module.creator sb
+  instance.options      = instanceOpts
+  instance.id           = instanceId
   instances[instanceId] = instance
 
   for n in [instanceId, '_always']
@@ -61,17 +76,17 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
 
 addModule = (moduleId, creator, opt) ->
 
-  throw new Error "moudule ID has to be a string"            unless typeof moduleId  is "string"
-  throw new Error "creator has to be a constructor function" unless typeof creator   is "function"
-  throw new Error "option parameter has to be an object"     unless typeof opt       is "object"
+  throw new TypeError "module ID has to be a string"             unless typeof moduleId  is "string"
+  throw new TypeError "creator has to be a constructor function" unless typeof creator   is "function"
+  throw new TypeError "option parameter has to be an object"     unless typeof opt       is "object"
 
   modObj = new creator()
 
-  throw new Error "creator has to return an object"          unless typeof modObj          is "object"
-  throw new Error "module has to have an init function"      unless typeof modObj.init     is "function"
-  throw new Error "module has to have a destroy function"    unless typeof modObj.destroy  is "function"
+  throw new TypeError "creator has to return an object"          unless typeof modObj          is "object"
+  throw new TypeError "module has to have an init function"      unless typeof modObj.init     is "function"
+  throw new TypeError "module has to have a destroy function"    unless typeof modObj.destroy  is "function"
 
-  throw new Error "module #{moduleId} was already registered" if modules[moduleId]?
+  throw new TypeError "module #{moduleId} was already registered" if modules[moduleId]?
 
   modules[moduleId] =
     creator: creator
@@ -86,6 +101,12 @@ register = (moduleId, creator, opt = {}) ->
   catch e
     error new Error "could not register module '#{moduleId}': #{e.message}"
     false
+
+setInstanceOptions = (instanceId, opt={}) ->
+  throw new TypeError "instance ID has to be a string"        unless typeof instanceId  is "string"
+  throw new TypeError "option parameter has to be an object"  unless typeof opt         is "object"
+  instanceOpts[instanceId] ?= {}
+  instanceOpts[instanceId][k] = v for k,v of opt
 
 unregister = (id) ->
   if modules[id]?
@@ -210,10 +231,11 @@ stopAll = (cb) -> doForAll (id for id of instances)
   , cb
 
 coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
-  "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe"
-  "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"]
+  "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on",
+  "emit", "setInstanceOptions", "Mediator", "Sandbox", "unregisterAll",
+  "uniqueId", "lsModules", "lsInstances"]
 
-sandboxKeywords = [ "core", "instanceId", "options", "publish"
+sandboxKeywords = [ "core", "instanceId", "options", "publish", "emit", "on"
   "subscribe", "unsubscribe" ]
 
 lsModules = -> (id for id,m of modules)
@@ -255,6 +277,7 @@ core =
   unregister: unregister
   unregisterAll: unregisterAll
   registerPlugin: registerPlugin
+  setInstanceOptions: setInstanceOptions
   start: start
   stop: stop
   startAll: startAll
@@ -264,9 +287,11 @@ core =
   lsModules: lsModules
   Mediator: Mediator
   Sandbox: Sandbox
-  subscribe: -> mediator.subscribe.apply mediator, arguments
-  unsubscribe: -> mediator.unsubscribe.apply mediator, arguments
-  publish: -> mediator.publish.apply mediator, arguments
+  subscribe:    -> mediator.subscribe.apply mediator, arguments
+  on:           -> mediator.subscribe.apply mediator, arguments
+  unsubscribe:  -> mediator.unsubscribe.apply mediator, arguments
+  publish:      -> mediator.publish.apply mediator, arguments
+  emit:         -> mediator.publish.apply mediator, arguments
 
 module.exports  = core if module?.exports?
 window.scaleApp = core if window?
