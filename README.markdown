@@ -233,6 +233,8 @@ The publish function is accessible through the sandbox:
 sb.publish( "myEventTopic", myData );
 ```
 
+You can also use the shorter method alias `emit`.
+
 ### Subscribe
 
 A message handler could look like this:
@@ -271,6 +273,8 @@ You can also subscribe to several channels at once:
 ```javascript
 sb.subscribe(["a", "b"], cb);
 ```
+
+If you prefer a shorter method name you can use the alias `on`.
 
 #### attache and detache
 

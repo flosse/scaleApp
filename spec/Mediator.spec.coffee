@@ -29,6 +29,9 @@ describe "Mediator", ->
       (expect typeof sub.detach).toEqual "function"
       (expect sub).not.toEqual sub2
 
+    it "has an alias method named 'on'", ->
+      (expect @paul.on).toEqual @paul.subscribe
+
     it "subscribes a function to several channels", ->
 
       cb1 = sinon.spy()
@@ -175,6 +178,9 @@ describe "Mediator", ->
     it "is an accessible function", ->
       (expect typeof @paul.publish).toEqual "function"
 
+    it "has an alias method named 'emit'", ->
+      (expect @paul.emit).toEqual @paul.publish
+
     it "returns the current context", ->
       (expect @paul.publish "my channel", {}).toEqual @paul
       (expect (new @Mediator).subscribe "my channel", ->).not.toEqual @paul
@@ -193,17 +199,19 @@ describe "Mediator", ->
       mediator.installTo myObj
 
       (expect typeof myObj.subscribe).toEqual "function"
+      (expect typeof myObj.on).toEqual "function"
       (expect typeof myObj.publish).toEqual "function"
+      (expect typeof myObj.emit).toEqual "function"
       (expect typeof myObj.unsubscribe).toEqual "function"
       (expect typeof myObj.channels).toEqual "object"
 
       myObj.subscribe "ch", cb
-      mediator.subscribe "ch", cb2
-      mediator.subscribe "ch2", cb2
+      mediator.on "ch", cb2
+      mediator.on "ch2", cb2
 
       myObj.publish "ch", "foo"
       mediator.publish "ch", "bar"
-      mediator.publish "ch2", "blub"
+      mediator.emit "ch2", "blub"
 
       (expect cb.callCount).toEqual 2
       (expect cb2.callCount).toEqual 3

@@ -28,6 +28,9 @@ class Mediator
         detach: -> Mediator._rm that, channel, subscription.callback; @
       ).attach()
 
+  # Alias for subscribe
+  on: @::subscribe
+
   # ## Unsubscribe from a topic
   #
   # Parameters:
@@ -78,6 +81,9 @@ class Mediator
           catch e
             console?.error? e
     @
+
+  # Alias for publish
+  emit: @::publish
 
   # ## Install Pub/Sub functions to an object
   installTo: (obj) ->

@@ -53,6 +53,8 @@
       }
     };
 
+    Mediator.prototype.on = Mediator.prototype.subscribe;
+
     Mediator.prototype.unsubscribe = function(ch, cb) {
       var id;
       switch (typeof ch) {
@@ -130,6 +132,8 @@
       }
       return this;
     };
+
+    Mediator.prototype.emit = Mediator.prototype.publish;
 
     Mediator.prototype.installTo = function(obj) {
       var k, v;
