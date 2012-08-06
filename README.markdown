@@ -400,7 +400,7 @@ registerModule "myModule", (@sb) ->
 ```coffeescript
 scaleApp.publish "changeName", "Peter"
 ```
-## state - State Machine
+## state - [Finite State Machine](https://en.wikipedia.org/wiki/Finite_state_machine)
 
 ```coffeescript
 s = new scaleApp.StateMachine
