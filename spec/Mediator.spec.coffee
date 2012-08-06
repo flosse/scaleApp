@@ -309,6 +309,7 @@ describe "Mediator", ->
 
       it "publishes subtopics to parent topics", ->
 
+        @paul.cascadeChannels = true
         @paul.on "parentTopic", @cb
         @paul.on "parentTopic/subTopic", @cb1
         @paul.on "parentTopic/subTopic/subsub", @cb2

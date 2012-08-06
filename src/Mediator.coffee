@@ -1,6 +1,6 @@
 class Mediator
 
-  constructor: (obj) ->
+  constructor: (obj, @cascadeChannels=false) ->
     @channels = {}
     @installTo obj if obj
 
@@ -81,7 +81,7 @@ class Mediator
           catch e
             console?.error? e
 
-    if (chnls = channel.split('/')).length > 1
+    if @cascadeChannels and (chnls = channel.split('/')).length > 1
       @publish chnls[0...-1].join('/'), data, publishReference
     @
 
