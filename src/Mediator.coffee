@@ -80,6 +80,9 @@ class Mediator
             subscription.callback.apply subscription.context, [data, channel]
           catch e
             console?.error? e
+
+    if (chnls = channel.split('/')).length > 1
+      @publish chnls[0...-1].join('/'), data, publishReference
     @
 
   # Alias for publish

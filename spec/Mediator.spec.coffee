@@ -248,7 +248,8 @@ describe "Mediator", ->
     beforeEach ->
       @peter = new @Mediator
       @data = { bla: "blub"}
-      @cb = sinon.spy()
+      @cb  = sinon.spy()
+      @cb1 = sinon.spy()
       @cb2 = sinon.spy()
       @cb3 = sinon.spy()
       @anObject = {}
@@ -304,17 +305,17 @@ describe "Mediator", ->
       @paul.publish "another channel", @data
       (expect @cb).not.toHaveBeenCalled()
 
-  describe "auto subscription", ->
+    describe "auto subscription", ->
 
-      # ! NOT IMPLEMENTED !
+      it "publishes subtopics to parent topics", ->
 
-    it "//publishes subtopics to parent topics", ->
+        @paul.on "parentTopic", @cb
+        @paul.on "parentTopic/subTopic", @cb1
+        @paul.on "parentTopic/subTopic/subsub", @cb2
+        @paul.on "parentTopic/otherSubTopic", @cb3
 
-      @paul.subscribe "parentTopic", @cb
-      @peter.subscribe "parentTopic/subTopic", @cb2
-      @peter.subscribe "parentTopic/otherSubTopic", @cb3
-
-      @paul.publish "parentTopic/subTopic", @data
-      (expect @cb).toHaveBeenCalled()
-      (expect @cb2).toHaveBeenCalled()
-      (expect @cb3).not.toHaveBennCalled()
+        @paul.emit "parentTopic/subTopic/subsub", @data
+        (expect @cb).toHaveBeenCalled()
+        (expect @cb1).toHaveBeenCalled()
+        (expect @cb2).toHaveBeenCalled()
+        (expect @cb3).not.toHaveBeenCalled()
