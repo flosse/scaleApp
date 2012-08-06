@@ -404,6 +404,8 @@ scaleApp.publish "changeName", "Peter"
 ```
 ## state - [Finite State Machine](https://en.wikipedia.org/wiki/Finite_state_machine)
 
+![scaleApp fsm](https://raw.github.com/flosse/scaleApp/master/fsm.png)
+
 ```coffeescript
 s = new scaleApp.StateMachine
           start: "a"
