@@ -1132,6 +1132,145 @@
 }).call(this);
 
 (function() {
+  var StateMachine, plugin, scaleApp,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
+
+  StateMachine = (function() {
+
+    function StateMachine(opts) {
+      var id, s, t, _i, _j, _len, _len1, _ref, _ref1;
+      if (opts == null) {
+        opts = {};
+      }
+      this.states = [];
+      this.transitions = {};
+      if (opts.start != null) {
+        this.addState(opts.start);
+        this.start = opts.start;
+        this.current = opts.start;
+      }
+      if (opts.states != null) {
+        _ref = opts.states;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          s = _ref[_i];
+          this.addState(s);
+        }
+      }
+      if (opts.transitions != null) {
+        _ref1 = opts.transitions;
+        for (t = _j = 0, _len1 = _ref1.length; _j < _len1; t = ++_j) {
+          id = _ref1[t];
+          this.addTransition(id, t);
+        }
+      }
+    }
+
+    StateMachine.prototype.start = null;
+
+    StateMachine.prototype.current = null;
+
+    StateMachine.prototype.exit = null;
+
+    StateMachine.prototype.addState = function(id) {
+      var s;
+      if (id instanceof Array) {
+        return !(__indexOf.call((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = id.length; _i < _len; _i++) {
+            s = id[_i];
+            _results.push(this.addState(s));
+          }
+          return _results;
+        }).call(this), false) >= 0);
+      } else {
+        if (typeof id !== "string") {
+          return false;
+        }
+        if (__indexOf.call(this.states, id) >= 0) {
+          return false;
+        } else {
+          this.states.push(id);
+          return true;
+        }
+      }
+    };
+
+    StateMachine.prototype.addTransition = function(id, edge) {
+      var err, i, _ref;
+      if (!((typeof id === "string") && (typeof edge.to === "string") && (!(this.transitions[id] != null)) && (_ref = edge.to, __indexOf.call(this.states, _ref) >= 0))) {
+        return false;
+      }
+      if (edge.from instanceof Array) {
+        err = __indexOf.call((function() {
+          var _i, _len, _ref1, _results;
+          _ref1 = edge.from;
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            i = _ref1[_i];
+            _results.push(__indexOf.call(this.states, i) >= 0);
+          }
+          return _results;
+        }).call(this), false) >= 0;
+        if (err !== false) {
+          return false;
+        }
+      } else if (typeof edge.from !== "string") {
+        return false;
+      }
+      this.transitions[id] = {
+        from: edge.from,
+        to: edge.to
+      };
+      return true;
+    };
+
+    StateMachine.prototype.fire = function(id) {
+      var t;
+      t = this.transitions[id];
+      if (!this.can(id)) {
+        return false;
+      }
+      this.current = t.to;
+      return true;
+    };
+
+    StateMachine.prototype.can = function(id) {
+      var t, _ref;
+      t = this.transitions[id];
+      return (t != null ? t.from : void 0) === this.current || (_ref = this.current, __indexOf.call(t, _ref) >= 0) || t.from === "*";
+    };
+
+    return StateMachine;
+
+  })();
+
+  plugin = {
+    id: "state",
+    core: {
+      StateMachine: StateMachine
+    }
+  };
+
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+    scaleApp.registerPlugin(plugin);
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = plugin;
+  }
+
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
+      return plugin;
+    });
+  }
+
+}).call(this);
+
+(function() {
   var UtilPlugin, mix, plugin;
 
   mix = function(giv, rec, override) {

@@ -400,6 +400,26 @@ registerModule "myModule", (@sb) ->
 ```coffeescript
 scaleApp.publish "changeName", "Peter"
 ```
+## state - State Machine
+
+```coffeescript
+s = new scaleApp.StateMachine
+          start: "a"
+          states: ["a", "b", "c", "fatal"]
+          transitions:
+            x:    { from: "a"        to: "b"     }
+            y:    { from: ["b","c"]  to: "c"     }
+            uups: { from: "*"        to: "fatal" }
+
+s.addState "d"                                # add an additional state
+s.addState ["y", "z"]                         # or add multiple states
+
+s.addTransition "t", { from: "b", to: "d" }   # add a transition
+s.can "t"                                     # false because 'a' is current state
+s.can "x"                                     # true
+s.fire "x"
+s.current                                     # b
+```
 
 ## permission - controll all messages
 

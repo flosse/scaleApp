@@ -30,6 +30,12 @@ config["node-permission-plugin"] = {
   extensions: [require("buster-coffee")]
 };
 
+config["node-statemachine-plugin"] = {
+  environment: "node",
+  specs: ["spec/plugins/scaleApp.state.spec.coffee"],
+  extensions: [require("buster-coffee")]
+};
+
 config["browser-core"] = {
   environment: "browser",
   specs: ["spec/*.spec.coffee"],
