@@ -1,3 +1,8 @@
+###
+This program is distributed under the terms of the MIT license.
+Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
+###
+
 if module?.exports? and typeof require is "function"
   Mediator  = require "./Mediator"
   Sandbox   = require "./Sandbox"
@@ -44,7 +49,7 @@ getInstanceOptions = (instanceId, module, opt) ->
   io = instanceOpts[instanceId]
   o[key] = val for key, val of io if io
 
-  # and fineally copy start options
+  # and finally copy start options
   o[key] = val for key, val of opt if opt
 
   # return options
@@ -56,8 +61,8 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
 
   return instances[instanceId] if instances[instanceId]?
 
-  instanceOpts = getInstanceOptions instanceId, module, opt
-  sb = new Sandbox core, instanceId, instanceOpts
+  iOpts = getInstanceOptions instanceId, module, opt
+  sb = new Sandbox core, instanceId, iOpts
   mediator.installTo sb
 
   for i,p of plugins when p.sandbox?
@@ -65,7 +70,7 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
     sb[k] = v for own k,v of plugin
 
   instance              = new module.creator sb
-  instance.options      = instanceOpts
+  instance.options      = iOpts
   instance.id           = instanceId
   instances[instanceId] = instance
 
@@ -102,7 +107,7 @@ register = (moduleId, creator, opt = {}) ->
     error new Error "could not register module '#{moduleId}': #{e.message}"
     false
 
-setInstanceOptions = (instanceId, opt={}) ->
+setInstanceOptions = (instanceId, opt) ->
   throw new TypeError "instance ID has to be a string"        unless typeof instanceId  is "string"
   throw new TypeError "option parameter has to be an object"  unless typeof opt         is "object"
   instanceOpts[instanceId] ?= {}

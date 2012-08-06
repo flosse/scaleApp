@@ -195,6 +195,12 @@
     module.exports = Sandbox;
   }
 
+  /*
+  This program is distributed under the terms of the MIT license.
+  Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
+  */
+
+
   if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
@@ -276,7 +282,7 @@
   };
 
   createInstance = function(moduleId, instanceId, opt) {
-    var entry, i, instance, k, module, n, p, plugin, sb, v, _i, _j, _len, _len1, _ref, _ref1;
+    var entry, i, iOpts, instance, k, module, n, p, plugin, sb, v, _i, _j, _len, _len1, _ref, _ref1;
     if (instanceId == null) {
       instanceId = moduleId;
     }
@@ -284,8 +290,8 @@
     if (instances[instanceId] != null) {
       return instances[instanceId];
     }
-    instanceOpts = getInstanceOptions(instanceId, module, opt);
-    sb = new Sandbox(core, instanceId, instanceOpts);
+    iOpts = getInstanceOptions(instanceId, module, opt);
+    sb = new Sandbox(core, instanceId, iOpts);
     mediator.installTo(sb);
     for (i in plugins) {
       p = plugins[i];
@@ -300,7 +306,7 @@
       }
     }
     instance = new module.creator(sb);
-    instance.options = instanceOpts;
+    instance.options = iOpts;
     instance.id = instanceId;
     instances[instanceId] = instance;
     _ref = [instanceId, '_always'];
@@ -363,9 +369,6 @@
 
   setInstanceOptions = function(instanceId, opt) {
     var k, v, _ref, _results;
-    if (opt == null) {
-      opt = {};
-    }
     if (typeof instanceId !== "string") {
       throw new TypeError("instance ID has to be a string");
     }
