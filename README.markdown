@@ -352,6 +352,8 @@ scaleApp.i18n.setGlobal( myGlobalObj );
 
 ## mvc - very simple MVC
 
+![scaleApp mvc](https://raw.github.com/flosse/scaleApp/master/mvc.png)
+
 Here is a sample use case for using the MVC plugin (in coffeescript).
 
 ```coffeescript
