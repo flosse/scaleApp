@@ -188,6 +188,13 @@ describe "Mediator", ->
       (expect @paul.publish "my channel", {}).toEqual @paul
       (expect (new @Mediator).subscribe "my channel", ->).not.toEqual @paul
 
+    it "calls the callback if it is defined", (done) ->
+      cb = sinon.spy()
+      @paul.on "event", cb
+      @paul.publish "event", {}, (err) ->
+        (expect cb).toHaveBeenCalled()
+        done()
+
   describe "installTo function", ->
 
     it "is an accessible function", ->
@@ -297,9 +304,9 @@ describe "Mediator", ->
         (expect data instanceof Array).toBeTruthy()
 
       @paul.publish "obj", obj
-      @paul.publish "obj-ref", obj, true
+      @paul.publish "obj-ref", obj, publishReference: true
       @paul.publish "arr", arr
-      @paul.publish "arr-ref", arr, true
+      @paul.publish "arr-ref", arr, publishReference: true
       done()
 
     it "does not publish data to other topics", ->

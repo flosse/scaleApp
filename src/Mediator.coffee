@@ -1,3 +1,11 @@
+clone = (data) ->
+  if data instanceof Array
+    copy = (v for v in data)
+  else
+    copy = {}
+    copy[k] = v for k,v of data
+  copy
+
 class Mediator
 
   constructor: (obj, @cascadeChannels=false) ->
@@ -22,7 +30,8 @@ class Mediator
     else if typeof channel is "object"
       @subscribe k,v,fn for k,v of channel
     else
-      return false unless typeof fn is "function"
+      return false unless typeof fn      is "function"
+      return false unless typeof channel is "string"
       subscription = { context: context, callback: fn }
       (
         attach: -> that.channels[channel].push subscription; @
@@ -54,36 +63,29 @@ class Mediator
   # Parameters:
   # (String) topic             - The topic name
   # (Object) data              - The data that gets published
-  # (Boolean) publishReference - If the data should be passed as a reference to
+  # (Object)
+  #     callback:              - callback metthod
+  #     publishReference       - If the data should be passed as a reference to
   #                              the other modules this parameter has to be set
   #                              to *true*.
   #                              By default the data object gets copied so that
   #                              other modules can't influence the original
   #                              object.
-  publish: (channel, data, publishReference) ->
+  publish: (channel, data, opt={}) ->
 
     if @channels[channel]?
-      for subscription in @channels[channel]
+      success = for subscription in @channels[channel]
 
-        if publishReference isnt true and typeof data is "object"
-          if data instanceof Array
-            copy = (v for v in data)
-          else
-            copy = {}
-            copy[k] = v for k,v of data
-          try
-            subscription.callback.apply subscription.context, [copy, channel]
-          catch e
-            console?.error? e
-
-        else
-          try
-            subscription.callback.apply subscription.context, [data, channel]
-          catch e
-            console?.error? e
+        if opt.publishReference isnt true and typeof data is "object"
+          copy = clone data
+        try
+          subscription.callback.apply subscription.context, [(copy or data), channel]
+        catch e
+          e
+      opt? null
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
-      @publish chnls[0...-1].join('/'), data, publishReference
+      @publish chnls[0...-1].join('/'), data, opt
     @
 
   # Alias for publish
