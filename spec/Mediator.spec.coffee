@@ -29,6 +29,9 @@ describe "Mediator", ->
       (expect typeof sub.detach).toEqual "function"
       (expect sub).not.toEqual sub2
 
+    it "returns false if callback is not a function", ->
+      (expect @paul.subscribe "a", 345).toEqual false
+
     it "has an alias method named 'on'", ->
       (expect @paul.on).toEqual @paul.subscribe
 

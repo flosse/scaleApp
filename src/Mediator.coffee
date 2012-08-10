@@ -22,6 +22,7 @@ class Mediator
     else if typeof channel is "object"
       @subscribe k,v,fn for k,v of channel
     else
+      return false unless typeof fn is "function"
       subscription = { context: context, callback: fn }
       (
         attach: -> that.channels[channel].push subscription; @
