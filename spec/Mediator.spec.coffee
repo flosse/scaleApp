@@ -192,8 +192,17 @@ describe "Mediator", ->
       cb = sinon.spy()
       @paul.on "event", cb
       @paul.publish "event", {}, (err) ->
-        (expect cb).toHaveBeenCalled()
+        (expect cb.callCount).toEqual 1
         done()
+
+    it "calls the callback even if there are not subsribers", (done) ->
+      m1 = new @Mediator
+      m2 = new @Mediator
+      m1.publish "x", (err)->
+        (expect err?).toBe false
+        m2.publish "x", "foo", (err)->
+          (expect err?).toBe false
+          done()
 
     it "passes an error if a callback returned false", (done) ->
       cb = sinon.spy()
@@ -213,7 +222,8 @@ describe "Mediator", ->
       @paul.on "event", (data, channel, x) ->
         setTimeout (-> cb2(); x null), 2
       @paul.publish "event", {}, (err) ->
-        (expect cb).toHaveBeenCalled()
+        (expect cb.callCount).toEqual 1
+        (expect cb2.callCount).toEqual 1
         (expect err).toBe null
         done()
 

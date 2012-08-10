@@ -86,19 +86,26 @@ class Mediator
   #                              other modules can't influence the original
   #                              object.
   publish: (channel, data, opt={}) ->
-
     #TODO: tidy up
-    if @channels[channel]?
+
+    if typeof data is "function"
+      opt = data
+      data = undefined
+    return false unless typeof channel is "string"
+    subscribers = @channels[channel]
+
+    if subscribers?
       callbacks = []
       errors    = []
-      counter   = @channels[channel].length
+      counter   = 0
       finish    = (err) ->
         errors.push err if err?
         if counter is 0
           e = null
           e = new Error (x.message for x in errors).join '; ' if errors.length > 0
           opt? e
-      for sub in @channels[channel]
+
+      for sub in subscribers
 
         if opt.publishReference isnt true and typeof data is "object"
           copy = clone data
@@ -106,13 +113,16 @@ class Mediator
         if (Mediator.getArgumentNames sub.callback).length >= 3
           cb = (err) -> counter--; finish err
           callbacks.push cb
-        else counter--
+          counter++
         try
           result = sub.callback.apply sub.context, [(copy or data), channel, cb]
           errors.push result if result is false or result instanceof Error
         catch e
-          e
-        finish()
+          cb? e
+      finish()
+
+    else
+      opt? null
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
       @publish chnls[0...-1].join('/'), data, opt
