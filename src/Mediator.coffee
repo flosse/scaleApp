@@ -6,11 +6,25 @@ clone = (data) ->
     copy[k] = v for k,v of data
   copy
 
+
 class Mediator
 
   constructor: (obj, @cascadeChannels=false) ->
     @channels = {}
     @installTo obj if obj
+
+  @getArgumentNames: (fn) ->
+    args = fn.toString().match ///
+      function    # start with 'function'
+      [^(]*       # any character but not '('
+      \(          # open bracket = '(' character
+        ([^)]*)   # any character but not ')'
+      \)          # close bracket = ')' character
+    ///
+    return [] if not args? or (args.length < 2)
+    args = args[1]
+    args = args.split /\s*,\s*/
+    (a for a in args when a.trim() isnt '')
 
   # ## Subscribe to a topic
   #
@@ -73,16 +87,32 @@ class Mediator
   #                              object.
   publish: (channel, data, opt={}) ->
 
+    #TODO: tidy up
     if @channels[channel]?
-      success = for subscription in @channels[channel]
+      callbacks = []
+      errors    = []
+      counter   = @channels[channel].length
+      finish    = (err) ->
+        errors.push err if err?
+        if counter is 0
+          e = null
+          e = new Error (x.message for x in errors).join '; ' if errors.length > 0
+          opt? e
+      for sub in @channels[channel]
 
         if opt.publishReference isnt true and typeof data is "object"
           copy = clone data
+        cb = undefined
+        if (Mediator.getArgumentNames sub.callback).length >= 3
+          cb = (err) -> counter--; finish err
+          callbacks.push cb
+        else counter--
         try
-          subscription.callback.apply subscription.context, [(copy or data), channel]
+          result = sub.callback.apply sub.context, [(copy or data), channel, cb]
+          errors.push result if result is false or result instanceof Error
         catch e
           e
-      opt? null
+        finish()
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
       @publish chnls[0...-1].join('/'), data, opt

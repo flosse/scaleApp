@@ -195,6 +195,39 @@ describe "Mediator", ->
         (expect cb).toHaveBeenCalled()
         done()
 
+    it "passes an error if a callback returned false", (done) ->
+      cb = sinon.spy()
+      @paul.on "event", ->
+        cb()
+        false
+      @paul.publish "event", {}, (err) ->
+        (expect err).not.toBe null
+        done()
+
+
+    it "calls the callback asynchrounously", (done) ->
+      cb  = sinon.spy()
+      cb2 = sinon.spy()
+      @paul.on "event", (data, channel, next) ->
+        setTimeout (-> cb(); next null), 3
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> cb2(); x null), 2
+      @paul.publish "event", {}, (err) ->
+        (expect cb).toHaveBeenCalled()
+        (expect err).toBe null
+        done()
+
+    it "calls the callback asynchrounously and look for errors", (done) ->
+      @paul.on "event", (data, channel, next) ->
+        setTimeout (-> next null), 1
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> x new Error "fake1"), 1
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> x new Error "fake2"), 1
+      @paul.publish "event", {}, (err) ->
+        (expect err.message).toEqual "fake1; fake2"
+        done()
+
   describe "installTo function", ->
 
     it "is an accessible function", ->

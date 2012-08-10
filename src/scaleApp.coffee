@@ -122,11 +122,6 @@ unregister = (id) ->
 
 unregisterAll = -> unregister id for id of modules
 
-getArgNames = (fn) ->
-  args = fn.toString().match(/function\b[^(]*\(([^)]*)\)/)[1]
-  args = args.split /\s*,\s*/
-  (a for a in args when a.trim() isnt '')
-
 start = (moduleId, opt={}) ->
 
   try
@@ -140,7 +135,7 @@ start = (moduleId, opt={}) ->
     throw new Error "module was already started" if instance.running is true
 
     # if the module wants to init in an asynchronous way
-    if (getArgNames instance.init).length >= 2
+    if (Mediator.getArgumentNames instance.init).length >= 2
       # then define a callback
       instance.init instance.options, (err) -> opt.callback? err
     else
@@ -163,7 +158,7 @@ stop = (id, cb) ->
     mediator.unsubscribe instance
 
     # if the module wants destroy in an asynchronous way
-    if (getArgNames instance.destroy).length >= 1
+    if (Mediator.getArgumentNames instance.destroy).length >= 1
       # then define a callback
       instance.destroy (err) ->
         cb? err

@@ -1,16 +1,57 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkEnd, core, coreKeywords, createInstance, doForAll, error, getArgNames, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
+  var Mediator, Sandbox, VERSION, addModule, checkEnd, clone, core, coreKeywords, createInstance, doForAll, error, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
+  clone = function(data) {
+    var copy, k, v;
+    if (data instanceof Array) {
+      copy = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          v = data[_i];
+          _results.push(v);
+        }
+        return _results;
+      })();
+    } else {
+      copy = {};
+      for (k in data) {
+        v = data[k];
+        copy[k] = v;
+      }
+    }
+    return copy;
+  };
+
   Mediator = (function() {
 
-    function Mediator(obj) {
+    function Mediator(obj, cascadeChannels) {
+      this.cascadeChannels = cascadeChannels != null ? cascadeChannels : false;
       this.channels = {};
       if (obj) {
         this.installTo(obj);
       }
     }
+
+    Mediator.getArgumentNames = function(fn) {
+      var a, args, _i, _len, _results;
+      args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
+      if (!(args != null) || (args.length < 2)) {
+        return [];
+      }
+      args = args[1];
+      args = args.split(/\s*,\s*/);
+      _results = [];
+      for (_i = 0, _len = args.length; _i < _len; _i++) {
+        a = args[_i];
+        if (a.trim() !== '') {
+          _results.push(a);
+        }
+      }
+      return _results;
+    };
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
       var id, k, subscription, that, v, _base, _i, _len, _ref, _results, _results1;
@@ -36,6 +77,12 @@
         }
         return _results1;
       } else {
+        if (typeof fn !== "function") {
+          return false;
+        }
+        if (typeof channel !== "string") {
+          return false;
+        }
         subscription = {
           context: context,
           callback: fn
@@ -84,51 +131,66 @@
       return this;
     };
 
-    Mediator.prototype.publish = function(channel, data, publishReference) {
-      var copy, k, subscription, v, _i, _len, _ref;
+    Mediator.prototype.publish = function(channel, data, opt) {
+      var callbacks, cb, chnls, copy, counter, errors, finish, result, sub, _i, _len, _ref;
+      if (opt == null) {
+        opt = {};
+      }
       if (this.channels[channel] != null) {
-        _ref = this.channels[channel];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          subscription = _ref[_i];
-          if (publishReference !== true && typeof data === "object") {
-            if (data instanceof Array) {
-              copy = (function() {
-                var _j, _len1, _results;
+        callbacks = [];
+        errors = [];
+        counter = this.channels[channel].length;
+        finish = function(err) {
+          var e, x;
+          if (err != null) {
+            errors.push(err);
+          }
+          if (counter === 0) {
+            e = null;
+            if (errors.length > 0) {
+              e = new Error(((function() {
+                var _i, _len, _results;
                 _results = [];
-                for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
-                  v = data[_j];
-                  _results.push(v);
+                for (_i = 0, _len = errors.length; _i < _len; _i++) {
+                  x = errors[_i];
+                  _results.push(x.message);
                 }
                 return _results;
-              })();
-            } else {
-              copy = {};
-              for (k in data) {
-                v = data[k];
-                copy[k] = v;
-              }
+              })()).join('; '));
             }
-            try {
-              subscription.callback.apply(subscription.context, [copy, channel]);
-            } catch (e) {
-              if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") {
-                  console.error(e);
-                }
-              }
-            }
-          } else {
-            try {
-              subscription.callback.apply(subscription.context, [data, channel]);
-            } catch (e) {
-              if (typeof console !== "undefined" && console !== null) {
-                if (typeof console.error === "function") {
-                  console.error(e);
-                }
-              }
-            }
+            return typeof opt === "function" ? opt(e) : void 0;
           }
+        };
+        _ref = this.channels[channel];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          sub = _ref[_i];
+          if (opt.publishReference !== true && typeof data === "object") {
+            copy = clone(data);
+          }
+          cb = void 0;
+          if ((Mediator.getArgumentNames(sub.callback)).length >= 3) {
+            cb = function(err) {
+              counter--;
+              return finish(err);
+            };
+            callbacks.push(cb);
+          } else {
+            counter--;
+          }
+          try {
+            result = sub.callback.apply(sub.context, [copy || data, channel, cb]);
+            if (result === false || result instanceof Error) {
+              errors.push(result);
+            }
+          } catch (e) {
+            e;
+
+          }
+          finish();
         }
+      }
+      if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
+        this.publish(chnls.slice(0, -1).join('/'), data, opt);
       }
       return this;
     };
@@ -404,20 +466,6 @@
     return _results;
   };
 
-  getArgNames = function(fn) {
-    var a, args, _i, _len, _results;
-    args = fn.toString().match(/function\b[^(]*\(([^)]*)\)/)[1];
-    args = args.split(/\s*,\s*/);
-    _results = [];
-    for (_i = 0, _len = args.length; _i < _len; _i++) {
-      a = args[_i];
-      if (a.trim() !== '') {
-        _results.push(a);
-      }
-    }
-    return _results;
-  };
-
   start = function(moduleId, opt) {
     var instance;
     if (opt == null) {
@@ -437,7 +485,7 @@
       if (instance.running === true) {
         throw new Error("module was already started");
       }
-      if ((getArgNames(instance.init)).length >= 2) {
+      if ((Mediator.getArgumentNames(instance.init)).length >= 2) {
         instance.init(instance.options, function(err) {
           return typeof opt.callback === "function" ? opt.callback(err) : void 0;
         });
@@ -462,7 +510,7 @@
     var instance;
     if (instance = instances[id]) {
       mediator.unsubscribe(instance);
-      if ((getArgNames(instance.destroy)).length >= 1) {
+      if ((Mediator.getArgumentNames(instance.destroy)).length >= 1) {
         instance.destroy(function(err) {
           return typeof cb === "function" ? cb(err) : void 0;
         });
