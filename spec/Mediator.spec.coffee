@@ -227,13 +227,14 @@ describe "Mediator", ->
         (expect err?).toBe false
         done()
 
-    it "calls the callback asynchrounously and look for errors", (done) ->
+    it "calls the callback asynchrounously and looks for errors", (done) ->
+
       @paul.on "event", (data, channel, next) ->
         setTimeout (-> next null), 1
       @paul.on "event", (data, channel, x) ->
         setTimeout (-> x new Error "fake1"), 1
       @paul.on "event", (data, channel, x) ->
-        setTimeout (-> x new Error "fake2"), 1
+        x new Error "fake2"
       @paul.publish "event", {}, (err) ->
         (expect err.message).toEqual "fake1; fake2"
         done()

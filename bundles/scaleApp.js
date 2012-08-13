@@ -272,7 +272,7 @@
       })();
       util.runSeries(tasks, function(errors, results) {
         var e, x;
-        if (errors && errors.length > (0 != null)) {
+        if ((errors != null ? errors.length : void 0) > 0) {
           e = new Error(((function() {
             var _i, _len, _results;
             _results = [];

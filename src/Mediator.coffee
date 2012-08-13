@@ -88,7 +88,7 @@ class Mediator
           next e
 
     util.runSeries tasks, (errors, results) ->
-      if errors and errors.length > 0?
+      if errors?.length > 0
         e = new Error (x.message for x in errors when x?).join '; '
       opt? e
 

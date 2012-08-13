@@ -272,7 +272,7 @@
       })();
       util.runSeries(tasks, function(errors, results) {
         var e, x;
-        if (errors && errors.length > (0 != null)) {
+        if ((errors != null ? errors.length : void 0) > 0) {
           e = new Error(((function() {
             var _i, _len, _results;
             _results = [];
@@ -1246,13 +1246,21 @@
 }).call(this);
 
 (function() {
-  var StateMachine, plugin, scaleApp,
+  var StateMachine, enterChannel, leaveChannel, plugin, scaleApp,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
+
+  leaveChannel = function(state) {
+    return "" + state + "/leave";
+  };
+
+  enterChannel = function(state) {
+    return "" + state + "/enter";
+  };
 
   StateMachine = (function(_super) {
 
@@ -1330,10 +1338,10 @@
         this.states.push(id);
         success = [];
         if (opt.enter != null) {
-          success.push(this.on("" + id + "/enter", opt.enter));
+          success.push(this.on(enterChannel(id), opt.enter));
         }
         if (opt.leave != null) {
-          success.push(this.on("" + id + "/leave", opt.leave));
+          success.push(this.on(leaveChannel(id), opt.leave));
         }
         return !(__indexOf.call(success, false) >= 0);
       }
@@ -1373,8 +1381,7 @@
       if (_ref = !state, __indexOf.call(this.states, _ref) >= 0) {
         return false;
       }
-      console.log("subsribing to " + state + "/enter");
-      return this.on("" + state + "/enter", cb);
+      return this.on(enterChannel(state), cb);
     };
 
     StateMachine.prototype.onLeave = function(state, cb) {
@@ -1382,27 +1389,28 @@
       if (_ref = !state, __indexOf.call(this.states, _ref) >= 0) {
         return false;
       }
-      console.log("subsribing to " + state + "/leave");
-      return this.on("" + state + "/leave", cb);
+      return this.on(leaveChannel(state), cb);
     };
 
-    StateMachine.prototype.fire = function(id, cb) {
+    StateMachine.prototype.fire = function(id, callback) {
       var t,
         _this = this;
+      if (callback == null) {
+        callback = function() {};
+      }
       t = this.transitions[id];
       if (!((t != null) && this.can(id))) {
         return false;
       }
-      this.emit("" + t.from + "/leave", t, function(err) {
+      this.emit(leaveChannel(t.from), t, function(err) {
         if (err != null) {
-          return typeof cb === "function" ? cb(err) : void 0;
+          return callback(err);
         } else {
-          console.log("emmiiting to " + t.to + "/enter");
-          return _this.emit("" + t.to + "/enter", t, function(err) {
+          return _this.emit(enterChannel(t.to), t, function(err) {
             if (!(err != null)) {
               _this.current = t.to;
             }
-            return typeof cb === "function" ? cb(err) : void 0;
+            return callback(err);
           });
         }
       });

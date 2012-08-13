@@ -22,7 +22,6 @@ describe "stateMachine plugin", ->
     it "takes a state id", ->
       (expect typeof @machine.addState).toEqual "function"
       (expect @machine.addState "state").toBe true
-      (expect "state" in @machine.states).toBe true
 
     it "returns false if the state is not a string", ->
       (expect @machine.addState 5).toBe false
@@ -30,6 +29,20 @@ describe "stateMachine plugin", ->
     it "returns false if the state already exists", ->
       (expect @machine.addState "state").toBe true
       (expect @machine.addState "state").toBe false
+
+    it "takes an second parameter that holds callback functions", ->
+      (expect @machine.addState "state1", {leave: (->), enter: 52  }).toBe false
+      (expect @machine.addState "state2", {leave: 43,   enter: (->)}).toBe false
+      (expect @machine.addState "state3", {leave: 43,   enter: 44  }).toBe false
+      (expect @machine.addState "state4", {leave: (->), enter: (->)}).toBe true
+      (expect @machine.addState
+        state5: {leave: (->), enter: (->)}
+        sate6: {leave: (->), enter: (->)}
+      ).toBe true
+      (expect @machine.addState
+        state5: {leave: (->), enter: (->)}
+        sate6: {leave: 4, enter: (->)}
+      ).toBe false
 
   describe "addTransition method", ->
 
@@ -69,13 +82,39 @@ describe "stateMachine plugin", ->
       (expect @machine.addTransition "x", from: "*", to: "a").toBe true
       (expect @machine.can "x").toBe true
 
+  describe "onEnter method", ->
+
+    it "takes a state name and a function as parameters", (done) ->
+      cb = sinon.spy()
+      @machine.current = "a"
+      @machine.addState ["a", "b"]
+      @machine.addTransition "x", { from: "a", to: "b" }
+      (expect typeof @machine.onEnter).toEqual "function"
+      (expect @machine.onEnter "b", cb).not.toBe false
+      @machine.fire "x", (err) ->
+        (expect cb).toHaveBeenCalled()
+        done()
+
+  describe "onLeave method", ->
+
+    it "takes a state name and a function as parameters", (done) ->
+      cb = sinon.spy()
+      @machine.current = "a"
+      @machine.addState ["a", "b"]
+      @machine.addTransition "x", { from: "a", to: "b" }
+      expect @machine.onEnter "b", cb
+      expect @machine.onLeave "a", ->
+        (expect cb).not.toHaveBeenCalled()
+      @machine.fire "x", ->
+        (expect cb).toHaveBeenCalled()
+        done()
+
   describe "fire method", ->
 
     it "fires a transition", ->
       @machine.current = "a"
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
-      (expect typeof @machine.fire).toEqual "function"
       (expect @machine.fire "x").toEqual true
       (expect @machine.current).toEqual "b"
 
@@ -84,10 +123,32 @@ describe "stateMachine plugin", ->
       @machine.addTransition "x", from: "a", to: "b"
       (expect @machine.fire "x").toEqual false
 
+
+    it "calls the callback", (done) ->
+      @machine.current = "a"
+      @machine.addState ["a", "b"]
+      @machine.addTransition "x", from: "a", to: "b"
+      @machine.fire "x", (err) =>
+        (expect err).not.toBe false
+        (expect @machine.current).toBe "b"
+        done()
+
+    it "does not change the state if something went wrong", (done) ->
+      cb = sinon.spy()
+      @machine.current = "a"
+      @machine.addState ["a", "b"]
+      @machine.addTransition "x", { from: "a", to: "b" }
+      @machine.onEnter "b", cb
+      @machine.onLeave "a", (data, channel, x) -> x new Error "uups"
+      @machine.fire "x", (err) =>
+        (expect cb.callCount).toEqual 0
+        (expect err?).toEqual true
+        (expect @machine.current).toEqual "a"
+        done()
+
   describe "can method", ->
     it "returns true if transition can be fired", ->
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
       @machine.current = "a"
       (expect @machine.can "x").toEqual true
-

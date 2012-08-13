@@ -222,10 +222,11 @@ If the module needs to communicate with others, you can use the `publish` and
 The `publish` function takes three parameters whereas the last one is optional:
 - `topic` : the channel name you want to publish to
 - `data`  : the data itself
-- `publishReference` : If the data should be passed as a reference to the other
-modules this parameter has to be set to `true`.
-By default the data object gets copied so that other modules can't influence the
-original object.
+- `opt`   : options or callback
+    - `publishReference` : If the data should be passed as a reference to the
+       other modules this parameter has to be set to `true`.
+       By default the data object gets copied so that other modules can't
+       influence the original object.
 
 The publish function is accessible through the sandbox:
 
@@ -409,14 +410,18 @@ scaleApp.publish "changeName", "Peter"
 ```coffeescript
 s = new scaleApp.StateMachine
           start: "a"
-          states: ["a", "b", "c", "fatal"]
+          states:
+            a:      { enter: (ev) -> console.log "entering state #{ev.to}"  }
+            b:      { leave: (ev) -> console.log "leaving state #{ev.from}" }
+            c:      { enter: [cb1, cb2], leave: cb3                         }
+            fatal:  { enter: -> console.error "something went wrong"        }
           transitions:
             x:    { from: "a"        to: "b"     }
             y:    { from: ["b","c"]  to: "c"     }
             uups: { from: "*"        to: "fatal" }
 
-s.addState "d"                                # add an additional state
-s.addState ["y", "z"]                         # or add multiple states
+s.addState "d", { enter: -> }                 # add an additional state
+s.addState { y: {}, z: { enter: cb } }        # or add multiple states
 
 s.addTransition "t", { from: "b", to: "d" }   # add a transition
 s.can "t"                                     # false because 'a' is current state
