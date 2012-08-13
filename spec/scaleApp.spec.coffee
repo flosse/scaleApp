@@ -152,11 +152,7 @@ describe "scaleApp core", ->
         @scaleApp.start "anId", { callback: cb }
         (expect cb).toHaveBeenCalled()
 
-      it "calls the callback function with an error if an error occours", ->
-        cb = sinon.spy()
-        call = (err)->
-          (expect err.message).toEqual "could not start module: thisWillProcuceAnError is not defined"
-          cb()
+      it "calls the callback function with an error if an error occours", (done) ->
         initCB = sinon.spy()
         mod1 = (sb) ->
           init: ->
@@ -164,9 +160,11 @@ describe "scaleApp core", ->
             thisWillProcuceAnError()
           destroy: ->
         (expect @scaleApp.register "anId", mod1).toBeTruthy()
-        (expect @scaleApp.start "anId", { callback: call }).toBeFalsy()
-        (expect initCB).toHaveBeenCalled()
-        (expect cb).toHaveBeenCalled()
+        (expect @scaleApp.start "anId", { callback: (err)->
+          (expect initCB).toHaveBeenCalled()
+          (expect err.message).toEqual "could not start module: thisWillProcuceAnError is not defined"
+          done()
+        }).toBeFalsy()
 
       it "starts a separate instance", ->
 
@@ -318,14 +316,13 @@ describe "scaleApp core", ->
       mod2 = (sb) ->
         init: -> spy2()
         destroy: ->
-      finished = (err) ->
-        (expect err.message).toEqual "errors occoured in the following modules: 'invalid'"
-        done()
       @scaleApp.register "invalid", mod1
       @scaleApp.register "valid", mod2
-      (expect @scaleApp.startAll ["invalid", "valid"], finished).toBeFalsy()
-      (expect spy1).toHaveBeenCalled()
-      (expect spy2).toHaveBeenCalled()
+      @scaleApp.startAll ["invalid", "valid"], (err) ->
+        (expect spy1).toHaveBeenCalled()
+        (expect spy2).toHaveBeenCalled()
+        (expect err.message).toEqual "errors occoured in the following modules: 'invalid'"
+        done()
 
     it "calls the callback with an error if one or more modules don't exist", (done) ->
 

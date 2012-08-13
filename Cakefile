@@ -6,7 +6,7 @@ uglify = require 'uglify-js'
 srcDir    = 'src'
 targetDir = 'lib'
 
-coreFiles  = [ 'Mediator', 'Sandbox', 'scaleApp' ]
+coreFiles  = [ 'Util', 'Mediator', 'Sandbox', 'scaleApp' ]
 
 minify = (code, resNames) -> uglify.uglify.gen_code(
   uglify.uglify.ast_squeeze(

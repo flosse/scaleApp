@@ -1,30 +1,11 @@
-clone = (data) ->
-  if data instanceof Array
-    copy = (v for v in data)
-  else
-    copy = {}
-    copy[k] = v for k,v of data
-  copy
-
+if module?.exports? and typeof require is "function"
+  util = require "./Util"
 
 class Mediator
 
   constructor: (obj, @cascadeChannels=false) ->
     @channels = {}
     @installTo obj if obj
-
-  @getArgumentNames: (fn) ->
-    args = fn.toString().match ///
-      function    # start with 'function'
-      [^(]*       # any character but not '('
-      \(          # open bracket = '(' character
-        ([^)]*)   # any character but not ')'
-      \)          # close bracket = ')' character
-    ///
-    return [] if not args? or (args.length < 2)
-    args = args[1]
-    args = args.split /\s*,\s*/
-    (a for a in args when a.trim() isnt '')
 
   # ## Subscribe to a topic
   #
@@ -86,43 +67,30 @@ class Mediator
   #                              other modules can't influence the original
   #                              object.
   publish: (channel, data, opt={}) ->
-    #TODO: tidy up
 
     if typeof data is "function"
       opt = data
       data = undefined
     return false unless typeof channel is "string"
-    subscribers = @channels[channel]
+    subscribers = @channels[channel] or []
 
-    if subscribers?
-      callbacks = []
-      errors    = []
-      counter   = 0
-      finish    = (err) ->
-        errors.push err if err?
-        if counter is 0
-          e = null
-          e = new Error (x.message for x in errors).join '; ' if errors.length > 0
-          opt? e
+    if opt.publishReference isnt true and typeof data is "object"
+      copy = util.clone data
 
-      for sub in subscribers
-
-        if opt.publishReference isnt true and typeof data is "object"
-          copy = clone data
-        cb = undefined
-        if (Mediator.getArgumentNames sub.callback).length >= 3
-          cb = (err) -> counter--; finish err
-          callbacks.push cb
-          counter++
+    tasks = for sub in subscribers then do (sub) ->
+      (next) ->
         try
-          result = sub.callback.apply sub.context, [(copy or data), channel, cb]
-          errors.push result if result is false or result instanceof Error
+          if (util.getArgumentNames sub.callback).length >= 3
+            sub.callback.apply sub.context, [(copy or data), channel, next]
+          else
+            next null, sub.callback.apply sub.context, [(copy or data), channel]
         catch e
-          cb? e
-      finish()
+          next e
 
-    else
-      opt? null
+    util.runSeries tasks, (errors, results) ->
+      if errors and errors.length > 0?
+        e = new Error (x.message for x in errors when x?).join '; '
+      opt? e
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
       @publish chnls[0...-1].join('/'), data, opt

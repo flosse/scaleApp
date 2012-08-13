@@ -224,7 +224,7 @@ describe "Mediator", ->
       @paul.publish "event", {}, (err) ->
         (expect cb.callCount).toEqual 1
         (expect cb2.callCount).toEqual 1
-        (expect err).toBe null
+        (expect err?).toBe false
         done()
 
     it "calls the callback asynchrounously and look for errors", (done) ->

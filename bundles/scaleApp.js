@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkEnd, clone, core, coreKeywords, createInstance, doForAll, error, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll,
+  var Mediator, Sandbox, VERSION, addModule, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -25,6 +25,126 @@
     return copy;
   };
 
+  getArgumentNames = function(fn) {
+    var a, args, _i, _len, _results;
+    args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
+    if (!(args != null) || (args.length < 2)) {
+      return [];
+    }
+    args = args[1];
+    args = args.split(/\s*,\s*/);
+    _results = [];
+    for (_i = 0, _len = args.length; _i < _len; _i++) {
+      a = args[_i];
+      if (a.trim() !== '') {
+        _results.push(a);
+      }
+    }
+    return _results;
+  };
+
+  uniqueId = function(length) {
+    var id;
+    if (length == null) {
+      length = 8;
+    }
+    id = "";
+    while (id.length < length) {
+      id += Math.random().toString(36).substr(2);
+    }
+    return id.substr(0, length);
+  };
+
+  runSeries = function(tasks, cb) {
+    var checkEnd, count, errors, i, results, t, _i, _len, _results;
+    if (cb == null) {
+      cb = function() {};
+    }
+    count = tasks.length;
+    results = [];
+    if (count === 0) {
+      return typeof cb === "function" ? cb(null, results) : void 0;
+    }
+    errors = [];
+    checkEnd = function() {
+      var e;
+      count--;
+      if (count === 0) {
+        if (((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = errors.length; _i < _len; _i++) {
+            e = errors[_i];
+            if (e != null) {
+              _results.push(e);
+            }
+          }
+          return _results;
+        })()).length > 0) {
+          return cb(errors, results);
+        } else {
+          return cb(null, results);
+        }
+      }
+    };
+    _results = [];
+    for (i = _i = 0, _len = tasks.length; _i < _len; i = ++_i) {
+      t = tasks[i];
+      _results.push((function(t, i) {
+        var next;
+        next = function(err, result) {
+          if (err != null) {
+            errors[i] = err;
+            results[i] = void 0;
+          } else {
+            results[i] = result;
+          }
+          return checkEnd();
+        };
+        try {
+          return t(next);
+        } catch (e) {
+          return next(e);
+        }
+      })(t, i));
+    }
+    return _results;
+  };
+
+  doForAll = function(args, fn, cb) {
+    var a, tasks;
+    tasks = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = args.length; _i < _len; _i++) {
+        a = args[_i];
+        _results.push((function(a) {
+          return function(next) {
+            return fn(a, next);
+          };
+        })(a));
+      }
+      return _results;
+    })();
+    return util.runSeries(tasks, cb);
+  };
+
+  util = {
+    doForAll: doForAll,
+    runSeries: runSeries,
+    clone: clone,
+    getArgumentNames: getArgumentNames,
+    uniqueId: uniqueId
+  };
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = util;
+  }
+
+  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
+    util = require("./Util");
+  }
+
   Mediator = (function() {
 
     function Mediator(obj, cascadeChannels) {
@@ -34,24 +154,6 @@
         this.installTo(obj);
       }
     }
-
-    Mediator.getArgumentNames = function(fn) {
-      var a, args, _i, _len, _results;
-      args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
-      if (!(args != null) || (args.length < 2)) {
-        return [];
-      }
-      args = args[1];
-      args = args.split(/\s*,\s*/);
-      _results = [];
-      for (_i = 0, _len = args.length; _i < _len; _i++) {
-        a = args[_i];
-        if (a.trim() !== '') {
-          _results.push(a);
-        }
-      }
-      return _results;
-    };
 
     Mediator.prototype.subscribe = function(channel, fn, context) {
       var id, k, subscription, that, v, _base, _i, _len, _ref, _results, _results1;
@@ -132,63 +234,59 @@
     };
 
     Mediator.prototype.publish = function(channel, data, opt) {
-      var callbacks, cb, chnls, copy, counter, errors, finish, result, sub, _i, _len, _ref;
+      var chnls, copy, sub, subscribers, tasks;
       if (opt == null) {
         opt = {};
       }
-      if (this.channels[channel] != null) {
-        callbacks = [];
-        errors = [];
-        counter = this.channels[channel].length;
-        finish = function(err) {
-          var e, x;
-          if (err != null) {
-            errors.push(err);
-          }
-          if (counter === 0) {
-            e = null;
-            if (errors.length > 0) {
-              e = new Error(((function() {
-                var _i, _len, _results;
-                _results = [];
-                for (_i = 0, _len = errors.length; _i < _len; _i++) {
-                  x = errors[_i];
-                  _results.push(x.message);
-                }
-                return _results;
-              })()).join('; '));
-            }
-            return typeof opt === "function" ? opt(e) : void 0;
-          }
-        };
-        _ref = this.channels[channel];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          sub = _ref[_i];
-          if (opt.publishReference !== true && typeof data === "object") {
-            copy = clone(data);
-          }
-          cb = void 0;
-          if ((Mediator.getArgumentNames(sub.callback)).length >= 3) {
-            cb = function(err) {
-              counter--;
-              return finish(err);
-            };
-            callbacks.push(cb);
-          } else {
-            counter--;
-          }
-          try {
-            result = sub.callback.apply(sub.context, [copy || data, channel, cb]);
-            if (result === false || result instanceof Error) {
-              errors.push(result);
-            }
-          } catch (e) {
-            e;
-
-          }
-          finish();
-        }
+      if (typeof data === "function") {
+        opt = data;
+        data = void 0;
       }
+      if (typeof channel !== "string") {
+        return false;
+      }
+      subscribers = this.channels[channel] || [];
+      if (opt.publishReference !== true && typeof data === "object") {
+        copy = util.clone(data);
+      }
+      tasks = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = subscribers.length; _i < _len; _i++) {
+          sub = subscribers[_i];
+          _results.push((function(sub) {
+            return function(next) {
+              try {
+                if ((util.getArgumentNames(sub.callback)).length >= 3) {
+                  return sub.callback.apply(sub.context, [copy || data, channel, next]);
+                } else {
+                  return next(null, sub.callback.apply(sub.context, [copy || data, channel]));
+                }
+              } catch (e) {
+                return next(e);
+              }
+            };
+          })(sub));
+        }
+        return _results;
+      })();
+      util.runSeries(tasks, function(errors, results) {
+        var e, x;
+        if (errors && errors.length > (0 != null)) {
+          e = new Error(((function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = errors.length; _i < _len; _i++) {
+              x = errors[_i];
+              if (x != null) {
+                _results.push(x.message);
+              }
+            }
+            return _results;
+          })()).join('; '));
+        }
+        return typeof opt === "function" ? opt(e) : void 0;
+      });
       if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
         this.publish(chnls.slice(0, -1).join('/'), data, opt);
       }
@@ -266,6 +364,7 @@
   if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
+    util = require("./Util");
   }
 
   VERSION = "0.3.8";
@@ -282,18 +381,6 @@
 
   error = function(e) {
     return typeof console !== "undefined" && console !== null ? typeof console.error === "function" ? console.error(e.message) : void 0 : void 0;
-  };
-
-  uniqueId = function(length) {
-    var id;
-    if (length == null) {
-      length = 8;
-    }
-    id = "";
-    while (id.length < length) {
-      id += Math.random().toString(36).substr(2);
-    }
-    return id.substr(0, length);
   };
 
   onInstantiateFunctions = {
@@ -485,7 +572,7 @@
       if (instance.running === true) {
         throw new Error("module was already started");
       }
-      if ((Mediator.getArgumentNames(instance.init)).length >= 2) {
+      if ((util.getArgumentNames(instance.init)).length >= 2) {
         instance.init(instance.options, function(err) {
           return typeof opt.callback === "function" ? opt.callback(err) : void 0;
         });
@@ -510,7 +597,7 @@
     var instance;
     if (instance = instances[id]) {
       mediator.unsubscribe(instance);
-      if ((Mediator.getArgumentNames(instance.destroy)).length >= 1) {
+      if ((util.getArgumentNames(instance.destroy)).length >= 1) {
         instance.destroy(function(err) {
           return typeof cb === "function" ? cb(err) : void 0;
         });
@@ -527,42 +614,8 @@
     }
   };
 
-  doForAll = function(modules, action, cb) {
-    var actionCB, count, errors, m, _i, _len;
-    count = modules.length;
-    if (count === 0) {
-      if (typeof cb === "function") {
-        cb(null);
-      }
-      return true;
-    } else {
-      errors = [];
-      actionCB = function() {
-        count--;
-        return checkEnd(count, errors, cb);
-      };
-      for (_i = 0, _len = modules.length; _i < _len; _i++) {
-        m = modules[_i];
-        if (!action(m, actionCB)) {
-          errors.push("'" + m + "'");
-        }
-      }
-      return errors.length === 0;
-    }
-  };
-
-  checkEnd = function(count, errors, cb) {
-    if (count === 0) {
-      if (errors.length > 0) {
-        return typeof cb === "function" ? cb(new Error("errors occoured in the following modules: " + errors)) : void 0;
-      } else {
-        return typeof cb === "function" ? cb(null) : void 0;
-      }
-    }
-  };
-
   startAll = function(cb, opt) {
-    var aCB, id, invalid, invalidErr, mods, startAction, valid, _ref;
+    var id, invalid, invalidErr, mods, startAction, valid, _ref;
     if (cb instanceof Array) {
       mods = cb;
       cb = opt;
@@ -622,28 +675,40 @@
         if (typeof modOpts.callback === "function") {
           modOpts.callback(err);
         }
-        return typeof next === "function" ? next() : void 0;
+        return next(err);
       };
       return start(m, o);
     };
-    aCB = function(err) {
-      return typeof cb === "function" ? cb(err || invalidErr) : void 0;
-    };
-    return (doForAll(valid, startAction, aCB)) && !(invalidErr != null);
+    util.doForAll(valid, startAction, function(err) {
+      var e, i, x;
+      if ((err != null ? err.length : void 0) > 0) {
+        e = new Error("errors occoured in the following modules: " + ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (i = _i = 0, _len = err.length; _i < _len; i = ++_i) {
+            x = err[i];
+            if (x != null) {
+              _results.push("'" + valid[i] + "'");
+            }
+          }
+          return _results;
+        })()));
+      }
+      return typeof cb === "function" ? cb(e || invalidErr) : void 0;
+    });
+    return !(invalidErr != null);
   };
 
   stopAll = function(cb) {
     var id;
-    return doForAll((function() {
+    return util.doForAll((function() {
       var _results;
       _results = [];
       for (id in instances) {
         _results.push(id);
       }
       return _results;
-    })(), (function(m, next) {
-      return stop(m, next);
-    }), cb);
+    })(), stop, cb);
   };
 
   coreKeywords = ["VERSION", "register", "unregister", "registerPlugin", "start", "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on", "emit", "setInstanceOptions", "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"];
@@ -728,9 +793,10 @@
     stop: stop,
     startAll: startAll,
     stopAll: stopAll,
-    uniqueId: uniqueId,
+    uniqueId: util.uniqueId,
     lsInstances: lsInstances,
     lsModules: lsModules,
+    util: util,
     Mediator: Mediator,
     Sandbox: Sandbox,
     subscribe: function() {

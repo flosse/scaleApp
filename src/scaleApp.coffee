@@ -6,6 +6,7 @@ Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
 if module?.exports? and typeof require is "function"
   Mediator  = require "./Mediator"
   Sandbox   = require "./Sandbox"
+  util      = require "./Util"
 
 VERSION = "0.3.8"
 
@@ -15,11 +16,6 @@ instanceOpts  = {}
 mediator      = new Mediator
 plugins       = {}
 error         = (e) -> console?.error? e.message
-
-uniqueId = (length=8) ->
- id = ""
- id += Math.random().toString(36).substr(2) while id.length < length
- id.substr 0, length
 
 # container for all functions that gets called when an instance gets created
 onInstantiateFunctions = _always: []
@@ -135,7 +131,7 @@ start = (moduleId, opt={}) ->
     throw new Error "module was already started" if instance.running is true
 
     # if the module wants to init in an asynchronous way
-    if (Mediator.getArgumentNames instance.init).length >= 2
+    if (util.getArgumentNames instance.init).length >= 2
       # then define a callback
       instance.init instance.options, (err) -> opt.callback? err
     else
@@ -158,7 +154,7 @@ stop = (id, cb) ->
     mediator.unsubscribe instance
 
     # if the module wants destroy in an asynchronous way
-    if (Mediator.getArgumentNames instance.destroy).length >= 1
+    if (util.getArgumentNames instance.destroy).length >= 1
       # then define a callback
       instance.destroy (err) ->
         cb? err
@@ -171,32 +167,6 @@ stop = (id, cb) ->
     delete instances[id]
     true
   else false
-
-doForAll = (modules, action, cb)->
-
-  count = modules.length
-  if count is 0
-    cb? null
-    true
-  else
-
-    errors = []
-
-    actionCB = ->
-      count--
-      checkEnd count, errors, cb
-
-    for m in modules when not action m, actionCB
-      errors.push "'#{m}'"
-
-    errors.length is 0
-
-checkEnd = (count, errors, cb) ->
-  if count is 0
-    if errors.length > 0
-      cb? new Error "errors occoured in the following modules: #{errors}"
-    else
-      cb? null
 
 startAll = (cb, opt) ->
 
@@ -219,16 +189,18 @@ startAll = (cb, opt) ->
     o[k] = v for own k,v of modOpts when v
     o.callback = (err) ->
       modOpts.callback? err
-      next?()
+      next err
     start m, o
 
-  aCB = (err) ->
-    cb? err or invalidErr
-  (doForAll valid, startAction, aCB) and not invalidErr?
+  util.doForAll valid, startAction, (err) ->
+    if err?.length > 0
+      e = new Error "errors occoured in the following modules: #{("'#{valid[i]}'" for x,i in err when x?)}"
+    cb? e or invalidErr
 
-stopAll = (cb) -> doForAll (id for id of instances)
-  , ((m, next) -> stop m, next)
-  , cb
+  not invalidErr?
+
+stopAll = (cb) ->
+  util.doForAll (id for id of instances), stop, cb
 
 coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
   "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on",
@@ -282,9 +254,10 @@ core =
   stop: stop
   startAll: startAll
   stopAll: stopAll
-  uniqueId: uniqueId
+  uniqueId: util.uniqueId
   lsInstances: lsInstances
   lsModules: lsModules
+  util: util
   Mediator: Mediator
   Sandbox: Sandbox
   subscribe:    -> mediator.subscribe.apply mediator, arguments
