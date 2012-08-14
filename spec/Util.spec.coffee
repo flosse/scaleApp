@@ -56,3 +56,13 @@ describe "Util", ->
         @util.doForAll undefined, fn, (err) ->
           (expect err?).toBe false
           done()
+
+  describe "getArgumentNames function", ->
+
+    it "returns an array of argument names", ->
+      fn = (a,b,c,d) ->
+      (expect @util.getArgumentNames fn).toEqual ["a","b","c", "d"]
+      (expect @util.getArgumentNames ->).toEqual []
+
+    it "does not break if the function is not defined", ->
+      (expect @util.getArgumentNames undefined).toEqual []

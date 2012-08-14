@@ -27,6 +27,9 @@
 
   getArgumentNames = function(fn) {
     var a, args, _i, _len, _results;
+    if (fn == null) {
+      fn = function() {};
+    }
     args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
     if (!(args != null) || (args.length < 2)) {
       return [];
@@ -57,6 +60,9 @@
 
   runSeries = function(tasks, cb) {
     var checkEnd, count, errors, i, results, t, _i, _len, _results;
+    if (tasks == null) {
+      tasks = [];
+    }
     if (cb == null) {
       cb = function() {};
     }
@@ -113,6 +119,9 @@
 
   doForAll = function(args, fn, cb) {
     var a, tasks;
+    if (args == null) {
+      args = [];
+    }
     tasks = (function() {
       var _i, _len, _results;
       _results = [];

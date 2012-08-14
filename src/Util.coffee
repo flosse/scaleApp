@@ -6,7 +6,7 @@ clone = (data) ->
     copy[k] = v for k,v of data
   copy
 
-getArgumentNames = (fn) ->
+getArgumentNames = (fn=->) ->
   args = fn.toString().match ///
     function    # start with 'function'
     [^(]*       # any character but not '('
