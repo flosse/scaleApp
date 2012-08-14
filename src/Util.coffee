@@ -24,7 +24,7 @@ uniqueId = (length=8) ->
  id += Math.random().toString(36).substr(2) while id.length < length
  id.substr 0, length
 
-runSeries = (tasks, cb=->) ->
+runSeries = (tasks=[], cb=->) ->
   count   = tasks.length
   results = []
 
@@ -52,7 +52,7 @@ runSeries = (tasks, cb=->) ->
     catch e
       next e
 
-doForAll = (args, fn, cb)->
+doForAll = (args=[], fn, cb)->
   tasks = for a in args then do (a) -> (next) -> fn a, next
   util.runSeries tasks, cb
 
