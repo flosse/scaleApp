@@ -74,7 +74,7 @@ class Mediator
     return false unless typeof channel is "string"
     subscribers = @channels[channel] or []
 
-    if opt.publishReference isnt true and typeof data is "object"
+    if data? and opt.publishReference isnt true and typeof data is "object"
       copy = util.clone data
 
     tasks = for sub in subscribers then do (sub) ->

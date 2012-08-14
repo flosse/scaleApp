@@ -246,7 +246,7 @@
         return false;
       }
       subscribers = this.channels[channel] || [];
-      if (opt.publishReference !== true && typeof data === "object") {
+      if ((data != null) && opt.publishReference !== true && typeof data === "object") {
         copy = util.clone(data);
       }
       tasks = (function() {
