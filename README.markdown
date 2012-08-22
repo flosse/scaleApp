@@ -41,13 +41,13 @@ clean and scaleable architecture.
 ## Extendable
 
 scaleApp itself is very small but it can be extended with plugins. There already
-are some plugins available (e.g. `mvc`, `i18n`, `permission`, etc.) but you can
-easily define your own one.
+are some plugins available (e.g. `mvc`, `i18n`, `permission`, `state`, etc.) but
+you can easily define your own one.
 
 ## Download latest version
 
-- [scaleApp 0.3.7.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.7)
-- [scaleApp 0.3.7.zip](https://github.com/flosse/scaleApp/zipball/v0.3.7)
+- [scaleApp 0.3.8.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.8)
+- [scaleApp 0.3.8.zip](https://github.com/flosse/scaleApp/zipball/v0.3.8)
 
 # Quick Start
 
