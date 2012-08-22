@@ -426,6 +426,14 @@ s.addState { y: {}, z: { enter: cb } }        # or add multiple states
 s.addTransition "t", { from: "b", to: "d" }   # add a transition
 s.can "t"                                     # false because 'a' is current state
 s.can "x"                                     # true
+
+s.onLeave "a", (transition, eventName, next) ->
+  # ...
+  next()
+
+s.onEnter "b", (transitioin, eventName, next) ->
+  doSomething (err) -> next err
+
 s.fire "x"
 s.current                                     # b
 ```
