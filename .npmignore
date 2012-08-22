@@ -6,4 +6,5 @@ Cakefile
 .gitignore
 .npmignore
 .travis.yml
+*.log
 *.swp
