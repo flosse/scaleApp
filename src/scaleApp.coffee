@@ -3,7 +3,7 @@ This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
 ###
 
-if module?.exports? and typeof require is "function"
+if module?.exports? and typeof require is "function" and not require.amd?
   Mediator  = require "./Mediator"
   Sandbox   = require "./Sandbox"
   util      = require "./Util"
@@ -267,5 +267,7 @@ core =
   emit:         -> mediator.publish.apply mediator, arguments
 
 module.exports  = core if module?.exports?
-window.scaleApp = core if window?
-(define -> core) if define?.amd?
+if define?.amd?
+  (define -> core) if define?.amd?
+else if window?
+  window.scaleApp = core
