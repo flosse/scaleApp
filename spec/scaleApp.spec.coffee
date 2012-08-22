@@ -14,8 +14,8 @@ describe "scaleApp core", ->
       @scaleApp  = window.scaleApp
 
     @validModule = (sb) ->
-      init: (opt, done) -> setTimeout done, 0
-      destroy: (done) -> setTimeout done, 0
+      init: (opt, done) -> setTimeout (-> done()), 0
+      destroy: (done) -> setTimeout (-> done()), 0
 
   after ->
     @scaleApp.unregisterAll()
@@ -287,13 +287,13 @@ describe "scaleApp core", ->
 
       mod1 = (sb) ->
         init: (opt, done)->
-          setTimeout done, 0
+          setTimeout (->done()), 0
           (expect finished).not.toHaveBeenCalled()
         destroy: ->
 
       mod2 = (sb) ->
         init: (opt, done) ->
-          setTimeout done, 0
+          setTimeout (-> done()), 0
           (expect finished).not.toHaveBeenCalled()
         destroy: ->
 
@@ -330,7 +330,7 @@ describe "scaleApp core", ->
       mod = (sb) ->
         init: (opt, done)->
           spy2()
-          setTimeout done, 0
+          setTimeout (-> done()), 0
         destroy: ->
       @scaleApp.register "valid", @validModule
       @scaleApp.register "x", mod

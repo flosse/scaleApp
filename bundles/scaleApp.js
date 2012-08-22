@@ -25,6 +25,12 @@
     return copy;
   };
 
+  if (!(String.prototype.trim != null)) {
+    String.prototype.trim = function() {
+      return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+    };
+  }
+
   getArgumentNames = function(fn) {
     var a, args, _i, _len, _results;
     if (fn == null) {
@@ -370,7 +376,7 @@
   */
 
 
-  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
+  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function" && !(require.amd != null)) {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
     util = require("./Util");
@@ -829,14 +835,14 @@
     module.exports = core;
   }
 
-  if (typeof window !== "undefined" && window !== null) {
-    window.scaleApp = core;
-  }
-
   if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
-    define(function() {
-      return core;
-    });
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      define(function() {
+        return core;
+      });
+    }
+  } else if (typeof window !== "undefined" && window !== null) {
+    window.scaleApp = core;
   }
 
 }).call(this);
