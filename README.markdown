@@ -403,7 +403,11 @@ registerModule "myModule", (@sb) ->
 ```coffeescript
 scaleApp.publish "changeName", "Peter"
 ```
-## state - [Finite State Machine](https://en.wikipedia.org/wiki/Finite_state_machine)
+## state - Finite State Machine
+
+The state plugin is an approach to implement a
+[Finite State Machine](https://en.wikipedia.org/wiki/Finite_state_machine)
+that can be used to keep track of your applications state.
 
 ![scaleApp fsm](https://raw.github.com/flosse/scaleApp/master/fsm.png)
 
