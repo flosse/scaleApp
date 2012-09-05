@@ -448,8 +448,8 @@ If you include the `permission` plugin, all `Mediator` methods will be rejected
 by default to enforce you to permit any message method explicitely.
 
 ```coffeescript
-scaleApp.addPermission "instanceA", "subscribe"
-scaleApp.addPermission "instanceB", "publish"
+scaleApp.permission.add "instanceA", "subscribe"
+scaleApp.permission.add "instanceB", "publish"
 ```
 
 Now `instanceA` is allowed to subscribe to a channel but `instanceB` cannot
@@ -458,7 +458,7 @@ subscribe. Therefore `instanceB` can publish data and `instanceB` can not.
 Of course you can remove a permission at any time:
 
 ```coffeescript
-scaleApp.removePermission "moduleA", "publish"
+scaleApp.permission.remove "moduleA", "publish"
 ```
 
 ## util - some helper functions
