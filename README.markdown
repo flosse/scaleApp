@@ -498,6 +498,11 @@ class MyModule
   init: -> @sb.appendFoo()  # appends "foo" to the container
   destroy: ->
 ```
+
+# Existing modules
+
+You can find some example modules in `src/modules/`.
+
 # Build browser bundles
 
 Just type
