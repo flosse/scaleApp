@@ -75,3 +75,12 @@ config["browser-dom-plugin"] = {
   specs: ["spec/plugins/scaleApp.dom.spec.coffee"],
   sources: ["lib/plugins/scaleApp.dom.js"]
 };
+
+config["browser-modules"] = {
+  environment: "browser",
+  specs: ["spec/modules/*.spec.coffee"],
+  specHelpers: ["spec/browserSetup.coffee"],
+  sources: ["src/modules/*.coffee"],
+  libs: ["bundles/scaleApp.min.js", "lib/plugins/scaleApp.dom.js"],
+  extensions: [require("buster-coffee")],
+};

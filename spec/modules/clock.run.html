@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <link href="../../src/modules/clock.css" rel="stylesheet" />
+    <script src="../../bundles/scaleApp.min.js"></script>
+    <script src="../../lib/plugins/scaleApp.dom.js"></script>
+    <script src="../../lib/modules/clock.js"></script>
+  </head>
+  <body>
+    <p>
+      <button id="start">start</button>
+      <button id="stop">stop</button>
+    </p>
+    <div id="clock"></div>
+  </body>
+  <script>
+    scaleApp.register("clock", Clock);
+    scaleApp.start("clock");
+    start.disabled = true;
+    start = document.getElementById("start");
+    stop  = document.getElementById("stop");
+    start.onclick = function(){
+      scaleApp.start("clock");
+      start.disabled  = true;
+      stop.disabled   = false;
+    };
+    stop.onclick  = function(){
+      scaleApp.stop("clock");
+      stop.disabled   = true;
+      start.disabled  = false;
+    };
+  </script>
+</html>
