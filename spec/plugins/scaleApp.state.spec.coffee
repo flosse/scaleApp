@@ -51,7 +51,7 @@ describe "stateMachine plugin", ->
       @machine.addState "toState"
       (expect @machine.addTransition "t", from: "fromState", to: "toState").toBe true
 
-    it "returns false if one of the arguments is not a string", ->
+    it "returns false if one of the arguments is neither string, nor array", ->
       (expect @machine.addTransition 0,   from: "fromState", to: "toState").toBe false
       (expect @machine.addTransition "x", from: 1,           to: "toState").toBe false
       (expect @machine.addTransition "x", from: "y",         to:  2).toBe false
@@ -150,5 +150,11 @@ describe "stateMachine plugin", ->
     it "returns true if transition can be fired", ->
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
+      @machine.current = "a"
+      (expect @machine.can "x").toEqual true
+
+    it "returns true if current state is in transition.from", ->
+      @machine.addState ["a", "b", "c"]
+      @machine.addTransition "x", from: ["a", "b"], to: "c"
       @machine.current = "a"
       (expect @machine.can "x").toEqual true
