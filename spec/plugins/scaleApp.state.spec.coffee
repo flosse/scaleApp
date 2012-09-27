@@ -146,6 +146,14 @@ describe "stateMachine plugin", ->
         (expect @machine.current).toEqual "a"
         done()
 
+    it "emits 'leaveChannel' for current state", (done) ->
+      @machine.current = "a"
+      @machine.addState ["a", "b", "c"]
+      @machine.addTransition "x", from: ["a", "b"], to: "c"
+      @machine.onLeave "a", ->
+        done()
+      (expect @machine.fire "x").toEqual true
+
   describe "can method", ->
     it "returns true if transition can be fired", ->
       @machine.addState ["a", "b"]
