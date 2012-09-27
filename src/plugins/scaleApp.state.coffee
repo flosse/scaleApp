@@ -77,7 +77,7 @@ class StateMachine extends scaleApp.Mediator
   can: (id) ->
     t = @transitions[id]
     t?.from is @current or
-    @current in t or
+    @current in t.from or
     t.from is "*"
 
 plugin =
