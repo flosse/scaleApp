@@ -65,8 +65,7 @@ class StateMachine extends scaleApp.Mediator
   fire: (id, callback=->) =>
     t = @transitions[id]
     return false unless t? and @can id
-
-    @emit leaveChannel(t.from), t, (err) =>
+    @emit leaveChannel(@current), t, (err) =>
       if err?
         callback err
       else
