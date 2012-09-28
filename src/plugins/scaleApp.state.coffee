@@ -16,7 +16,7 @@ class StateMachine extends scaleApp.Mediator
       @start   = opts.start
       @current = opts.start
     if opts.transitions?
-      @addTransition id,t for id,t in opts.transitions
+      @addTransition id,t for id,t of opts.transitions
 
   start:    null
   current:  null
