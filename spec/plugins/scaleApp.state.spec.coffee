@@ -5,17 +5,29 @@ describe "stateMachine plugin", ->
   before ->
 
     if typeof(require) is "function"
-      @scaleApp  = require "../../src/scaleApp"
+      @scaleApp = require "../../src/scaleApp"
       @scaleApp.registerPlugin require "../../src/plugins/scaleApp.state"
-      @machine = new @scaleApp.StateMachine
 
     else if window?
-      @scaleApp  = window.scaleApp
+      @scaleApp = window.scaleApp
+
+    @machine = new @scaleApp.StateMachine
 
   after -> @scaleApp.unregisterAll()
 
   it "installs it to the core", ->
     (expect typeof @scaleApp.StateMachine).toEqual "function"
+
+  describe "constructor", ->
+    it "takes a transitions object with multiple transitions", ->
+      machine = new @scaleApp.StateMachine
+        states: ["a", "b", "c"]
+        transitions:
+          x: {from: "a", to: "b"}
+          y: {from: "b", to: "c"}
+      console.log JSON.stringify machine, null, 2
+      (expect machine.transitions.x).toEqual {from: "a", to: "b"}
+      (expect machine.transitions.y).toEqual {from: "b", to: "c"}
 
   describe "addState method", ->
 
