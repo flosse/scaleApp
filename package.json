@@ -6,7 +6,7 @@
   "author":       "Markus Kohlhase",
   "homepage":     "http://www.scaleapp.org",
   "bugs":         "http://github.com/flosse/scaleApp/issues",
-  "contributors": ["Markus Kohlhase"],
+  "contributors": ["Markus Kohlhase", "Johann Philipp Strathausen"],
   "licenses":     [{"type": "MIT"}],
   "engine":       "node",
   "devDependencies":
