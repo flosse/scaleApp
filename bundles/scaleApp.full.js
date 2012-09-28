@@ -952,7 +952,7 @@
     __extends(StateMachine, _super);
 
     function StateMachine(opts) {
-      var id, s, t, _i, _j, _len, _len1, _ref, _ref1;
+      var id, t, _ref;
       if (opts == null) {
         opts = {};
       }
@@ -961,22 +961,19 @@
       StateMachine.__super__.constructor.call(this);
       this.states = [];
       this.transitions = {};
+      if (opts.states != null) {
+        this.addState(opts.states);
+      }
       if (opts.start != null) {
         this.addState(opts.start);
         this.start = opts.start;
         this.current = opts.start;
-      }
-      if (opts.states != null) {
-        _ref = opts.states;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
-          this.addState(s);
-        }
+        this.emit(enterChannel(this.start));
       }
       if (opts.transitions != null) {
-        _ref1 = opts.transitions;
-        for (t = _j = 0, _len1 = _ref1.length; _j < _len1; t = ++_j) {
-          id = _ref1[t];
+        _ref = opts.transitions;
+        for (id in _ref) {
+          t = _ref[id];
           this.addTransition(id, t);
         }
       }
