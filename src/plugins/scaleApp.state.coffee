@@ -10,11 +10,12 @@ class StateMachine extends scaleApp.Mediator
     @states      = []
     @transitions = {}
     if opts.states?
-      @addState s for s in opts.states
+      @addState opts.states
     if opts.start?
       @addState opts.start
       @start   = opts.start
       @current = opts.start
+      @emit enterChannel @start
     if opts.transitions?
       @addTransition id,t for id,t of opts.transitions
 

@@ -25,9 +25,32 @@ describe "stateMachine plugin", ->
         transitions:
           x: {from: "a", to: "b"}
           y: {from: "b", to: "c"}
-      console.log JSON.stringify machine, null, 2
       (expect machine.transitions.x).toEqual {from: "a", to: "b"}
       (expect machine.transitions.y).toEqual {from: "b", to: "c"}
+
+    it "emits onEnter for start state", (done) ->
+      onEnter = (t, channel) ->
+        (expect channel).toBe 'a/enter'
+        (expect t).toBe undefined
+        done()
+      machine = new @scaleApp.StateMachine
+        start: 'a'
+        states:
+          a: {enter: onEnter}
+
+    it "registers onLeave for start state", (done) ->
+      onLeave = (t, channel) ->
+        (expect channel).toBe 'a/leave'
+        (expect t).toEqual {from: "a", to: "b"}
+        done()
+      machine = new @scaleApp.StateMachine
+        start: 'a'
+        states:
+          a: {leave: onLeave}
+          b: {}
+        transitions:
+          x: {from: "a", to: "b"}
+      machine.fire 'x'
 
   describe "addState method", ->
 
