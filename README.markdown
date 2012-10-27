@@ -67,6 +67,10 @@ sudo npm -g install scaleapp
 var sa = require("scaleapp");
 ```
 
+or use [bower](http://twitter.github.com/bower/):
+
+    bower install scaleapp
+
 ## Register modules
 
 ```javascript
