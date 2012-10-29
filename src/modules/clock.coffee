@@ -1,3 +1,7 @@
+###
+Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
+###
+
 template =
   """
   <div class="clock">

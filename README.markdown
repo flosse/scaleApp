@@ -465,6 +465,17 @@ Of course you can remove a permission at any time:
 scaleApp.permission.remove "moduleA", "publish"
 ```
 
+### strophe - XMPP plugin
+
+This is an adapter plugin for [Strophe.js](http://strophe.im/strophejs/) with
+some helpful features (e.g. automatically reconnect on page refresh).
+
+```javascript
+scaleApp.xmpp.login("myjid@server.tld", "myPassword");
+scaleApp.xmpp.logout();
+scaleApp.xmpp.jid       # the current JID
+```
+
 ## util - some helper functions
 
  - `sb.mixin(receivingClass, givingClass, override=false)`

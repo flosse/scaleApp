@@ -847,75 +847,707 @@
 
 }).call(this);
 (function() {
-  var UtilPlugin, mix, plugin;
+  var Mediator, SBPlugin, addPermission, grantAction, hasPermission, permissions, plugin, removePermission, tweakSandboxMethod, _ref;
 
-  mix = function(giv, rec, override) {
-    var k, v, _results, _results1;
-    if (override === true) {
-      _results = [];
-      for (k in giv) {
-        v = giv[k];
-        _results.push(rec[k] = v);
-      }
-      return _results;
+  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator") : void 0);
+
+  permissions = {};
+
+  addPermission = function(id, action) {
+    var p, _ref1;
+    p = (_ref1 = permissions[id]) != null ? _ref1 : permissions[id] = {};
+    return p[action] = true;
+  };
+
+  removePermission = function(id, action) {
+    var p;
+    p = permissions[id];
+    if (!(p != null)) {
+      return false;
     } else {
-      _results1 = [];
-      for (k in giv) {
-        v = giv[k];
-        if (!rec.hasOwnProperty(k)) {
-          _results1.push(rec[k] = v);
-        }
-      }
-      return _results1;
+      delete p[action];
+      return true;
     }
   };
 
-  UtilPlugin = (function() {
+  hasPermission = function(id, action) {
+    var p, _ref1;
+    p = (_ref1 = permissions[id]) != null ? _ref1[action] : void 0;
+    if (p != null) {
+      return true;
+    } else {
+      console.warn("" + id + " has no permissions for '" + action + "'");
+      return false;
+    }
+  };
 
-    function UtilPlugin(sb) {}
+  grantAction = function(sb, action, method, args) {
+    var p;
+    p = hasPermission(sb.instanceId, action);
+    if (p === true) {
+      return method.apply(sb, args);
+    } else {
+      return false;
+    }
+  };
 
-    UtilPlugin.prototype.countObjectKeys = function(o) {
-      var k, v;
-      if (typeof o === "object") {
-        return ((function() {
-          var _results;
-          _results = [];
-          for (k in o) {
-            v = o[k];
-            _results.push(k);
-          }
-          return _results;
-        })()).length;
-      }
-    };
+  tweakSandboxMethod = function(sb, methodName) {
+    var originalMethod;
+    originalMethod = sb[methodName];
+    if (typeof originalMethod === "function") {
+      return sb[methodName] = function() {
+        return grantAction(sb, methodName, originalMethod, arguments);
+      };
+    }
+  };
 
-    UtilPlugin.prototype.mixin = function(receivingClass, givingClass, override) {
-      if (override == null) {
-        override = false;
-      }
-      switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
-        case "function-function":
-          return mix(givingClass.prototype, receivingClass.prototype, override);
-        case "function-object":
-          return mix(givingClass.prototype, receivingClass, override);
-        case "object-object":
-          return mix(givingClass, receivingClass, override);
-        case "object-function":
-          return mix(givingClass, receivingClass.prototype, override);
-      }
-    };
+  SBPlugin = (function() {
 
-    return UtilPlugin;
+    function SBPlugin(sb) {
+      tweakSandboxMethod(sb, "subscribe");
+      tweakSandboxMethod(sb, "publish");
+      tweakSandboxMethod(sb, "unsubscribe");
+    }
+
+    return SBPlugin;
 
   })();
 
   plugin = {
-    id: "util",
-    sandbox: UtilPlugin
+    id: "permission",
+    sandbox: SBPlugin,
+    core: {
+      permission: {
+        add: addPermission,
+        remove: removePermission
+      }
+    }
   };
 
-  if (typeof scaleApp !== "undefined" && scaleApp !== null) {
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+    window.scaleApp.registerPlugin(plugin);
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = plugin;
+  }
+
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
+      return plugin;
+    });
+  }
+
+}).call(this);
+
+(function() {
+  var DOMPlugin, plugin,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  DOMPlugin = (function() {
+
+    function DOMPlugin(sb) {
+      this.sb = sb;
+      this.getContainer = __bind(this.getContainer, this);
+
+    }
+
+    DOMPlugin.prototype.getContainer = function() {
+      switch (typeof this.sb.options.container) {
+        case "string":
+          return document.getElementById(this.sb.options.container);
+        case "object":
+          return this.sb.options.container;
+        default:
+          return document.getElementById(this.sb.instanceId);
+      }
+    };
+
+    return DOMPlugin;
+
+  })();
+
+  plugin = {
+    id: "dom",
+    sandbox: DOMPlugin
+  };
+
+  if (window.scaleApp != null) {
+    window.scaleApp.registerPlugin(plugin);
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = plugin;
+  }
+
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
+      return plugin;
+    });
+  }
+
+}).call(this);
+
+(function() {
+  var Controller, Model, View, plugin, scaleApp,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
+
+  Model = (function(_super) {
+
+    __extends(Model, _super);
+
+    function Model(obj) {
+      var k, v;
+      Model.__super__.constructor.call(this);
+      this.id = (obj != null ? obj.id : void 0) || scaleApp.uniqueId();
+      for (k in obj) {
+        v = obj[k];
+        if (!(this[k] != null)) {
+          this[k] = v;
+        }
+      }
+    }
+
+    Model.prototype.set = function(key, val, silent) {
+      var k, v;
+      if (silent == null) {
+        silent = false;
+      }
+      switch (typeof key) {
+        case "object":
+          for (k in key) {
+            v = key[k];
+            this.set(k, v, true);
+          }
+          if (!silent) {
+            this.publish(Model.CHANGED, (function() {
+              var _results;
+              _results = [];
+              for (k in key) {
+                v = key[k];
+                _results.push(k);
+              }
+              return _results;
+            })());
+          }
+          break;
+        case "string":
+          if (!(key === "set" || key === "get") && this[key] !== val) {
+            this[key] = val;
+            if (!silent) {
+              this.publish(Model.CHANGED, [key]);
+            }
+          }
+          break;
+        default:
+          if (typeof console !== "undefined" && console !== null) {
+            if (typeof console.error === "function") {
+              console.error("key is not a string");
+            }
+          }
+      }
+      return this;
+    };
+
+    Model.prototype.change = function(cb, context) {
+      if (typeof cb === "function") {
+        return this.subscribe(Model.CHANGED, cb, context);
+      } else if (arguments.length === 0) {
+        return this.publish(Model.CHANGED);
+      }
+    };
+
+    Model.prototype.notify = function() {
+      return this.change();
+    };
+
+    Model.prototype.get = function(key) {
+      return this[key];
+    };
+
+    Model.prototype.toJSON = function() {
+      var json, k, v;
+      json = {};
+      for (k in this) {
+        if (!__hasProp.call(this, k)) continue;
+        v = this[k];
+        json[k] = v;
+      }
+      return json;
+    };
+
+    Model.CHANGED = "changed";
+
+    return Model;
+
+  })(scaleApp.Mediator);
+
+  View = (function() {
+
+    function View(model) {
+      if (model) {
+        this.setModel(model);
+      }
+    }
+
+    View.prototype.setModel = function(model) {
+      this.model = model;
+      return this.model.change((function() {
+        return this.render();
+      }), this);
+    };
+
+    View.prototype.render = function() {};
+
+    return View;
+
+  })();
+
+  Controller = (function() {
+
+    function Controller(model, view) {
+      this.model = model;
+      this.view = view;
+    }
+
+    return Controller;
+
+  })();
+
+  plugin = {
+    id: "mvc",
+    core: {
+      Model: Model,
+      View: View,
+      Controller: Controller
+    }
+  };
+
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
     scaleApp.registerPlugin(plugin);
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = plugin;
+  }
+
+  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+    define(function() {
+      return plugin;
+    });
+  }
+
+}).call(this);
+
+
+/*
+Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
+*/
+
+
+(function() {
+  var CACHE_PREFIX, DEFAULT_PATH, DEFAULT_PORT, ID, attach_connection, cache2key, clearData, connection, connection_options, create_connection_obj, disconnect, get_bosh_url, hasConnectionData, init, jid_to_id, key2cache, login, onConnected, on_connection_change, plugin, resetPlugin, restoreData, saveData, scaleApp, statusCodeToString, updatePlugin, xmppPlugin;
+
+  if (!(typeof window !== "undefined" && window !== null)) {
+    throw new Error("This plugin only can be used in the browser");
+  } else {
+    scaleApp = window.scaleApp;
+    ID = "xmpp";
+    DEFAULT_PATH = "http-bind/";
+    DEFAULT_PORT = 5280;
+    CACHE_PREFIX = "scaleApp." + ID + ".cache.";
+    connection = null;
+    connection_options = {
+      host: document.domain,
+      port: DEFAULT_PORT,
+      path: DEFAULT_PATH,
+      jid: null,
+      sid: null,
+      rid: null
+    };
+    get_bosh_url = function(opt) {
+      var domain;
+      domain = document.domain;
+      if (typeof opt === "object") {
+        if (opt.port) {
+          opt.port = opt.port * 1;
+          if (isNaN(opt.port)) {
+            console.warn("the defined port " + opt.port + " is not a number.");
+            opt.port = null;
+          }
+        }
+        if (opt.host && opt.port && opt.path) {
+          return "http://" + opt.host + ":" + opt.port + "/" + opt.path;
+        }
+        if (opt.host && opt.port && !opt.path) {
+          return "http://" + opt.host + ":" + opt.port + "/" + DEFAULT_PATH;
+        }
+        if (opt.host && !opt.port && opt.path) {
+          return "http://" + opt.host + "/" + opt.path;
+        }
+        if (opt.host && !opt.port && !opt.path) {
+          return "http://" + opt.host + "/" + DEFAULT_PATH;
+        }
+        if (!opt.host && opt.port && opt.path) {
+          return "http://" + domain + ":" + opt.port + "/" + opt.path;
+        }
+        if (!opt.host && opt.port && !opt.path) {
+          return "http://" + domain + ":" + opt.port + "/" + DEFAULT_PATH;
+        }
+        if (!opt.host && !opt.port && opt.path) {
+          return "http://" + domain + "/" + opt.path;
+        }
+        if (!opt.host && !opt.port && !opt.path) {
+          return "http://" + domain + "/" + DEFAULT_PATH;
+        }
+      }
+      return "http://" + domain + "/" + DEFAULT_PATH;
+    };
+    create_connection_obj = function() {
+      return new Strophe.Connection(get_bosh_url({
+        path: connection_options.path,
+        host: connection_options.host,
+        port: connection_options.port
+      }));
+    };
+    key2cache = function(k) {
+      return "" + CACHE_PREFIX + k;
+    };
+    cache2key = function(c) {
+      return c.split(CACHE_PREFIX)[1];
+    };
+    saveData = function() {
+      var k, _i, _j, _len, _len1, _ref, _ref1, _results;
+      if (typeof localStorage !== "undefined" && localStorage !== null) {
+        _ref = ["jid", "sid", "rid"];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          k = _ref[_i];
+          if (connection[k] != null) {
+            localStorage[key2Cache(k)] = connection[k];
+          }
+        }
+        _ref1 = ["host", "port", "path"];
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          k = _ref1[_j];
+          if (connection_options[k] != null) {
+            _results.push(localStorage[key2Cache(k)] = connection_options[k]);
+          }
+        }
+        return _results;
+      }
+    };
+    clearData = function() {
+      return typeof localStorage !== "undefined" && localStorage !== null ? localStorage.clear() : void 0;
+    };
+    onConnected = function() {
+      var e, fn, onunload, _i, _j, _len, _len1, _ref, _ref1;
+      fn = function(ev) {
+        if (ev.keyCode === 27) {
+          return typeof ev.preventDefault === "function" ? ev.preventDefault() : void 0;
+        }
+      };
+      onunload = function() {
+        if (connection) {
+          return saveData();
+        } else {
+          return clearData();
+        }
+      };
+      if (document.addEventListener != null) {
+        _ref = ["keydown", "keypress", "keyup"];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          e = _ref[_i];
+          document.addEventListener(e, fn, false);
+        }
+        window.addEventListener("unload", onunload, false);
+      } else if (document.attachEvent != null) {
+        _ref1 = ["onkeydown", "onkeypress", "onkeyup"];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          e = _ref1[_j];
+          document.attachEvent(e, fn);
+        }
+        document.attachEvent("onunload", onunload);
+      }
+      return connection.send($pres());
+    };
+    statusCodeToString = function(s) {
+      switch (s) {
+        case 0:
+          return "Error";
+        case 1:
+          return "Connecting";
+        case 2:
+          return "Connection failed";
+        case 3:
+          return "Authenticating";
+        case 4:
+          return "Authentication failed";
+        case 5:
+          return "Connected";
+        case 6:
+          return "Disconnected";
+        case 7:
+          return "Disconnecting";
+        case 8:
+          return "Reconnected";
+      }
+    };
+    on_connection_change = function(status) {
+      var s;
+      console.info("xmpp status changed: " + statusCodeToString(status));
+      s = Strophe.Status;
+      switch (status) {
+        case s.ERROR:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/error", "an error occoured");
+        case s.CONNECTING:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/connecting");
+        case s.CONFAIL:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/error", "could not connect to xmpp server");
+        case s.AUTHENTICATING:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/authenticating");
+        case s.AUTHFAIL:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/authfail");
+        case s.CONNECTED:
+          updatePlugin(connection);
+          onConnected();
+          return scaleApp.publish("" + ID + "/connected");
+        case s.DISCONNECTED:
+          clearData();
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/disconnected");
+        case s.DISCONNECTING:
+          resetPlugin();
+          return scaleApp.publish("" + ID + "/disconnecting");
+        case s.ATTACHED:
+          updatePlugin(connection);
+          onConnected();
+          return scaleApp.publish("" + ID + "/attached");
+      }
+    };
+    resetPlugin = function() {
+      xmppPlugin.connection = null;
+      return xmppPlugin.jid = "";
+    };
+    updatePlugin = function(conn) {
+      xmppPlugin.connection = conn;
+      return xmppPlugin.jid = conn.jid;
+    };
+    attach_connection = function(opt) {
+      connection = create_connection_obj();
+      connection_options.jid = Strophe.getBareJidFromJid(connection_options.jid);
+      return connection.attach(connection_options.jid, connection_options.sid, connection_options.rid, on_connection_change, 60);
+    };
+    login = function(jid, pw, opt) {
+      if (opt != null) {
+        if (opt.path) {
+          connection_options.path = opt.path;
+        }
+        if (opt.port) {
+          connection_options.port = opt.port;
+        }
+        if (opt.host) {
+          connection_options.host = opt.host;
+        }
+      }
+      connection = create_connection_obj();
+      return connection.connect(jid, pw, on_connection_change);
+    };
+    disconnect = function() {
+      console.debug("try to disconnect");
+      if (connection !== null) {
+        connection.send($pres({
+          type: "unavailable"
+        }));
+        connection.pause();
+        connection.disconnect();
+      }
+      return clearData();
+    };
+    jid_to_id = function(jid) {
+      return Strophe.getBareJidFromJid(jid).replace("@", "-").replace(".", "-").replace(".", "-");
+    };
+    restoreData = function() {
+      var j, k, _i, _len, _ref, _results;
+      if (typeof localStorage !== "undefined" && localStorage !== null) {
+        _ref = ["jid", "sid", "rid", "host", "port", "path"];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          k = _ref[_i];
+          j = cache2Key(k);
+          if (localStorage[j]) {
+            _results.push(connection_options[k] = localStorage[j]);
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      }
+    };
+    hasConnectionData = function() {
+      var k, opt, _i, _len, _ref;
+      opt = connection_options;
+      _ref = ["jid", "sid", "rid"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        k = _ref[_i];
+        if (!opt[k] || opt[k] === 'null' || opt[k] === 'undefined') {
+          return false;
+        }
+      }
+      return true;
+    };
+    init = function() {
+      if (!(typeof Strophe !== "undefined" && Strophe !== null)) {
+        throw new Error("This plugin requires strophe.js");
+      } else {
+        restoreData();
+        if (hasConnectionData()) {
+          return attach_connection();
+        } else {
+          return scaleApp.publish("" + ID + "/disconnected");
+        }
+      }
+    };
+    xmppPlugin = {
+      init: init,
+      jid: "",
+      connection: null,
+      login: login,
+      logout: disconnect
+    };
+    plugin = {
+      id: ID,
+      core: {
+        xmpp: xmppPlugin
+      }
+    };
+    if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+      scaleApp.registerPlugin(plugin);
+    }
+    if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+      module.exports = plugin;
+    }
+    if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
+      define(function() {
+        return plugin;
+      });
+    }
+  }
+
+}).call(this);
+
+(function() {
+  var Mediator, SBPlugin, baseLanguage, channelName, get, getBrowserLanguage, getLanguage, getText, global, lang, mediator, plugin, setGlobal, setLanguage, subscribe, unsubscribe, _ref,
+    __slice = [].slice;
+
+  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator") : void 0);
+
+  baseLanguage = "en";
+
+  getBrowserLanguage = function() {
+    return ((typeof navigator !== "undefined" && navigator !== null ? navigator.language : void 0) || (typeof navigator !== "undefined" && navigator !== null ? navigator.browserLanguage : void 0) || baseLanguage).split("-")[0];
+  };
+
+  lang = getBrowserLanguage();
+
+  mediator = new Mediator;
+
+  channelName = "i18n";
+
+  global = {};
+
+  subscribe = function() {
+    return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
+  };
+
+  unsubscribe = function() {
+    return mediator.unsubscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
+  };
+
+  getLanguage = function() {
+    return lang;
+  };
+
+  setLanguage = function(code) {
+    if (typeof code === "string") {
+      lang = code;
+      return mediator.publish(channelName, lang);
+    }
+  };
+
+  setGlobal = function(obj) {
+    if (typeof obj === "object") {
+      global = obj;
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  getText = function(key, x, l) {
+    var _ref1, _ref2;
+    return ((_ref1 = x[l]) != null ? _ref1[key] : void 0) || ((_ref2 = global[l]) != null ? _ref2[key] : void 0);
+  };
+
+  get = function(key, x) {
+    if (x == null) {
+      x = {};
+    }
+    return getText(key, x, lang) || getText(key, x, lang.substring(0, 2)) || getText(key, x, baseLanguage) || key;
+  };
+
+  SBPlugin = (function() {
+
+    function SBPlugin(sb) {
+      this.sb = sb;
+    }
+
+    SBPlugin.prototype.i18n = {
+      subscribe: subscribe,
+      on: subscribe,
+      unsubscribe: unsubscribe
+    };
+
+    SBPlugin.prototype._ = function(text) {
+      return get(text, this.sb.options.i18n);
+    };
+
+    SBPlugin.prototype.getLanguage = getLanguage;
+
+    return SBPlugin;
+
+  })();
+
+  plugin = {
+    id: "i18n",
+    sandbox: SBPlugin,
+    core: {
+      i18n: {
+        setLanguage: setLanguage,
+        getBrowserLanguage: getBrowserLanguage,
+        getLanguage: getLanguage,
+        baseLanguage: baseLanguage,
+        get: get,
+        subscribe: subscribe,
+        on: subscribe,
+        unsubscribe: unsubscribe,
+        setGlobal: setGlobal
+      }
+    }
+  };
+
+  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+    if (typeof window !== "undefined" && window !== null) {
+      window.scaleApp.registerPlugin(plugin);
+    }
   }
 
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
@@ -1133,144 +1765,32 @@
 }).call(this);
 
 (function() {
-  var Controller, Model, View, plugin, scaleApp,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var XMPPPlugin, plugin;
 
-  scaleApp = (typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) || (typeof require === "function" ? require("../scaleApp") : void 0);
+  XMPPPlugin = (function() {
 
-  Model = (function(_super) {
+    function XMPPPlugin(sb) {}
 
-    __extends(Model, _super);
-
-    function Model(obj) {
-      var k, v;
-      Model.__super__.constructor.call(this);
-      this.id = (obj != null ? obj.id : void 0) || scaleApp.uniqueId();
-      for (k in obj) {
-        v = obj[k];
-        if (!(this[k] != null)) {
-          this[k] = v;
-        }
-      }
-    }
-
-    Model.prototype.set = function(key, val, silent) {
-      var k, v;
-      if (silent == null) {
-        silent = false;
-      }
-      switch (typeof key) {
-        case "object":
-          for (k in key) {
-            v = key[k];
-            this.set(k, v, true);
-          }
-          if (!silent) {
-            this.publish(Model.CHANGED, (function() {
-              var _results;
-              _results = [];
-              for (k in key) {
-                v = key[k];
-                _results.push(k);
-              }
-              return _results;
-            })());
-          }
-          break;
-        case "string":
-          if (!(key === "set" || key === "get") && this[key] !== val) {
-            this[key] = val;
-            if (!silent) {
-              this.publish(Model.CHANGED, [key]);
-            }
-          }
-          break;
-        default:
-          if (typeof console !== "undefined" && console !== null) {
-            if (typeof console.error === "function") {
-              console.error("key is not a string");
-            }
-          }
-      }
-      return this;
+    XMPPPlugin.prototype.xmpp = {
+      send: function(stanza, cb) {},
+      getJid: "",
+      presence: function() {}
     };
 
-    Model.prototype.change = function(cb, context) {
-      if (typeof cb === "function") {
-        return this.subscribe(Model.CHANGED, cb, context);
-      } else if (arguments.length === 0) {
-        return this.publish(Model.CHANGED);
-      }
-    };
-
-    Model.prototype.notify = function() {
-      return this.change();
-    };
-
-    Model.prototype.get = function(key) {
-      return this[key];
-    };
-
-    Model.prototype.toJSON = function() {
-      var json, k, v;
-      json = {};
-      for (k in this) {
-        if (!__hasProp.call(this, k)) continue;
-        v = this[k];
-        json[k] = v;
-      }
-      return json;
-    };
-
-    Model.CHANGED = "changed";
-
-    return Model;
-
-  })(scaleApp.Mediator);
-
-  View = (function() {
-
-    function View(model) {
-      if (model) {
-        this.setModel(model);
-      }
-    }
-
-    View.prototype.setModel = function(model) {
-      this.model = model;
-      return this.model.change((function() {
-        return this.render();
-      }), this);
-    };
-
-    View.prototype.render = function() {};
-
-    return View;
-
-  })();
-
-  Controller = (function() {
-
-    function Controller(model, view) {
-      this.model = model;
-      this.view = view;
-    }
-
-    return Controller;
+    return XMPPPlugin;
 
   })();
 
   plugin = {
-    id: "mvc",
+    id: "xmpp",
+    sandbox: XMPPPlugin,
     core: {
-      Model: Model,
-      View: View,
-      Controller: Controller
+      connect: function() {},
+      disconnect: function() {}
     }
   };
 
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
+  if (typeof scaleApp !== "undefined" && scaleApp !== null) {
     scaleApp.registerPlugin(plugin);
   }
 
@@ -1287,251 +1807,75 @@
 }).call(this);
 
 (function() {
-  var DOMPlugin, plugin,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var UtilPlugin, mix, plugin;
 
-  DOMPlugin = (function() {
-
-    function DOMPlugin(sb) {
-      this.sb = sb;
-      this.getContainer = __bind(this.getContainer, this);
-
+  mix = function(giv, rec, override) {
+    var k, v, _results, _results1;
+    if (override === true) {
+      _results = [];
+      for (k in giv) {
+        v = giv[k];
+        _results.push(rec[k] = v);
+      }
+      return _results;
+    } else {
+      _results1 = [];
+      for (k in giv) {
+        v = giv[k];
+        if (!rec.hasOwnProperty(k)) {
+          _results1.push(rec[k] = v);
+        }
+      }
+      return _results1;
     }
+  };
 
-    DOMPlugin.prototype.getContainer = function() {
-      switch (typeof this.sb.options.container) {
-        case "string":
-          return document.getElementById(this.sb.options.container);
-        case "object":
-          return this.sb.options.container;
-        default:
-          return document.getElementById(this.sb.instanceId);
+  UtilPlugin = (function() {
+
+    function UtilPlugin(sb) {}
+
+    UtilPlugin.prototype.countObjectKeys = function(o) {
+      var k, v;
+      if (typeof o === "object") {
+        return ((function() {
+          var _results;
+          _results = [];
+          for (k in o) {
+            v = o[k];
+            _results.push(k);
+          }
+          return _results;
+        })()).length;
       }
     };
 
-    return DOMPlugin;
+    UtilPlugin.prototype.mixin = function(receivingClass, givingClass, override) {
+      if (override == null) {
+        override = false;
+      }
+      switch ("" + (typeof givingClass) + "-" + (typeof receivingClass)) {
+        case "function-function":
+          return mix(givingClass.prototype, receivingClass.prototype, override);
+        case "function-object":
+          return mix(givingClass.prototype, receivingClass, override);
+        case "object-object":
+          return mix(givingClass, receivingClass, override);
+        case "object-function":
+          return mix(givingClass, receivingClass.prototype, override);
+      }
+    };
+
+    return UtilPlugin;
 
   })();
 
   plugin = {
-    id: "dom",
-    sandbox: DOMPlugin
+    id: "util",
+    sandbox: UtilPlugin
   };
 
-  if (window.scaleApp != null) {
-    window.scaleApp.registerPlugin(plugin);
-  }
-
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = plugin;
-  }
-
-  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
-    define(function() {
-      return plugin;
-    });
-  }
-
-}).call(this);
-
-(function() {
-  var Mediator, SBPlugin, baseLanguage, channelName, get, getBrowserLanguage, getLanguage, getText, global, lang, mediator, plugin, setGlobal, setLanguage, subscribe, unsubscribe, _ref,
-    __slice = [].slice;
-
-  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator") : void 0);
-
-  baseLanguage = "en";
-
-  getBrowserLanguage = function() {
-    return ((typeof navigator !== "undefined" && navigator !== null ? navigator.language : void 0) || (typeof navigator !== "undefined" && navigator !== null ? navigator.browserLanguage : void 0) || baseLanguage).split("-")[0];
-  };
-
-  lang = getBrowserLanguage();
-
-  mediator = new Mediator;
-
-  channelName = "i18n";
-
-  global = {};
-
-  subscribe = function() {
-    return mediator.subscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  unsubscribe = function() {
-    return mediator.unsubscribe.apply(mediator, [channelName].concat(__slice.call(arguments)));
-  };
-
-  getLanguage = function() {
-    return lang;
-  };
-
-  setLanguage = function(code) {
-    if (typeof code === "string") {
-      lang = code;
-      return mediator.publish(channelName, lang);
-    }
-  };
-
-  setGlobal = function(obj) {
-    if (typeof obj === "object") {
-      global = obj;
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  getText = function(key, x, l) {
-    var _ref1, _ref2;
-    return ((_ref1 = x[l]) != null ? _ref1[key] : void 0) || ((_ref2 = global[l]) != null ? _ref2[key] : void 0);
-  };
-
-  get = function(key, x) {
-    if (x == null) {
-      x = {};
-    }
-    return getText(key, x, lang) || getText(key, x, lang.substring(0, 2)) || getText(key, x, baseLanguage) || key;
-  };
-
-  SBPlugin = (function() {
-
-    function SBPlugin(sb) {
-      this.sb = sb;
-    }
-
-    SBPlugin.prototype.i18n = {
-      subscribe: subscribe,
-      on: subscribe,
-      unsubscribe: unsubscribe
-    };
-
-    SBPlugin.prototype._ = function(text) {
-      return get(text, this.sb.options.i18n);
-    };
-
-    SBPlugin.prototype.getLanguage = getLanguage;
-
-    return SBPlugin;
-
-  })();
-
-  plugin = {
-    id: "i18n",
-    sandbox: SBPlugin,
-    core: {
-      i18n: {
-        setLanguage: setLanguage,
-        getBrowserLanguage: getBrowserLanguage,
-        getLanguage: getLanguage,
-        baseLanguage: baseLanguage,
-        get: get,
-        subscribe: subscribe,
-        on: subscribe,
-        unsubscribe: unsubscribe,
-        setGlobal: setGlobal
-      }
-    }
-  };
-
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    if (typeof window !== "undefined" && window !== null) {
-      window.scaleApp.registerPlugin(plugin);
-    }
-  }
-
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = plugin;
-  }
-
-  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
-    define(function() {
-      return plugin;
-    });
-  }
-
-}).call(this);
-
-(function() {
-  var Mediator, SBPlugin, addPermission, grantAction, hasPermission, permissions, plugin, removePermission, tweakSandboxMethod, _ref;
-
-  Mediator = (typeof window !== "undefined" && window !== null ? (_ref = window.scaleApp) != null ? _ref.Mediator : void 0 : void 0) || (typeof require === "function" ? require("../Mediator") : void 0);
-
-  permissions = {};
-
-  addPermission = function(id, action) {
-    var p, _ref1;
-    p = (_ref1 = permissions[id]) != null ? _ref1 : permissions[id] = {};
-    return p[action] = true;
-  };
-
-  removePermission = function(id, action) {
-    var p;
-    p = permissions[id];
-    if (!(p != null)) {
-      return false;
-    } else {
-      delete p[action];
-      return true;
-    }
-  };
-
-  hasPermission = function(id, action) {
-    var p, _ref1;
-    p = (_ref1 = permissions[id]) != null ? _ref1[action] : void 0;
-    if (p != null) {
-      return true;
-    } else {
-      console.warn("" + id + " has no permissions for '" + action + "'");
-      return false;
-    }
-  };
-
-  grantAction = function(sb, action, method, args) {
-    var p;
-    p = hasPermission(sb.instanceId, action);
-    if (p === true) {
-      return method.apply(sb, args);
-    } else {
-      return false;
-    }
-  };
-
-  tweakSandboxMethod = function(sb, methodName) {
-    var originalMethod;
-    originalMethod = sb[methodName];
-    if (typeof originalMethod === "function") {
-      return sb[methodName] = function() {
-        return grantAction(sb, methodName, originalMethod, arguments);
-      };
-    }
-  };
-
-  SBPlugin = (function() {
-
-    function SBPlugin(sb) {
-      tweakSandboxMethod(sb, "subscribe");
-      tweakSandboxMethod(sb, "publish");
-      tweakSandboxMethod(sb, "unsubscribe");
-    }
-
-    return SBPlugin;
-
-  })();
-
-  plugin = {
-    id: "permission",
-    sandbox: SBPlugin,
-    core: {
-      permission: {
-        add: addPermission,
-        remove: removePermission
-      }
-    }
-  };
-
-  if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    window.scaleApp.registerPlugin(plugin);
+  if (typeof scaleApp !== "undefined" && scaleApp !== null) {
+    scaleApp.registerPlugin(plugin);
   }
 
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
