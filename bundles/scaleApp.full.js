@@ -1382,7 +1382,7 @@ Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           k = _ref[_i];
-          j = cache2Key(k);
+          j = cache2key(k);
           if (localStorage[j]) {
             _results.push(connection_options[k] = localStorage[j]);
           } else {
@@ -1749,48 +1749,6 @@ Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   if ((typeof window !== "undefined" && window !== null ? window.scaleApp : void 0) != null) {
-    scaleApp.registerPlugin(plugin);
-  }
-
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = plugin;
-  }
-
-  if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
-    define(function() {
-      return plugin;
-    });
-  }
-
-}).call(this);
-
-(function() {
-  var XMPPPlugin, plugin;
-
-  XMPPPlugin = (function() {
-
-    function XMPPPlugin(sb) {}
-
-    XMPPPlugin.prototype.xmpp = {
-      send: function(stanza, cb) {},
-      getJid: "",
-      presence: function() {}
-    };
-
-    return XMPPPlugin;
-
-  })();
-
-  plugin = {
-    id: "xmpp",
-    sandbox: XMPPPlugin,
-    core: {
-      connect: function() {},
-      disconnect: function() {}
-    }
-  };
-
-  if (typeof scaleApp !== "undefined" && scaleApp !== null) {
     scaleApp.registerPlugin(plugin);
   }
 

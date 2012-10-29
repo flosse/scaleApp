@@ -473,7 +473,7 @@ some helpful features (e.g. automatically reconnect on page refresh).
 ```javascript
 scaleApp.xmpp.login("myjid@server.tld", "myPassword");
 scaleApp.xmpp.logout();
-scaleApp.xmpp.jid       # the current JID
+scaleApp.xmpp.jid       // the current JID
 ```
 
 ## util - some helper functions

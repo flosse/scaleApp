@@ -244,7 +244,7 @@ else
   restoreData = ->
     if localStorage?
       for k in [ "jid", "sid", "rid", "host", "port", "path" ]
-        j = cache2Key k
+        j = cache2key k
         connection_options[k] = localStorage[j]  if localStorage[j]
 
   hasConnectionData = ->
