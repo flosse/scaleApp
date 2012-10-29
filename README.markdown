@@ -536,6 +536,68 @@ cake -p [PLUGIN_NAME] bundle
 e.g. `cake -p dom,mvc bundle` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
+# Changelog
+
+## v0.3.9 (??)
+
+- improved state plugin (thanks to Strathausen)
+- added xmpp (stropje.js) plugin
+- added a simple clock module
+- added [bower](http://twitter.github.com/bower/) support
+- added this changelog
+
+## v0.3.8 (08-2012)
+
+- bug fixes
+- added support for async. callback of the `publish` method
+- added amd support
+
+## v0.3.7 (07-2012)
+
+- bug fixes
+- added permission plugin
+- ported specs to buster.js
+- support for global i18n properties
+
+## v0.3.6 (03-2012)
+
+- support for async. and sync. module initialization
+
+## v0.3.5 (03-2012)
+
+- simpified Mediator code
+
+## v0.3.4 (03-2012)
+
+- bugfixes
+- added `lsModules` and `lsInstances`
+- improved README
+
+## v0.3.3 (02-2012)
+
+- run tests with jasmine-node instead of JSTestDriver
+- added travis testing
+- improved README
+
+## v0.3.2 (01-2012)
+
+- bugfixes
+- improved Mediator
+
+## v0.3.0 (11-2011)
+
+- ported to Coffee-Script
+- removed jQuery dependency
+
+## v0.2.0 (07-2011)
+
+- bugfixes
+- improvements
+
+## v0.1.0 (02-2011)
+
+ - first release
+
 # Testing
 
 ```shell
