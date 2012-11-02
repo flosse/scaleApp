@@ -91,10 +91,10 @@ else
   saveData = ->
     if localStorage?
       for k in ["jid", "sid", "rid"] when connection[k]?
-        localStorage[key2Cache k] = connection[k]
+        localStorage[key2cache k] = connection[k]
 
       for k in ["host", "port", "path"] when connection_options[k]?
-        localStorage[key2Cache k] = connection_options[k]
+        localStorage[key2cache k] = connection_options[k]
 
   clearData = -> localStorage?.clear()
 

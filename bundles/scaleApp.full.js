@@ -1226,7 +1226,7 @@ Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           k = _ref[_i];
           if (connection[k] != null) {
-            localStorage[key2Cache(k)] = connection[k];
+            localStorage[key2cache(k)] = connection[k];
           }
         }
         _ref1 = ["host", "port", "path"];
@@ -1234,7 +1234,7 @@ Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           k = _ref1[_j];
           if (connection_options[k] != null) {
-            _results.push(localStorage[key2Cache(k)] = connection_options[k]);
+            _results.push(localStorage[key2cache(k)] = connection_options[k]);
           }
         }
         return _results;
