@@ -359,6 +359,34 @@ describe "Mediator", ->
       @paul.publish "another channel", @data
       (expect @cb).not.toHaveBeenCalled()
 
+    it "can request data by publishing an event", (done) ->
+
+      # lets say we have database with user objects
+      db = [
+        { name: "markus", role: "admin" }
+        { name: "paul",   role: "user" }
+      ]
+
+      # we could use a mediator as public API
+      @dbAccess = new @Mediator
+
+      # then we bind the read event to our database
+      @dbAccess.on "read", (r) ->
+        # prcocess the query
+        result = []
+        for user in db
+          result.push user for k,v of r.query when user[k] is v
+        # send results
+        r.receive null, result
+
+      # receive a list of users by publishing a read event
+      @dbAccess.emit "read",
+        query: { role: "admin" }
+        receive: (err, data) ->
+          (expect data.length).toEqual 1
+          (expect data[0]).toEqual { name: "markus", role: "admin" }
+          done()
+
     describe "auto subscription", ->
 
       it "publishes subtopics to parent topics", ->
