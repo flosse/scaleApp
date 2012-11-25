@@ -452,17 +452,24 @@ If you include the `permission` plugin, all `Mediator` methods will be rejected
 by default to enforce you to permit any message method explicitely.
 
 ```coffeescript
-scaleApp.permission.add "instanceA", "subscribe"
-scaleApp.permission.add "instanceB", "publish"
+scaleApp.permission.add "instanceA", "subscribe", "a"
+scaleApp.permission.add "instanceB", "publish", ["b", "c"]
 ```
 
-Now `instanceA` is allowed to subscribe to a channel but `instanceB` cannot
-subscribe. Therefore `instanceB` can publish data and `instanceB` can not.
+Now `instanceA` is allowed to subscribe to channel `a` but `instanceB` cannot
+subscribe to it. Therefore `instanceB` can publish data on channel `a` and
+`instanceB` can not.
 
 Of course you can remove a permission at any time:
 
 ```coffeescript
-scaleApp.permission.remove "moduleA", "publish"
+scaleApp.permission.remove "moduleA", "publish", "x"
+```
+
+Or remove the subscribe permissions of all channels:
+
+```coffeescript
+scaleApp.permission.remove "moduleB", "subscribe"
 ```
 
 ### strophe - XMPP plugin
@@ -540,6 +547,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.3.9 (??)
 
+- improved permission plugin
 - improved state plugin (thanks to Strathausen)
 - added xmpp (stropje.js) plugin
 - added a simple clock module

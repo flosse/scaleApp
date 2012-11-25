@@ -47,10 +47,14 @@ describe "permission plugin", ->
 
   it "executes the required methods if a permission was defined", (done) ->
 
-    @scaleApp.permission.add "anId", "subscribe"
+    @scaleApp.permission.add "anId", "subscribe", "x"
+    @scaleApp.permission.add "anId", "subscribe", ["a", "b"]
 
     test = (sb) ->
+      (expect sb.subscribe "y", ->).toEqual false
       (expect sb.subscribe "x", ->).not.toEqual false
+      (expect sb.subscribe "a", ->).not.toEqual false
+      (expect sb.subscribe "b", ->).not.toEqual false
       (expect sb.publish "x", ->).toBe false
       done()
 
@@ -58,8 +62,8 @@ describe "permission plugin", ->
 
   it "rejects a methods if no permission was defined", (done) ->
 
-    @scaleApp.permission.add "oo", "subscribe"
-    @scaleApp.permission.add "ii", "publish"
+    @scaleApp.permission.add "oo", "subscribe", "x"
+    @scaleApp.permission.add "ii", "publish", "x"
 
     test = (sb) ->
       (expect sb.subscribe "x", ->).toBe false
@@ -70,13 +74,17 @@ describe "permission plugin", ->
 
   it "removes a permission", (done) ->
 
-    @scaleApp.permission.add "ee", "subscribe"
+    @scaleApp.permission.add "ee", "subscribe", "x"
+    @scaleApp.permission.add "ee", "publish", ["z", "w"]
 
     test = (sb) =>
       (expect sb.subscribe "x", ->).not.toBe false
       @scaleApp.permission.remove "ee", "subscribe"
       (expect sb.subscribe "x", ->).toBe false
+      (expect sb.publish "z", ->).not.toBe false
+      @scaleApp.permission.remove "ee", "publish", "z"
+      (expect sb.publish "z", ->).toBe false
+      (expect sb.publish "w", ->).not.toBe false
       done()
 
     @run test, "ee"
-

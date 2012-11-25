@@ -853,37 +853,54 @@
 
   permissions = {};
 
-  addPermission = function(id, action) {
-    var p, _ref1;
-    p = (_ref1 = permissions[id]) != null ? _ref1 : permissions[id] = {};
-    return p[action] = true;
+  addPermission = function(id, action, channels) {
+    var a, c, p, _i, _len, _ref1, _ref2;
+    if (channels != null) {
+      p = (_ref1 = permissions[id]) != null ? _ref1 : permissions[id] = {};
+      a = (_ref2 = p[action]) != null ? _ref2 : p[action] = {};
+      if (typeof channels === "string") {
+        channels = [channels];
+      }
+      for (_i = 0, _len = channels.length; _i < _len; _i++) {
+        c = channels[_i];
+        a[c] = true;
+      }
+      return true;
+    } else {
+      return false;
+    }
   };
 
-  removePermission = function(id, action) {
-    var p;
+  removePermission = function(id, action, channel) {
+    var p, _ref1;
     p = permissions[id];
-    if (!(p != null)) {
+    if (!(channel != null)) {
+      delete p[action];
+      return true;
+    } else if (!(p != null ? (_ref1 = p[action]) != null ? _ref1[channel] : void 0 : void 0)) {
       return false;
     } else {
-      delete p[action];
+      delete p[action][channel];
       return true;
     }
   };
 
-  hasPermission = function(id, action) {
-    var p, _ref1;
-    p = (_ref1 = permissions[id]) != null ? _ref1[action] : void 0;
-    if (p != null) {
+  hasPermission = function(id, action, channel) {
+    var _ref1, _ref2;
+    if ((channel != null) && ((_ref1 = permissions[id]) != null ? (_ref2 = _ref1[action]) != null ? _ref2[channel] : void 0 : void 0)) {
       return true;
     } else {
-      console.warn("" + id + " has no permissions for '" + action + "'");
+      console.warn("'" + id + "' has no permissions for '" + action + "' with '" + channel + "'");
       return false;
     }
   };
 
   grantAction = function(sb, action, method, args) {
-    var p;
-    p = hasPermission(sb.instanceId, action);
+    var channel, p;
+    if ((args != null ? args.length : void 0) > 0) {
+      channel = args[0];
+    }
+    p = hasPermission(sb.instanceId, action, channel);
     if (p === true) {
       return method.apply(sb, args);
     } else {
