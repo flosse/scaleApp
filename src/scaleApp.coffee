@@ -202,17 +202,10 @@ startAll = (cb, opt) ->
 stopAll = (cb) ->
   util.doForAll (id for id of instances), stop, cb
 
-coreKeywords = [ "VERSION", "register", "unregister", "registerPlugin", "start"
-  "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on",
-  "emit", "setInstanceOptions", "Mediator", "Sandbox", "unregisterAll",
-  "uniqueId", "lsModules", "lsInstances"]
-
 sandboxKeywords = [ "core", "instanceId", "options", "publish", "emit", "on"
   "subscribe", "unsubscribe" ]
 
-lsModules = -> (id for id,m of modules)
-
-lsInstances = -> (id for id,m of instances)
+ls = (o) -> (id for id,m of o)
 
 registerPlugin = (plugin) ->
 
@@ -255,8 +248,9 @@ core =
   startAll: startAll
   stopAll: stopAll
   uniqueId: util.uniqueId
-  lsInstances: lsInstances
-  lsModules: lsModules
+  lsInstances: -> ls instances
+  lsModules: -> ls modules
+  lsPlugins: -> ls plugins
   util: util
   Mediator: Mediator
   Sandbox: Sandbox
@@ -265,6 +259,8 @@ core =
   unsubscribe:  -> mediator.unsubscribe.apply mediator, arguments
   publish:      -> mediator.publish.apply mediator, arguments
   emit:         -> mediator.publish.apply mediator, arguments
+
+coreKeywords = (k for k,v of core)
 
 module.exports  = core if module?.exports?
 if define?.amd?

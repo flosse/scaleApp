@@ -60,7 +60,7 @@ Link `scaleApp.min.js` in your HTML file:
 If you're going to use it with node:
 
 ```shell
-sudo npm -g install scaleapp
+npm install scaleapp
 ```
 
 ```javascript
@@ -109,6 +109,12 @@ scaleApp.lsModules() // returns an array of module names
 
 ```javascript
 scaleApp.lsInstances() // returns an array of instance names
+```
+
+### Show registered plugins
+
+```javascript
+scaleApp.lsPlugins() // returns an array of plugin names
 ```
 
 ## Asynchronous initialization

@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, lsInstances, lsModules, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util,
+  var Mediator, Sandbox, VERSION, addModule, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -726,25 +726,13 @@
     })(), stop, cb);
   };
 
-  coreKeywords = ["VERSION", "register", "unregister", "registerPlugin", "start", "stop", "startAll", "stopAll", "publish", "subscribe", "unsubscribe", "on", "emit", "setInstanceOptions", "Mediator", "Sandbox", "unregisterAll", "uniqueId", "lsModules", "lsInstances"];
-
   sandboxKeywords = ["core", "instanceId", "options", "publish", "emit", "on", "subscribe", "unsubscribe"];
 
-  lsModules = function() {
+  ls = function(o) {
     var id, m, _results;
     _results = [];
-    for (id in modules) {
-      m = modules[id];
-      _results.push(id);
-    }
-    return _results;
-  };
-
-  lsInstances = function() {
-    var id, m, _results;
-    _results = [];
-    for (id in instances) {
-      m = instances[id];
+    for (id in o) {
+      m = o[id];
       _results.push(id);
     }
     return _results;
@@ -809,8 +797,15 @@
     startAll: startAll,
     stopAll: stopAll,
     uniqueId: util.uniqueId,
-    lsInstances: lsInstances,
-    lsModules: lsModules,
+    lsInstances: function() {
+      return ls(instances);
+    },
+    lsModules: function() {
+      return ls(modules);
+    },
+    lsPlugins: function() {
+      return ls(plugins);
+    },
     util: util,
     Mediator: Mediator,
     Sandbox: Sandbox,
@@ -830,6 +825,16 @@
       return mediator.publish.apply(mediator, arguments);
     }
   };
+
+  coreKeywords = (function() {
+    var _results;
+    _results = [];
+    for (k in core) {
+      v = core[k];
+      _results.push(k);
+    }
+    return _results;
+  })();
 
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
     module.exports = core;
