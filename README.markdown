@@ -31,8 +31,8 @@ clean and scaleable architecture.
 ## Features
 
 + loose coupling of modules
-+ small & simple
-+ no serverside dependencies
++ small (about 350 sloc / 3.4kB gzipped)
++ no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules
 + extendable with plugins

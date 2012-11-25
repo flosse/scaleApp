@@ -1,5 +1,5 @@
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+  var FUNCTION, Mediator, OBJECT, STRING, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -376,13 +376,25 @@
   */
 
 
-  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function" && !(require.amd != null)) {
+  VERSION = "0.3.8";
+
+  FUNCTION = "function";
+
+  STRING = "string";
+
+  OBJECT = "object";
+
+  checkType = function(type, val, name) {
+    if (typeof val !== type) {
+      throw new TypeError("" + name + " has to be a " + type);
+    }
+  };
+
+  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === FUNCTION && !(require.amd != null)) {
     Mediator = require("./Mediator");
     Sandbox = require("./Sandbox");
     util = require("./Util");
   }
-
-  VERSION = "0.3.8";
 
   modules = {};
 
@@ -404,14 +416,12 @@
 
   onInstantiate = function(fn, moduleId) {
     var entry;
-    if (typeof fn !== "function") {
-      throw new Error("expect a function as parameter");
-    }
+    checkType(FUNCTION, fn, "parameter");
     entry = {
       context: this,
       callback: fn
     };
-    if (typeof moduleId === "string") {
+    if (typeof moduleId === STRING) {
       if (onInstantiateFunctions[moduleId] == null) {
         onInstantiateFunctions[moduleId] = [];
       }
@@ -489,25 +499,13 @@
 
   addModule = function(moduleId, creator, opt) {
     var modObj;
-    if (typeof moduleId !== "string") {
-      throw new TypeError("module ID has to be a string");
-    }
-    if (typeof creator !== "function") {
-      throw new TypeError("creator has to be a constructor function");
-    }
-    if (typeof opt !== "object") {
-      throw new TypeError("option parameter has to be an object");
-    }
+    checkType(STRING, moduleId, "module ID");
+    checkType(FUNCTION, creator, "creator");
+    checkType(OBJECT, opt, "option parameter");
     modObj = new creator();
-    if (typeof modObj !== "object") {
-      throw new TypeError("creator has to return an object");
-    }
-    if (typeof modObj.init !== "function") {
-      throw new TypeError("module has to have an init function");
-    }
-    if (typeof modObj.destroy !== "function") {
-      throw new TypeError("module has to have a destroy function");
-    }
+    checkType(OBJECT, modObj, "the return value of the creator");
+    checkType(FUNCTION, modObj.init, "'init' of the module");
+    checkType(FUNCTION, modObj.destroy, "'destroy' of the module ");
     if (modules[moduleId] != null) {
       throw new TypeError("module " + moduleId + " was already registered");
     }
@@ -533,12 +531,8 @@
 
   setInstanceOptions = function(instanceId, opt) {
     var k, v, _ref, _results;
-    if (typeof instanceId !== "string") {
-      throw new TypeError("instance ID has to be a string");
-    }
-    if (typeof opt !== "object") {
-      throw new TypeError("option parameter has to be an object");
-    }
+    checkType(STRING, instanceId, "instance ID");
+    checkType(OBJECT, opt, "option parameter");
     if ((_ref = instanceOpts[instanceId]) == null) {
       instanceOpts[instanceId] = {};
     }
@@ -574,14 +568,10 @@
       opt = {};
     }
     try {
-      if (typeof moduleId !== "string") {
-        throw new Error("module ID has to be a string");
-      }
-      if (typeof opt !== "object") {
-        throw new Error("second parameter has to be an object");
-      }
+      checkType(STRING, moduleId, "module ID");
+      checkType(OBJECT, opt, "second parameter");
       if (modules[moduleId] == null) {
-        throw new Error("module does not exist");
+        throw new Error("module doesn't exist");
       }
       instance = createInstance(moduleId, opt.instanceId, opt.options);
       if (instance.running === true) {
@@ -739,18 +729,15 @@
   };
 
   registerPlugin = function(plugin) {
-    var k, v, _ref, _ref1;
+    var RESERVED_ERROR, k, v, _ref, _ref1;
+    RESERVED_ERROR = new Error("plugin uses reserved keyword");
     try {
-      if (typeof plugin !== "object") {
-        throw new Error("plugin has to be an object");
-      }
-      if (typeof plugin.id !== "string") {
-        throw new Error("plugin has no id");
-      }
-      if (typeof plugin.sandbox === "function") {
+      checkType(OBJECT, plugin, "plugin");
+      checkType(STRING, plugin.id, "'id' of plugin");
+      if (typeof plugin.sandbox === FUNCTION) {
         for (k in new plugin.sandbox(new Sandbox(core, ""))) {
           if (__indexOf.call(sandboxKeywords, k) >= 0) {
-            throw new Error("plugin uses reserved keyword");
+            throw RESERVED_ERROR;
           }
         }
         _ref = plugin.sandbox.prototype;
@@ -759,10 +746,10 @@
           Sandbox.prototype[k] = v;
         }
       }
-      if (typeof plugin.core === "object") {
+      if (typeof plugin.core === OBJECT) {
         for (k in plugin.core) {
           if (__indexOf.call(coreKeywords, k) >= 0) {
-            throw new Error("plugin uses reserved keyword");
+            throw RESERVED_ERROR;
           }
         }
         _ref1 = plugin.core;
@@ -774,7 +761,7 @@
           }
         }
       }
-      if (typeof plugin.onInstantiate === "function") {
+      if (typeof plugin.onInstantiate === FUNCTION) {
         onInstantiate(plugin.onInstantiate);
       }
       plugins[plugin.id] = plugin;
