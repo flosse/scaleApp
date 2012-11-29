@@ -28,7 +28,7 @@ uniqueId = (length=8) ->
  id += Math.random().toString(36).substr(2) while id.length < length
  id.substr 0, length
 
-runSeries = (tasks=[], cb=->) ->
+runSeries = (tasks=[], cb=(->), force) ->
   count   = tasks.length
   results = []
 
@@ -44,17 +44,29 @@ runSeries = (tasks=[], cb=->) ->
         cb null, results
 
   for t,i in tasks then do (t,i) ->
-    next = (err, result) ->
+    next = (err, res...) ->
       if err?
         errors[i] = err
         results[i] = undefined
       else
-        results[i] = result
+        results[i] = if res.length < 2 then res[0] else res
       checkEnd()
     try
       t next
     catch e
-      next e
+      next e if force
+
+runWaterfall = (tasks, cb) ->
+  i = -1
+  return cb() if tasks.length is 0
+
+  next = (err, res...) ->
+    return cb err if err?
+    if ++i is tasks.length
+      cb null, res...
+    else
+      tasks[i] res..., next
+  next()
 
 doForAll = (args=[], fn, cb)->
   tasks = for a in args then do (a) -> (next) -> fn a, next
@@ -63,6 +75,7 @@ doForAll = (args=[], fn, cb)->
 util =
   doForAll: doForAll
   runSeries : runSeries
+  runWaterfall : runWaterfall
   clone: clone
   getArgumentNames: getArgumentNames
   uniqueId: uniqueId

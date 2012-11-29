@@ -1,5 +1,6 @@
 (function() {
-  var FUNCTION, Mediator, OBJECT, STRING, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+  var FUNCTION, Mediator, OBJECT, STRING, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+    __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -64,13 +65,13 @@
     return id.substr(0, length);
   };
 
-  runSeries = function(tasks, cb) {
+  runSeries = function(tasks, cb, force) {
     var checkEnd, count, errors, i, results, t, _i, _len, _results;
     if (tasks == null) {
       tasks = [];
     }
     if (cb == null) {
-      cb = function() {};
+      cb = (function() {});
     }
     count = tasks.length;
     results = [];
@@ -104,23 +105,48 @@
       t = tasks[i];
       _results.push((function(t, i) {
         var next;
-        next = function(err, result) {
+        next = function() {
+          var err, res;
+          err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           if (err != null) {
             errors[i] = err;
             results[i] = void 0;
           } else {
-            results[i] = result;
+            results[i] = res.length < 2 ? res[0] : res;
           }
           return checkEnd();
         };
         try {
           return t(next);
         } catch (e) {
-          return next(e);
+          if (force) {
+            return next(e);
+          }
         }
       })(t, i));
     }
     return _results;
+  };
+
+  runWaterfall = function(tasks, cb) {
+    var i, next;
+    i = -1;
+    if (tasks.length === 0) {
+      return cb();
+    }
+    next = function() {
+      var err, res;
+      err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (err != null) {
+        return cb(err);
+      }
+      if (++i === tasks.length) {
+        return cb.apply(null, [null].concat(__slice.call(res)));
+      } else {
+        return tasks[i].apply(tasks, __slice.call(res).concat([next]));
+      }
+    };
+    return next();
   };
 
   doForAll = function(args, fn, cb) {
@@ -147,6 +173,7 @@
   util = {
     doForAll: doForAll,
     runSeries: runSeries,
+    runWaterfall: runWaterfall,
     clone: clone,
     getArgumentNames: getArgumentNames,
     uniqueId: uniqueId
@@ -261,7 +288,7 @@
         return false;
       }
       subscribers = this.channels[channel] || [];
-      if ((data != null) && opt.publishReference !== true && typeof data === "object") {
+      if (typeof data === "object" && opt.publishReference !== true) {
         copy = util.clone(data);
       }
       tasks = (function() {
@@ -285,9 +312,9 @@
         }
         return _results;
       })();
-      util.runSeries(tasks, function(errors, results) {
+      util.runSeries(tasks, (function(errors, results) {
         var e, x;
-        if ((errors != null ? errors.length : void 0) > 0) {
+        if (errors) {
           e = new Error(((function() {
             var _i, _len, _results;
             _results = [];
@@ -301,7 +328,7 @@
           })()).join('; '));
         }
         return typeof opt === "function" ? opt(e) : void 0;
-      });
+      }), true);
       if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
         this.publish(chnls.slice(0, -1).join('/'), data, opt);
       }
@@ -544,20 +571,19 @@
     return _results;
   };
 
-  unregister = function(id) {
-    if (modules[id] != null) {
-      delete modules[id];
+  unregister = function(id, type) {
+    if (type[id] != null) {
+      delete type[id];
       return true;
-    } else {
-      return false;
     }
+    return false;
   };
 
-  unregisterAll = function() {
+  unregisterAll = function(type) {
     var id, _results;
     _results = [];
-    for (id in modules) {
-      _results.push(unregister(id));
+    for (id in type) {
+      _results.push(unregister(id, type));
     }
     return _results;
   };
@@ -775,9 +801,19 @@
   core = {
     VERSION: VERSION,
     register: register,
-    unregister: unregister,
-    unregisterAll: unregisterAll,
+    unregister: function(id) {
+      return unregister(id, modules);
+    },
+    unregisterAll: function() {
+      return unregisterAll(modules);
+    },
     registerPlugin: registerPlugin,
+    unregisterPlugin: function(id) {
+      return unregister(id, plugins);
+    },
+    unregisterAllPlugins: function() {
+      return unregisterAll(plugins);
+    },
     setInstanceOptions: setInstanceOptions,
     start: start,
     stop: stop,

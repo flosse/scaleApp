@@ -69,12 +69,12 @@ class Mediator
   publish: (channel, data, opt={}) ->
 
     if typeof data is "function"
-      opt = data
+      opt  = data
       data = undefined
     return false unless typeof channel is "string"
     subscribers = @channels[channel] or []
 
-    if data? and opt.publishReference isnt true and typeof data is "object"
+    if typeof data is "object" and opt.publishReference isnt true
       copy = util.clone data
 
     tasks = for sub in subscribers then do (sub) ->
@@ -87,10 +87,10 @@ class Mediator
         catch e
           next e
 
-    util.runSeries tasks, (errors, results) ->
-      if errors?.length > 0
+    util.runSeries tasks,((errors, results) ->
+      if errors
         e = new Error (x.message for x in errors when x?).join '; '
-      opt? e
+      opt? e), true
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
       @publish chnls[0...-1].join('/'), data, opt

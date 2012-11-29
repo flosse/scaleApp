@@ -114,14 +114,13 @@ setInstanceOptions = (instanceId, opt) ->
   instanceOpts[instanceId] ?= {}
   instanceOpts[instanceId][k] = v for k,v of opt
 
-unregister = (id) ->
-  if modules[id]?
-    delete modules[id]
-    true
-  else
-    false
+unregister = (id, type) ->
+  if type[id]?
+    delete type[id]
+    return true
+  false
 
-unregisterAll = -> unregister id for id of modules
+unregisterAll = (type) -> unregister id, type for id of type
 
 start = (moduleId, opt={}) ->
 
@@ -245,9 +244,11 @@ registerPlugin = (plugin) ->
 core =
   VERSION: VERSION
   register: register
-  unregister: unregister
-  unregisterAll: unregisterAll
+  unregister: (id) -> unregister id, modules
+  unregisterAll: -> unregisterAll modules
   registerPlugin: registerPlugin
+  unregisterPlugin: (id) -> unregister id, plugins
+  unregisterAllPlugins: -> unregisterAll plugins
   setInstanceOptions: setInstanceOptions
   start: start
   stop: stop

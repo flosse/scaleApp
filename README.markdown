@@ -31,12 +31,13 @@ clean and scaleable architecture.
 ## Features
 
 + loose coupling of modules
-+ small (about 350 sloc / 3.4kB gzipped)
++ small (about 340 sloc / 10k min / 3.4k gz)
 + no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules
 + extendable with plugins
 + browser and node.js support
++ flow control
 
 ## Extendable
 
@@ -316,6 +317,45 @@ Or remove all subscriptions from a channel:
 sb.unsubscribe("channelName");
 ```
 
+## Flow control
+
+### Series
+```javascript
+var task1 = function(next){
+  setTimeout(function(){next(null, "one");},0);
+};
+
+var task2 = function(next){
+  next(null, "two");
+};
+
+scaleApp.util.runSeries([task1, task2], function(err, results){
+  // result is ["one", "two"]
+});
+```
+
+### Waterfall
+
+```javascript
+var task1 = function(next){
+  setTimeout(function(){
+    next(null, "one", "two");
+  },0);
+};
+
+var task2 = function(res1, res2, next){
+  // res1 is "one"
+  // res2 is "two"
+  next(null, "yeah!");
+};
+
+scaleApp.util.runWaterfall([task1, task2], function(err, result){
+  // result is "yeah!"
+});
+
+```
+
+
 # Plugins
 
 ## i18n - Multi language UIs
@@ -553,6 +593,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.3.9 (??)
 
+- added waterfall flow control method
 - improved permission plugin
 - improved state plugin (thanks to Strathausen)
 - added xmpp (stropje.js) plugin

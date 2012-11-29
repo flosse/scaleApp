@@ -58,6 +58,7 @@ describe "scaleApp core", ->
     beforeEach ->
       @scaleApp.stopAll()
       @scaleApp.unregisterAll()
+      @scaleApp.unregisterAllPlugins()
       @scaleApp.register "myModule", @validModule
 
     it "has an lsModules method", ->
@@ -74,7 +75,13 @@ describe "scaleApp core", ->
       (expect @scaleApp.stop "myModule").toBeTruthy()
       (expect @scaleApp.lsInstances()).toEqual ["test"]
 
-    it "//has an ls method", ->
+    it "has an lsPlugins method", ->
+      (expect typeof @scaleApp.lsPlugins).toEqual "function"
+      (expect @scaleApp.lsPlugins()).toEqual []
+      (expect @scaleApp.registerPlugin {
+        id: "dummy"
+      }).toBeTruthy()
+      (expect @scaleApp.lsPlugins()).toEqual ["dummy"]
 
   describe "unregister function", ->
 
@@ -534,6 +541,8 @@ describe "scaleApp core", ->
         "register"
         "unregister"
         "unregisterAll"
+        "unregisterPlugin"
+        "unregisterAllPlugins"
         "registerPlugin"
         "start"
         "stop"
