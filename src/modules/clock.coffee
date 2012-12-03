@@ -18,6 +18,13 @@ getDigits = (n) ->
   n = "0" + n if n.length is 1
   n
 
+getTimeObject = (t) ->
+  d = new Date 0,0
+  d.setMilliseconds t
+  s: d.getSeconds()
+  m: d.getMinutes()
+  h: d.getHours()
+
 class Clock
 
   constructor: (@sb) ->
@@ -25,15 +32,19 @@ class Clock
   init: (opt) ->
     @container = @sb.getContainer()
     @container.innerHTML = template
-    @h = @container.getElementsByClassName("hours"  )[0]
-    @m = @container.getElementsByClassName("minutes")[0]
-    @s = @container.getElementsByClassName("seconds")[0]
+    @hDiv = @container.getElementsByClassName("hours"  )[0]
+    @mDiv = @container.getElementsByClassName("minutes")[0]
+    @sDiv = @container.getElementsByClassName("seconds")[0]
     id = @sb.instanceId
-    @sb.on "#{id}/pause",   @pause,   @
-    @sb.on "#{id}/resume",  @resume,  @
-    @sb.on "#{id}/set",     @set,     @
-    @sb.on "#{id}/reverse", @reverse, @
-    @sb.on "#{id}/forward", @forward, @
+    @sb.on "#{id}/pause",    @pause,    @
+    @sb.on "#{id}/resume",   @resume,   @
+    @sb.on "#{id}/set",      @set,      @
+    @sb.on "#{id}/reverse",  @reverse,  @
+    @sb.on "#{id}/forward",  @forward,  @
+    @sb.on "#{id}/setAlert", @setAlert, @
+    @sb.on "#{id}/setStop",  @setStop,  @
+    @alertTime = false
+    @stopTime  = false
     @resume()
 
   resume: ->
@@ -53,6 +64,12 @@ class Clock
     @date = new Date @startDate.getTime()
     @update()
 
+  setAlert: (t) ->
+    @alertTime = getTimeObject t if typeof t is "number"
+
+  setStop: (t) ->
+    @stopTime = getTimeObject t if typeof t is "number"
+
   reverse: (ev) ->
     @runReverse = true
     @set ev
@@ -61,14 +78,27 @@ class Clock
     @runReverse = false
     @set ev
 
+  check: ->
+    if @alertTime.s is @s and
+       @alertTime.m is @m and
+       @alertTime.h is @h
+      @sb.emit "#{@sb.instanceId}/alert"
+    if @stopTime.s is @s and
+       @stopTime.m is @m and
+       @stopTime.h is @h
+      @pause()
+
   update: =>
-    d     = new Date
-    diff  = d - @refDate
+    diff  = (new Date) - @refDate
     diff = -diff if @runReverse
     @date = new Date (@startDate.getTime() +  diff)
-    @h.textContent = getDigits @date.getHours()
-    @m.textContent = getDigits @date.getMinutes()
-    @s.textContent = getDigits @date.getSeconds()
+    @h = @date.getHours()
+    @m = @date.getMinutes()
+    @s = @date.getSeconds()
+    @hDiv.textContent = getDigits @h
+    @mDiv.textContent = getDigits @m
+    @sDiv.textContent = getDigits @s
+    @check()
 
   destroy: ->
     @pause()

@@ -1,32 +1,105 @@
 <html>
   <head>
-    <link href="../../src/modules/clock.css" rel="stylesheet" />
+    <link href="../../dist/modules/clock.css" rel="stylesheet" />
     <script src="../../dist/scaleApp.min.js"></script>
-    <script src="../../lib/plugins/scaleApp.dom.js"></script>
-    <script src="../../lib/modules/clock.js"></script>
+    <script src="../../dist/plugins/scaleApp.dom.js"></script>
+    <script src="../../dist/modules/clock.js"></script>
   </head>
   <body>
     <p>
-      <button id="start">start</button>
-      <button id="stop">stop</button>
+      <div>
+        <h3>Module</h3>
+        <button id="startModule">start module</button>
+        <button id="stopModule">stop module</button>
+      </div>
+      <div>
+        <h3>Clock events</h3>
+        <button id="pause">pause</button>
+        <button id="resume">resume</button>
+      </div>
+      <div>
+        <h3>Timer events</h3>
+        <label>hours</label>
+        <input  id="hours" value="0" type="number" />
+        <label>minutes</label>
+        <input  id="minutes" value="2" type="number" />
+        <label>seconds</label>
+        <input  id="seconds" value="3" type="number" />
+        <button id="runTimer">run timer</button>
+        <button id="setTimer">set timer</button>
+        <button id="setAlert">set alert</button>
+        <button id="setStop">set stop</button>
+      </div>
+
     </p>
     <div id="clock"></div>
   </body>
   <script>
+
     scaleApp.register("clock", Clock);
     scaleApp.start("clock");
-    start.disabled = true;
-    start = document.getElementById("start");
-    stop  = document.getElementById("stop");
-    start.onclick = function(){
+
+    var startModule = document.getElementById("startModule");
+    var stopModule  = document.getElementById("stopModule");
+    var pause       = document.getElementById("pause");
+    var resume      = document.getElementById("resume");
+    var setTimer    = document.getElementById("setTimer");
+    var runTimer    = document.getElementById("runTimer");
+    var setStop     = document.getElementById("setStop");
+    var h           = document.getElementById("hours");
+    var m           = document.getElementById("minutes");
+    var s           = document.getElementById("seconds");
+
+    startModule.disabled = true;
+    resume.disabled = false;
+
+    startModule.onclick = function(){
       scaleApp.start("clock");
-      start.disabled  = true;
-      stop.disabled   = false;
+      startModule.disabled  = true;
+      stopModule.disabled   = false;
     };
-    stop.onclick  = function(){
+
+    stopModule.onclick  = function(){
       scaleApp.stop("clock");
-      stop.disabled   = true;
-      start.disabled  = false;
+      stopModule.disabled   = true;
+      startModule.disabled  = false;
     };
+
+    pause.onclick = function(){
+      scaleApp.publish("clock/pause");
+      pause.disabled = true;
+      resume.disabled = false;
+    };
+
+    resume.onclick = function(){
+      scaleApp.publish("clock/resume");
+      pause.disabled = false;
+      resume.disabled = true;
+    };
+
+    setTimer.onclick = function(){
+      var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
+      scaleApp.publish("clock/pause");
+      scaleApp.publish("clock/set", t);
+    };
+
+    setAlert.onclick = function(){
+      var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
+      scaleApp.publish("clock/setAlert", t);
+      scaleApp.on("clock/alert", function(){
+        console.log("pling!");
+      });
+    };
+
+    setStop.onclick = function(){
+      var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
+      scaleApp.publish("clock/setStop", t);
+    };
+
+    runTimer.onclick = function(){
+      scaleApp.publish("clock/reverse");
+      scaleApp.publish("clock/resume");
+    };
+
   </script>
 </html>

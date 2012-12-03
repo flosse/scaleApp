@@ -11,7 +11,9 @@ describe "clock module", ->
     @sa.register "clock", Clock
     @sa.start "clock"
     @secondsDiv = @div.getElementsByClassName("seconds")[0]
+    @minutesDiv = @div.getElementsByClassName("minutes")[0]
     @getSeconds = -> @secondsDiv.innerText
+    @getMinutes = -> @minutesDiv.innerText
 
   after ->
     @sa.stopAll()
@@ -35,8 +37,8 @@ describe "clock module", ->
       setTimeout((=>
         (expect s3).toEqual @getSeconds()
         done()
-      ),1200)
-    ),1200)
+      ),1400)
+    ),1400)
 
   it "can be resumed", (done) ->
     @sa.publish "clock/pause"
@@ -45,7 +47,37 @@ describe "clock module", ->
     setTimeout((=>
       (expect s).not.toEqual @getSeconds()
       done()
-    ),1200)
+    ),1400)
+
+  it "can be set", ->
+    @sa.publish "clock/pause"
+    @sa.publish "clock/set", (2 * 60 * 1000 + 3*1000)
+    s = @getSeconds()
+    (expect @getSeconds()  * 1).toEqual 3
+    (expect @getMinutes() * 1).toEqual 2
+
+  it "sends an event at a specific time", (done)->
+    @sa.publish "clock/pause"
+    @sa.publish "clock/set",      (5*60*1000 + 2000)
+    @sa.publish "clock/setAlert", (5*60*1000 + 3000)
+    @sa.on "clock/alert", =>
+      (expect @getSeconds()  * 1).toEqual 3
+      (expect @getMinutes() * 1).toEqual 5
+      done()
+    @sa.publish "clock/forward"
+    @sa.publish "clock/resume"
+
+  it "stops at a specific time", (done)->
+    @sa.publish "clock/pause"
+    @sa.publish "clock/set",     (60*1000 + 1000)
+    @sa.publish "clock/setStop", (60*1000 + 2000)
+    setTimeout((=>
+      (expect @getSeconds() * 1).toEqual 2
+      (expect @getMinutes() * 1).toEqual 1
+      done()
+    ),2400)
+    @sa.publish "clock/forward"
+    @sa.publish "clock/resume"
 
   it "can run reverse", (done) ->
     @sa.publish "clock/reverse"
