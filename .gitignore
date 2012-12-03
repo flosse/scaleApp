@@ -4,4 +4,6 @@ spec/**/*.js
 /docs/
 /node_modules/
 /lib/
+/dist/modules
+/dist/plugins
 *~

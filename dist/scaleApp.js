@@ -1,3 +1,11 @@
+
+/*
+scaleapp - v0.3.9 - 2012-11-29
+This program is distributed under the terms of the MIT license.
+Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
+*/
+
+
 (function() {
   var FUNCTION, Mediator, OBJECT, STRING, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
     __slice = [].slice,
@@ -397,13 +405,7 @@
     module.exports = Sandbox;
   }
 
-  /*
-  This program is distributed under the terms of the MIT license.
-  Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
-  */
-
-
-  VERSION = "0.3.8";
+  VERSION = "0.3.9";
 
   FUNCTION = "function";
 

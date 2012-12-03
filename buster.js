@@ -40,7 +40,7 @@ config["browser-core"] = {
   environment: "browser",
   specs: ["spec/*.spec.coffee"],
   specHelpers: ["spec/browserSetup.coffee"],
-  sources: ["bundles/scaleApp.min.js"],
+  sources: ["dist/scaleApp.min.js"],
   extensions: [require("buster-coffee")],
 };
 
@@ -66,7 +66,7 @@ config["browser-permission-plugin"] = {
   environment: "browser",
   specs: ["spec/plugins/scaleApp.permission.spec.coffee"],
   specHelpers: ["spec/browserSetup.coffee"],
-  sources: ["bundles/scaleApp.min.js", "lib/plugins/scaleApp.permission.js"],
+  sources: ["dist/scaleApp.min.js", "lib/plugins/scaleApp.permission.js"],
   extensions: [require("buster-coffee")],
 };
 
@@ -81,6 +81,6 @@ config["browser-modules"] = {
   specs: ["spec/modules/*.spec.coffee"],
   specHelpers: ["spec/browserSetup.coffee"],
   sources: ["src/modules/*.coffee"],
-  libs: ["bundles/scaleApp.min.js", "lib/plugins/scaleApp.dom.js"],
+  libs: ["dist/scaleApp.min.js", "lib/plugins/scaleApp.dom.js"],
   extensions: [require("buster-coffee")],
 };

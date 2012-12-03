@@ -1,10 +1,5 @@
-###
-This program is distributed under the terms of the MIT license.
-Copyright (c) 2011-2012 Markus Kohlhase (mail@markus-kohlhase.de)
-###
-
 # constants
-VERSION   = "0.3.8"
+VERSION   = "0.3.9"
 FUNCTION  = "function"
 STRING    = "string"
 OBJECT    = "object"
