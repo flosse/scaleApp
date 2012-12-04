@@ -35,5 +35,5 @@
       "web":    "http://github.com/flosse/"
     }
   ],
-  "scripts": { "test": "buster test --node" }
+  "scripts": { "test": "grunt && buster test --node" }
 }
