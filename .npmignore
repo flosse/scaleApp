@@ -12,3 +12,6 @@ buster.js
 *.log
 *.swp
 *.coffee
+*.svg
+*.min.js
+*.full*.js

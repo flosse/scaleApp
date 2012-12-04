@@ -47,8 +47,8 @@ you can easily define your own one.
 
 ## Download latest version
 
-- [scaleApp 0.3.8.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.8)
-- [scaleApp 0.3.8.zip](https://github.com/flosse/scaleApp/zipball/v0.3.8)
+- [scaleApp 0.3.9.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.9)
+- [scaleApp 0.3.9.zip](https://github.com/flosse/scaleApp/zipball/v0.3.9)
 
 # Quick Start
 
@@ -573,26 +573,20 @@ You can find some example modules in `src/modules/`.
 
 # Build browser bundles
 
-Just type
-
-```shell
-cake bundle
-```
-that will create `scaleApp.js`, `scaleApp.min.js`, `scaleApp.full.js` and
-`scaleApp.full.min.js` whithin the `build/bundles/` directory.
-
 If you want scaleApp bundled with special plugins type
 
 ```shell
-cake -p [PLUGIN_NAME] bundle
+grunt custom[:PLUGIN_NAME]
 ```
-e.g. `cake -p dom,mvc bundle` creates the file `scaleApp.custom.js` that
+e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
 # Changelog
 
-#### v0.3.9 (??)
+#### v0.3.9 (12-2012)
 
+- extended clock module
+- grunt as build systemt
 - added waterfall flow control method
 - improved permission plugin
 - improved state plugin (thanks to Strathausen)
