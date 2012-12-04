@@ -1,6 +1,3 @@
-if module?.exports? and typeof require is "function"
-  util = require "./Util"
-
 class Mediator
 
   constructor: (obj, @cascadeChannels=false) ->
@@ -114,5 +111,3 @@ class Mediator
       else
         s.context isnt o
     ))
-
-module.exports = Mediator if module?.exports?

@@ -79,5 +79,3 @@ util =
   clone: clone
   getArgumentNames: getArgumentNames
   uniqueId: uniqueId
-
-if module?.exports? then module.exports = util

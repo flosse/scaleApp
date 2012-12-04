@@ -32,16 +32,16 @@ module.exports = function(grunt) {
     coffee: {
       compile: {
         files: {
-          "dist/scaleApp.js": 'dist/scaleApp.coffee',
+          "dist/scaleApp.js":  'dist/scaleApp.coffee',
           "dist/plugins/*.js": 'src/plugins/*.coffee',
           "dist/modules/*.js": 'src/modules/*.coffee'
-        }
+        },
       }
     },
     copy: {
       dist: {
         files: {
-          "dist/modules/":"src/modules/*.css",
+          "dist/modules/":"src/modules/*.css"
         }
       }
     },

@@ -1,5 +1,3 @@
-Mediator = window?.scaleApp?.Mediator or require? "../Mediator"
-
 permissions = {}
 
 addPermission = (id, action, channels) ->

@@ -4,7 +4,7 @@ describe "Util", ->
 
   before ->
     if typeof(require) is "function"
-      @util = require "../src/Util"
+      @util = require("../dist/scaleApp").util
     else if window?
       @util = window.scaleApp.util
 

@@ -4,7 +4,7 @@ describe "Mediator", ->
 
   before ->
     if typeof(require) is "function"
-      @Mediator = require "../src/Mediator"
+      @Mediator = require("../dist/scaleApp").Mediator
     else if window?
       @Mediator = window.scaleApp.Mediator
     @paul = new @Mediator

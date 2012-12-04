@@ -1,4 +1,4 @@
-Mediator = window?.scaleApp?.Mediator or require? "../Mediator"
+scaleApp = window?.scaleApp or require? "../scaleApp"
 
 baseLanguage = "en"
 
@@ -9,7 +9,7 @@ getBrowserLanguage = ->
 # By default the browsers language is used.
 lang = getBrowserLanguage()
 
-mediator = new Mediator
+mediator = new scaleApp.Mediator
 
 channelName = "i18n"
 
@@ -69,6 +69,6 @@ plugin =
       unsubscribe: unsubscribe
       setGlobal: setGlobal
 
-window?.scaleApp.registerPlugin plugin if window?.scaleApp?
+window.scaleApp.registerPlugin plugin if window?.scaleApp?
 module.exports = plugin if module?.exports?
 (define -> plugin) if define?.amd?

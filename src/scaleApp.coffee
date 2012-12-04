@@ -1,16 +1,8 @@
 # constants
 VERSION   = "0.3.9"
-FUNCTION  = "function"
-STRING    = "string"
-OBJECT    = "object"
 
 checkType = (type, val, name) ->
   throw new TypeError "#{name} has to be a #{type}" unless typeof val is type
-
-if module?.exports? and typeof require is FUNCTION and not require.amd?
-  Mediator  = require "./Mediator"
-  Sandbox   = require "./Sandbox"
-  util      = require "./Util"
 
 modules       = {}
 instances     = {}
@@ -24,10 +16,10 @@ onInstantiateFunctions = _always: []
 
 # registers a function that gets executed when a module gets instantiated.
 onInstantiate = (fn, moduleId) ->
-  checkType FUNCTION, fn, "parameter"
+  checkType "function", fn, "parameter"
   entry = { context: @, callback: fn }
 
-  if typeof moduleId is STRING
+  if typeof moduleId is "string"
     onInstantiateFunctions[moduleId] = [] unless onInstantiateFunctions[moduleId]?
     onInstantiateFunctions[moduleId].push entry
   else if not moduleId?
@@ -78,15 +70,15 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
 
 addModule = (moduleId, creator, opt) ->
 
-  checkType STRING,   moduleId, "module ID"
-  checkType FUNCTION, creator,  "creator"
-  checkType OBJECT,   opt,      "option parameter"
+  checkType "string",   moduleId, "module ID"
+  checkType "function", creator,  "creator"
+  checkType "object",   opt,      "option parameter"
 
   modObj = new creator()
 
-  checkType OBJECT,   modObj,         "the return value of the creator"
-  checkType FUNCTION, modObj.init,    "'init' of the module"
-  checkType FUNCTION, modObj.destroy, "'destroy' of the module "
+  checkType "object",   modObj,         "the return value of the creator"
+  checkType "function", modObj.init,    "'init' of the module"
+  checkType "function", modObj.destroy, "'destroy' of the module "
 
   throw new TypeError "module #{moduleId} was already registered" if modules[moduleId]?
 
@@ -104,8 +96,8 @@ register = (moduleId, creator, opt = {}) ->
     false
 
 setInstanceOptions = (instanceId, opt) ->
-  checkType STRING, instanceId, "instance ID"
-  checkType OBJECT, opt, "option parameter"
+  checkType "string", instanceId, "instance ID"
+  checkType "object", opt, "option parameter"
   instanceOpts[instanceId] ?= {}
   instanceOpts[instanceId][k] = v for k,v of opt
 
@@ -120,8 +112,8 @@ unregisterAll = (type) -> unregister id, type for id of type
 start = (moduleId, opt={}) ->
 
   try
-    checkType STRING, moduleId, "module ID"
-    checkType OBJECT, opt, "second parameter"
+    checkType "string", moduleId, "module ID"
+    checkType "object", opt, "second parameter"
     throw new Error "module doesn't exist" unless modules[moduleId]?
 
     instance = createInstance moduleId, opt.instanceId, opt.options
@@ -210,22 +202,22 @@ registerPlugin = (plugin) ->
   RESERVED_ERROR = new Error "plugin uses reserved keyword"
 
   try
-    checkType OBJECT, plugin,   "plugin"
-    checkType STRING, plugin.id, "'id' of plugin"
+    checkType "object", plugin, "plugin"
+    checkType "string", plugin.id, "'id' of plugin"
 
-    if typeof plugin.sandbox is FUNCTION
-      for k of new plugin.sandbox new Sandbox core, ""
+    if typeof plugin.sandbox is "function"
+      for k of new plugin.sandbox new Sandbox core, ''
         throw RESERVED_ERROR if k in sandboxKeywords
       Sandbox::[k] = v for k, v of plugin.sandbox::
 
-    if typeof plugin.core is OBJECT
+    if typeof plugin.core is "object"
       for k of plugin.core
         throw RESERVED_ERROR if k in coreKeywords
       for k,v of plugin.core
         core[k] = v
         exports?[k] = v
 
-    if typeof plugin.onInstantiate is FUNCTION
+    if typeof plugin.onInstantiate is "function"
       onInstantiate plugin.onInstantiate
 
     plugins[plugin.id] = plugin

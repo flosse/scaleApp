@@ -9,7 +9,7 @@ describe "scaleApp core", ->
   before ->
 
     if typeof(require) is "function"
-      @scaleApp  = require "../src/scaleApp"
+      @scaleApp  = require "../dist/scaleApp"
     else if window?
       @scaleApp  = window.scaleApp
 
@@ -136,6 +136,16 @@ describe "scaleApp core", ->
       it "returns false if instance was aleready started", ->
         @scaleApp.start "myId"
         (expect @scaleApp.start "myId").toBeFalsy()
+
+      it "passes the options", (done) ->
+        mod = (sb) ->
+          init: (opt) ->
+            (expect typeof opt).toEqual "object"
+            (expect opt.foo).toEqual "bar"
+            done()
+          destroy: ->
+        @scaleApp.register "foo", mod
+        @scaleApp.start "foo", options: {foo: "bar"}
 
       it "calls the callback function after the initialization", (done) ->
 

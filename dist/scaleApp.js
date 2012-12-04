@@ -1,13 +1,13 @@
 
 /*
-scaleapp - v0.3.9 - 2012-11-29
+scaleapp - v0.3.9 - 2012-12-04
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 */
 
 
 (function() {
-  var FUNCTION, Mediator, OBJECT, STRING, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+  var Mediator, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -186,14 +186,6 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     getArgumentNames: getArgumentNames,
     uniqueId: uniqueId
   };
-
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = util;
-  }
-
-  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === "function") {
-    util = require("./Util");
-  }
 
   Mediator = (function() {
 
@@ -376,10 +368,6 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   })();
 
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = Mediator;
-  }
-
   Sandbox = (function() {
 
     function Sandbox(core, instanceId, options) {
@@ -407,23 +395,11 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   VERSION = "0.3.9";
 
-  FUNCTION = "function";
-
-  STRING = "string";
-
-  OBJECT = "object";
-
   checkType = function(type, val, name) {
     if (typeof val !== type) {
       throw new TypeError("" + name + " has to be a " + type);
     }
   };
-
-  if (((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) && typeof require === FUNCTION && !(require.amd != null)) {
-    Mediator = require("./Mediator");
-    Sandbox = require("./Sandbox");
-    util = require("./Util");
-  }
 
   modules = {};
 
@@ -445,12 +421,12 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   onInstantiate = function(fn, moduleId) {
     var entry;
-    checkType(FUNCTION, fn, "parameter");
+    checkType("function", fn, "parameter");
     entry = {
       context: this,
       callback: fn
     };
-    if (typeof moduleId === STRING) {
+    if (typeof moduleId === "string") {
       if (onInstantiateFunctions[moduleId] == null) {
         onInstantiateFunctions[moduleId] = [];
       }
@@ -528,13 +504,13 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   addModule = function(moduleId, creator, opt) {
     var modObj;
-    checkType(STRING, moduleId, "module ID");
-    checkType(FUNCTION, creator, "creator");
-    checkType(OBJECT, opt, "option parameter");
+    checkType("string", moduleId, "module ID");
+    checkType("function", creator, "creator");
+    checkType("object", opt, "option parameter");
     modObj = new creator();
-    checkType(OBJECT, modObj, "the return value of the creator");
-    checkType(FUNCTION, modObj.init, "'init' of the module");
-    checkType(FUNCTION, modObj.destroy, "'destroy' of the module ");
+    checkType("object", modObj, "the return value of the creator");
+    checkType("function", modObj.init, "'init' of the module");
+    checkType("function", modObj.destroy, "'destroy' of the module ");
     if (modules[moduleId] != null) {
       throw new TypeError("module " + moduleId + " was already registered");
     }
@@ -560,8 +536,8 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   setInstanceOptions = function(instanceId, opt) {
     var k, v, _ref, _results;
-    checkType(STRING, instanceId, "instance ID");
-    checkType(OBJECT, opt, "option parameter");
+    checkType("string", instanceId, "instance ID");
+    checkType("object", opt, "option parameter");
     if ((_ref = instanceOpts[instanceId]) == null) {
       instanceOpts[instanceId] = {};
     }
@@ -596,8 +572,8 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       opt = {};
     }
     try {
-      checkType(STRING, moduleId, "module ID");
-      checkType(OBJECT, opt, "second parameter");
+      checkType("string", moduleId, "module ID");
+      checkType("object", opt, "second parameter");
       if (modules[moduleId] == null) {
         throw new Error("module doesn't exist");
       }
@@ -760,10 +736,10 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     var RESERVED_ERROR, k, v, _ref, _ref1;
     RESERVED_ERROR = new Error("plugin uses reserved keyword");
     try {
-      checkType(OBJECT, plugin, "plugin");
-      checkType(STRING, plugin.id, "'id' of plugin");
-      if (typeof plugin.sandbox === FUNCTION) {
-        for (k in new plugin.sandbox(new Sandbox(core, ""))) {
+      checkType("object", plugin, "plugin");
+      checkType("string", plugin.id, "'id' of plugin");
+      if (typeof plugin.sandbox === "function") {
+        for (k in new plugin.sandbox(new Sandbox(core, ''))) {
           if (__indexOf.call(sandboxKeywords, k) >= 0) {
             throw RESERVED_ERROR;
           }
@@ -774,7 +750,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
           Sandbox.prototype[k] = v;
         }
       }
-      if (typeof plugin.core === OBJECT) {
+      if (typeof plugin.core === "object") {
         for (k in plugin.core) {
           if (__indexOf.call(coreKeywords, k) >= 0) {
             throw RESERVED_ERROR;
@@ -789,7 +765,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
           }
         }
       }
-      if (typeof plugin.onInstantiate === FUNCTION) {
+      if (typeof plugin.onInstantiate === "function") {
         onInstantiate(plugin.onInstantiate);
       }
       plugins[plugin.id] = plugin;
