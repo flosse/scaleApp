@@ -4,8 +4,8 @@ describe "mvc plugin", ->
   
   before ->
     if typeof(require) is "function"
-      @scaleApp  = require "../../src/scaleApp"
-      @scaleApp.registerPlugin require "../../src/plugins/scaleApp.mvc"
+      @scaleApp  = require "../../dist/scaleApp"
+      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.mvc"
 
     else if window?
       @scaleApp  = window.scaleApp
