@@ -1,7 +1,7 @@
 {
   "name":         "scaleapp",
   "version":      "0.3.9",
-  "main":         "./lib/scaleApp",
+  "main":         "./dist/scaleApp",
   "description":  "scaleApp is a JavaScript framework for scalable One-Page-Applications",
   "author":       "Markus Kohlhase <mail@markus-kohlhase.de>",
   "homepage":     "http://www.scaleapp.org",
