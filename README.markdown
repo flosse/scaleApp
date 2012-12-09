@@ -554,6 +554,11 @@ scaleApp.registerPlugin
   # define the sandbox extensions
   sandbox: (@sb) ->
     appendFoo: -> @sb.getContainer.append "foo"
+
+  # define methods for module changes
+  on:
+    instantiate: ->
+    destroy: ->
 ```
 
 Usage:
@@ -582,6 +587,10 @@ e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
 # Changelog
+
+#### v0.4.0 (??-??)
+
+- emit events on module state changes
 
 #### v0.3.9 (12-2012)
 

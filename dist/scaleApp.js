@@ -1,13 +1,13 @@
 
 /*
-scaleapp - v0.3.9 - 2012-12-04
+scaleapp - v0.3.9 - 2012-12-09
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 */
 
 
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, modules, onInstantiate, onInstantiateFunctions, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+  var Mediator, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, moduleStateMediator, modules, onModuleState, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -350,6 +350,9 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
     Mediator._rm = function(o, ch, cb, ctxt) {
       var s;
+      if (o.channels[ch] == null) {
+        return;
+      }
       return o.channels[ch] = (function() {
         var _i, _len, _ref, _results;
         _ref = o.channels[ch];
@@ -393,7 +396,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     module.exports = Sandbox;
   }
 
-  VERSION = "0.3.9";
+  VERSION = "0.4.0";
 
   checkType = function(type, val, name) {
     if (typeof val !== type) {
@@ -415,25 +418,14 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     return typeof console !== "undefined" && console !== null ? typeof console.error === "function" ? console.error(e.message) : void 0 : void 0;
   };
 
-  onInstantiateFunctions = {
-    _always: []
-  };
+  moduleStateMediator = new Mediator;
 
-  onInstantiate = function(fn, moduleId) {
-    var entry;
-    checkType("function", fn, "parameter");
-    entry = {
-      context: this,
-      callback: fn
-    };
-    if (typeof moduleId === "string") {
-      if (onInstantiateFunctions[moduleId] == null) {
-        onInstantiateFunctions[moduleId] = [];
-      }
-      return onInstantiateFunctions[moduleId].push(entry);
-    } else if (!(moduleId != null)) {
-      return onInstantiateFunctions._always.push(entry);
+  onModuleState = function(state, fn, moduleId) {
+    if (moduleId == null) {
+      moduleId = '_always';
     }
+    checkType("function", fn, "parameter");
+    return moduleStateMediator.on("" + state + "/" + moduleId, fn, this);
   };
 
   getInstanceOptions = function(instanceId, module, opt) {
@@ -461,7 +453,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   createInstance = function(moduleId, instanceId, opt) {
-    var entry, i, iOpts, instance, k, module, n, p, plugin, sb, v, _i, _j, _len, _len1, _ref, _ref1;
+    var i, iOpts, instance, k, module, n, p, plugin, sb, v, _i, _len, _ref;
     if (instanceId == null) {
       instanceId = moduleId;
     }
@@ -491,13 +483,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     _ref = [instanceId, '_always'];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       n = _ref[_i];
-      if (onInstantiateFunctions[n] != null) {
-        _ref1 = onInstantiateFunctions[n];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          entry = _ref1[_j];
-          entry.callback.apply(entry.context);
-        }
-      }
+      moduleStateMediator.emit("instantiate/" + n);
     }
     return instance;
   };
@@ -603,7 +589,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   stop = function(id, cb) {
-    var instance;
+    var instance, n, _i, _len, _ref;
     if (instance = instances[id]) {
       mediator.unsubscribe(instance);
       if ((util.getArgumentNames(instance.destroy)).length >= 1) {
@@ -615,6 +601,12 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
         if (typeof cb === "function") {
           cb(null);
         }
+      }
+      _ref = [id, '_always'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        n = _ref[_i];
+        moduleStateMediator.unsubscribe("instantiate/" + n);
+        moduleStateMediator.emit("destroy/" + n);
       }
       delete instances[id];
       return true;
@@ -733,7 +725,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   registerPlugin = function(plugin) {
-    var RESERVED_ERROR, k, v, _ref, _ref1;
+    var RESERVED_ERROR, cb, ev, k, v, _ref, _ref1, _ref2;
     RESERVED_ERROR = new Error("plugin uses reserved keyword");
     try {
       checkType("object", plugin, "plugin");
@@ -765,8 +757,14 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
           }
         }
       }
-      if (typeof plugin.onInstantiate === "function") {
-        onInstantiate(plugin.onInstantiate);
+      if (typeof plugin.on === "object") {
+        _ref2 = plugin.on;
+        for (ev in _ref2) {
+          cb = _ref2[ev];
+          if (typeof cb === "function") {
+            onModuleState(ev, cb);
+          }
+        }
       }
       plugins[plugin.id] = plugin;
       return true;
@@ -793,6 +791,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       return unregisterAll(plugins);
     },
     setInstanceOptions: setInstanceOptions,
+    onModuleState: onModuleState,
     start: start,
     stop: stop,
     startAll: startAll,

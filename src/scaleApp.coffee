@@ -1,29 +1,21 @@
 # constants
-VERSION   = "0.3.9"
+VERSION   = "0.4.0"
 
 checkType = (type, val, name) ->
   throw new TypeError "#{name} has to be a #{type}" unless typeof val is type
 
-modules       = {}
-instances     = {}
-instanceOpts  = {}
-mediator      = new Mediator
-plugins       = {}
-error         = (e) -> console?.error? e.message
-
-# container for all functions that gets called when an instance gets created
-onInstantiateFunctions = _always: []
+modules             = {}
+instances           = {}
+instanceOpts        = {}
+mediator            = new Mediator
+plugins             = {}
+error               = (e) -> console?.error? e.message
+moduleStateMediator = new Mediator
 
 # registers a function that gets executed when a module gets instantiated.
-onInstantiate = (fn, moduleId) ->
+onModuleState = (state, fn, moduleId='_always') ->
   checkType "function", fn, "parameter"
-  entry = { context: @, callback: fn }
-
-  if typeof moduleId is "string"
-    onInstantiateFunctions[moduleId] = [] unless onInstantiateFunctions[moduleId]?
-    onInstantiateFunctions[moduleId].push entry
-  else if not moduleId?
-    onInstantiateFunctions._always.push entry
+  moduleStateMediator.on "#{state}/#{moduleId}", fn, @
 
 getInstanceOptions = (instanceId, module, opt) ->
 
@@ -64,7 +56,7 @@ createInstance = (moduleId, instanceId=moduleId, opt) ->
   instances[instanceId] = instance
 
   for n in [instanceId, '_always']
-    entry.callback.apply entry.context for entry in onInstantiateFunctions[n] if onInstantiateFunctions[n]?
+    moduleStateMediator.emit "instantiate/#{n}"
 
   instance
 
@@ -140,7 +132,6 @@ start = (moduleId, opt={}) ->
 stop = (id, cb) ->
   if instance = instances[id]
 
-    #i18n.unsubscribe instance
     mediator.unsubscribe instance
 
     # if the module wants destroy in an asynchronous way
@@ -152,6 +143,10 @@ stop = (id, cb) ->
       # else call the callback directly after stopping
       instance.destroy()
       cb? null
+
+    for n in [id, '_always']
+      moduleStateMediator.unsubscribe "instantiate/#{n}"
+      moduleStateMediator.emit "destroy/#{n}"
 
     # remove
     delete instances[id]
@@ -217,8 +212,9 @@ registerPlugin = (plugin) ->
         core[k] = v
         exports?[k] = v
 
-    if typeof plugin.onInstantiate is "function"
-      onInstantiate plugin.onInstantiate
+    if typeof plugin.on is "object"
+      for ev,cb of plugin.on when typeof cb is "function"
+        onModuleState ev, cb
 
     plugins[plugin.id] = plugin
     true
@@ -237,6 +233,7 @@ core =
   unregisterPlugin: (id) -> unregister id, plugins
   unregisterAllPlugins: -> unregisterAll plugins
   setInstanceOptions: setInstanceOptions
+  onModuleState: onModuleState
   start: start
   stop: stop
   startAll: startAll

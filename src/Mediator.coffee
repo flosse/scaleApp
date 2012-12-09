@@ -103,6 +103,7 @@ class Mediator
     @
 
   @_rm: (o, ch, cb, ctxt) ->
+    return unless o.channels[ch]?
     o.channels[ch] = (s for s in o.channels[ch] when (
       if cb?
         s.callback isnt cb

@@ -506,7 +506,9 @@ describe "scaleApp core", ->
         version: "0.2.4"
         sandbox: (sb) -> { yeah: "great" }
         core: { aKey: "txt", aFunc: -> }
-        onInstantiate: (sb, instanceId, opt) ->
+        on:
+          instantiate: (data) ->
+          destroy: (data) ->
 
     afterEach ->
       @scaleApp.stopAll()
@@ -616,3 +618,47 @@ describe "scaleApp core", ->
       @scaleApp.register "anId", aModule
       @scaleApp.registerPlugin @validPlugin
       @scaleApp.start "anId"
+
+  describe "onModuleState function", ->
+    before ->
+      @scaleApp.register "mod", (sb) ->
+        init: ->
+        destroy: ->
+    after ->
+      @scaleApp.stopAll()
+      @scaleApp.unregisterAll()
+
+    it "calls a registered method on instatiation", (done) ->
+      fn = (data, channel) ->
+        (expect channel).toEqual "instantiate/mod"
+      fn2 = (data, channel) ->
+        (expect channel).toEqual "instantiate/_always"
+        done()
+      @scaleApp.onModuleState "instantiate", fn, "mod"
+      @scaleApp.onModuleState "instantiate", fn2
+      @scaleApp.start "mod"
+
+    it "calls a registered method on destruction", (done) ->
+      fn = (data, channel) ->
+        (expect channel).toEqual "destroy/mod"
+        done()
+      @scaleApp.onModuleState "destroy", fn, "mod"
+      @scaleApp.start "mod"
+      @scaleApp.stop "mod"
+
+    it "registers the plugin methods", (done) ->
+      instFn = (data, channel) ->
+        (expect channel).toEqual "instantiate/_always"
+      destFn = (data, channel) ->
+        (expect channel).toEqual "destroy/_always"
+        done()
+
+      plugin =
+        id: "aplugin"
+        sandbox: (sb) ->
+        on:
+          instantiate: instFn
+          destroy: destFn
+      (expect @scaleApp.registerPlugin plugin).toBe true
+      (expect @scaleApp.start "mod").toBe true
+      (expect @scaleApp.stop "mod").toBe true
