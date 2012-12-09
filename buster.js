@@ -31,6 +31,11 @@ config["node-statemachine-plugin"] = {
   specs: ["spec/plugins/scaleApp.state.spec.coffee"],
 };
 
+config["node-submodule-plugin"] = {
+  environment: "node",
+  specs: ["spec/plugins/scaleApp.submodule.spec.coffee"],
+};
+
 config["browser-core"] = {
   environment: "browser",
   specs: ["spec/*.spec.coffee"],

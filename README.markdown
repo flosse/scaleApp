@@ -518,7 +518,7 @@ Or remove the subscribe permissions of all channels:
 scaleApp.permission.remove "moduleB", "subscribe"
 ```
 
-### strophe - XMPP plugin
+## strophe - XMPP plugin
 
 This is an adapter plugin for [Strophe.js](http://strophe.im/strophejs/) with
 some helpful features (e.g. automatically reconnect on page refresh).
@@ -527,6 +527,37 @@ some helpful features (e.g. automatically reconnect on page refresh).
 scaleApp.xmpp.login("myjid@server.tld", "myPassword");
 scaleApp.xmpp.logout();
 scaleApp.xmpp.jid       // the current JID
+```
+
+## submodule
+
+```javascript
+
+childModule = function(sb){
+  return({
+    init: function(){
+      // do sth.
+    },
+    destroy: function(){}
+  });
+});
+
+scaleApp.register("parent", function(sb){
+  return({
+    init: function(){
+      sb.register("child",childModule);
+      sb.start("child");
+    },
+    destroy: function(){}
+  });
+
+scaleApp.start("parent");
+// the "parent" module starts a child within the init method
+
+scaleApp.stop("parent");
+// all children of "parent" were automatically stopped
+});
+
 ```
 
 ## util - some helper functions
@@ -590,6 +621,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.4.0 (??-??)
 
+- new submodule plugin
 - emit events on module state changes
 
 #### v0.3.9 (12-2012)
