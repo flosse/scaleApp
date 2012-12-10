@@ -547,7 +547,7 @@ scaleApp.register("parent", function(sb){
   var childModule = function(sb){
     return({
       init: function(){
-        // do sth.
+        sb.emit("x", "yeah!");
       },
       destroy: function(){}
     });
@@ -555,8 +555,9 @@ scaleApp.register("parent", function(sb){
 
   return({
     init: function(){
-      sb.register("child",childModule);
-      sb.start("child");
+      sb.sub.register("child",childModule);
+      sb.permission.add("child", "emit", "x");
+      sb.sub.start("child");
     },
     destroy: function(){}
   });
@@ -636,7 +637,6 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.3.9 (12-2012)
 
-- extended clock module
 - grunt as build systemt
 - added waterfall flow control method
 - improved permission plugin
