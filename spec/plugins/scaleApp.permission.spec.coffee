@@ -39,8 +39,10 @@ describe "permission plugin", ->
     test = (sb) ->
       (expect typeof sb.subscribe).toEqual "function"
       (expect sb.subscribe "x", ->).toBe false
+      (expect sb.on "x", ->).toBe false
       (expect sb.unsubscribe "x", ->).toBe false
       (expect sb.publish "x").toBe false
+      (expect sb.emit "x").toBe false
       done()
 
     @run test
@@ -55,6 +57,7 @@ describe "permission plugin", ->
       (expect sb.subscribe "x", ->).not.toEqual false
       (expect sb.subscribe "a", ->).not.toEqual false
       (expect sb.subscribe "b", ->).not.toEqual false
+      #(expect sb.on "b", ->).not.toEqual false
       (expect sb.publish "x", ->).toBe false
       done()
 

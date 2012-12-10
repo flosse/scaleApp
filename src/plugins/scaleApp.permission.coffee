@@ -46,9 +46,12 @@ class SBPlugin
   constructor: (sb) ->
 
     # override original functions
-    tweakSandboxMethod sb, "subscribe"
-    tweakSandboxMethod sb, "publish"
-    tweakSandboxMethod sb, "unsubscribe"
+    tweakSandboxMethod sb, a for a in [
+     "subscribe"
+     "on"
+     "publish"
+     "emit"
+     "unsubscribe" ]
 
 plugin =
   id: "permission"

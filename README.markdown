@@ -42,8 +42,17 @@ clean and scaleable architecture.
 ## Extendable
 
 scaleApp itself is very small but it can be extended with plugins. There already
-are some plugins available (e.g. `mvc`, `i18n`, `permission`, `state`, etc.) but
-you can easily define your own one.
+are some plugins available:
+
+- `mvc` - simple MVC
+- `i18n` - multi language UIs
+- `permission` - take care of method access
+- `state` - Finite State Machine
+- `submodule` - cascade modules
+- `dom` - DOM manipulation
+- `strophe` - XMPP communication
+
+You can easily define your own plugin (see plugin section).
 
 ## Download latest version
 
@@ -533,16 +542,17 @@ scaleApp.xmpp.jid       // the current JID
 
 ```javascript
 
-childModule = function(sb){
-  return({
-    init: function(){
-      // do sth.
-    },
-    destroy: function(){}
-  });
-});
-
 scaleApp.register("parent", function(sb){
+
+  var childModule = function(sb){
+    return({
+      init: function(){
+        // do sth.
+      },
+      destroy: function(){}
+    });
+  });
+
   return({
     init: function(){
       sb.register("child",childModule);
@@ -550,6 +560,7 @@ scaleApp.register("parent", function(sb){
     },
     destroy: function(){}
   });
+
 });
 
 scaleApp.start("parent");
