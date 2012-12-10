@@ -550,14 +550,13 @@ scaleApp.register("parent", function(sb){
     },
     destroy: function(){}
   });
+});
 
 scaleApp.start("parent");
 // the "parent" module starts a child within the init method
 
 scaleApp.stop("parent");
 // all children of "parent" were automatically stopped
-});
-
 ```
 
 ## util - some helper functions
