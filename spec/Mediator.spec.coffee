@@ -82,7 +82,7 @@ describe "Mediator", ->
       (expect cb1.callCount).toEqual 1
       (expect cb2.callCount).toEqual 1
 
-  describe "unsubscribe function", ->
+  describe "off function", ->
 
     it "removes a subscription from a channel", ->
       ch = "a channel"
@@ -94,7 +94,7 @@ describe "Mediator", ->
       sub = @paul.subscribe ch, cb2
 
       @paul.publish ch, "hello"
-      @paul.unsubscribe ch, cb1
+      @paul.off ch, cb1
       @paul.publish ch, "hello2"
       (expect cb1.callCount).toEqual 1
       (expect cb2.callCount).toEqual 2

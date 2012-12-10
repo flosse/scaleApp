@@ -1,6 +1,6 @@
 
 /*
-scaleapp - v0.3.9 - 2012-12-09
+scaleapp - v0.4.0 - 2012-12-10
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -274,6 +274,8 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       }
       return this;
     };
+
+    Mediator.prototype.off = Mediator.prototype.unsubscribe;
 
     Mediator.prototype.publish = function(channel, data, opt) {
       var chnls, copy, sub, subscribers, tasks;

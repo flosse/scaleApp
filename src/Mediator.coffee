@@ -50,6 +50,9 @@ class Mediator
       when "object"    then Mediator._rm @,id,null,ch for id of @channels
     @
 
+  # Alias for unsubscribe
+  off: @::unsubscribe
+
   # ## Publish an event
   #
   # Parameters:
