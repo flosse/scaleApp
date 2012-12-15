@@ -2,281 +2,282 @@
 Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
-if not window?
-  throw new Error "This plugin only can be used in the browser"
-else
-  scaleApp = window.scaleApp
+throw new Error "This plugin only can be used in the browser" unless window?
+throw new Error "This plugin requires strophe.js" unless window.Strophe?
 
-  ID           = "xmpp"
-  DEFAULT_PATH = "http-bind/"
-  DEFAULT_PORT = 5280
-  CACHE_PREFIX = "scaleApp.#{ID}.cache."
+scaleApp = window.scaleApp
 
-  # Variable that holds the Strophe connection object
-  connection = null
+mediator = new scaleApp.Mediator
 
-  # Object that holds all connection sepecific options.
-  connection_options =
-    host: document.domain
-    port: DEFAULT_PORT
-    path: DEFAULT_PATH
-    jid: null
-    sid: null
-    rid: null
+ID           = "xmpp"
+DEFAULT_PATH = "http-bind/"
+DEFAULT_PORT = 5280
+CACHE_PREFIX = "scaleApp.#{ID}.cache."
 
-  # Generates an appropriate bosh url for the connection.
-  #
-  # Parameters:
-  # (Object) opt - option object
-  get_bosh_url = (opt) ->
+# Variable that holds the Strophe connection object
+connection = null
 
-    domain = document.domain
+# Object that holds all connection sepecific options.
+connection_options =
+  host: document.domain
+  port: DEFAULT_PORT
+  path: DEFAULT_PATH
+  jid: null
+  sid: null
+  rid: null
 
-    # there are 2^3 = 8 cases
+# Generates an appropriate bosh url for the connection.
+#
+# Parameters:
+# (Object) opt - option object
+get_bosh_url = (opt) ->
 
-    if typeof opt is "object"
+  domain = document.domain
 
-      if opt.port
-        opt.port = opt.port * 1
-        if isNaN opt.port
-          console.warn "the defined port #{ opt.port } is not a number."
-          opt.port = null
+  # there are 2^3 = 8 cases
 
-      # case 1
-      if opt.host and opt.port and opt.path
-        return "http://#{ opt.host }:#{ opt.port }/#{ opt.path }"
+  if typeof opt is "object"
 
-      # case 2
-      if opt.host and opt.port and not opt.path
-        return "http://#{ opt.host }:#{ opt.port }/#{ DEFAULT_PATH }"
+    if opt.port
+      opt.port = opt.port * 1
+      if isNaN opt.port
+        console.warn "the defined port #{ opt.port } is not a number."
+        opt.port = null
 
-      # case 3
-      if opt.host and not opt.port and opt.path
-        return "http://#{ opt.host }/#{ opt.path }"
+    # case 1
+    if opt.host and opt.port and opt.path
+      return "http://#{ opt.host }:#{ opt.port }/#{ opt.path }"
 
-      # case 4
-      if opt.host and not opt.port and not opt.path
-        return "http://#{ opt.host }/#{ DEFAULT_PATH }"
+    # case 2
+    if opt.host and opt.port and not opt.path
+      return "http://#{ opt.host }:#{ opt.port }/#{ DEFAULT_PATH }"
 
-      # case 5
-      if not opt.host and opt.port and opt.path
-        return "http://#{ domain }:#{ opt.port }/#{ opt.path }"
+    # case 3
+    if opt.host and not opt.port and opt.path
+      return "http://#{ opt.host }/#{ opt.path }"
 
-      # case 6
-      if not opt.host and opt.port and not opt.path
-        return "http://#{ domain }:#{ opt.port }/#{ DEFAULT_PATH }"
+    # case 4
+    if opt.host and not opt.port and not opt.path
+      return "http://#{ opt.host }/#{ DEFAULT_PATH }"
 
-      # case 7
-      if not opt.host and not opt.port and opt.path
-        return "http://#{ domain }/#{ opt.path }"
+    # case 5
+    if not opt.host and opt.port and opt.path
+      return "http://#{ domain }:#{ opt.port }/#{ opt.path }"
 
-      # case 8
-      if not opt.host and not opt.port and not opt.path
-        return "http://#{ domain }/#{ DEFAULT_PATH }"
+    # case 6
+    if not opt.host and opt.port and not opt.path
+      return "http://#{ domain }:#{ opt.port }/#{ DEFAULT_PATH }"
 
-    # fallback
-    "http://#{ domain }/#{ DEFAULT_PATH }"
+    # case 7
+    if not opt.host and not opt.port and opt.path
+      return "http://#{ domain }/#{ opt.path }"
 
-  # Creates a new Strophe.Connection object with the appropriate options.
-  create_connection_obj = ->
+    # case 8
+    if not opt.host and not opt.port and not opt.path
+      return "http://#{ domain }/#{ DEFAULT_PATH }"
 
-    new Strophe.Connection get_bosh_url
-      path: connection_options.path
-      host: connection_options.host
-      port: connection_options.port
+  # fallback
+  "http://#{ domain }/#{ DEFAULT_PATH }"
 
-  key2cache   = (k) -> "#{CACHE_PREFIX}#{k}"
-  cache2key   = (c) -> c.split(CACHE_PREFIX)[1]
+# Creates a new Strophe.Connection object with the appropriate options.
+create_connection_obj = ->
 
-  saveData = ->
-    if localStorage?
-      for k in ["jid", "sid", "rid"] when connection[k]?
-        localStorage[key2cache k] = connection[k]
+  new Strophe.Connection get_bosh_url
+    path: connection_options.path
+    host: connection_options.host
+    port: connection_options.port
 
-      for k in ["host", "port", "path"] when connection_options[k]?
-        localStorage[key2cache k] = connection_options[k]
+key2cache   = (k) -> "#{CACHE_PREFIX}#{k}"
+cache2key   = (c) -> c.split(CACHE_PREFIX)[1]
 
-  clearData = -> localStorage?.clear()
+saveData = ->
+  if localStorage?
+    for k in ["jid", "sid", "rid"] when connection[k]?
+      localStorage[key2cache k] = connection[k]
 
-  onConnected = ->
+    for k in ["host", "port", "path"] when connection_options[k]?
+      localStorage[key2cache k] = connection_options[k]
 
-    # The BOSH connection get aborted by the escapae event.
-    # Therefore we have to prevent it!
+clearData = -> localStorage?.clear()
 
-    fn       = (ev) -> ev.preventDefault?() if ev.keyCode is 27
-    onunload = -> if connection then saveData() else clearData()
+onConnected = ->
 
-    if document.addEventListener?
-      for e in ["keydown", "keypress", "keyup"]
-        document.addEventListener e, fn, false
+  # The BOSH connection get aborted by the escapae event.
+  # Therefore we have to prevent it!
 
-      # Save connection properties before reloading the page.
-      window.addEventListener "unload", onunload, false
+  fn       = (ev) -> ev.preventDefault?() if ev.keyCode is 27
+  onunload = -> if connection then saveData() else clearData()
 
-    else if document.attachEvent?
-      for e in ["onkeydown", "onkeypress", "onkeyup"]
-        document.attachEvent e, fn
+  if document.addEventListener?
+    for e in ["keydown", "keypress", "keyup"]
+      document.addEventListener e, fn, false
 
-      # Save connection properties before reloading the page.
-      document.attachEvent "onunload", onunload
+    # Save connection properties before reloading the page.
+    window.addEventListener "unload", onunload, false
 
-    connection.send $pres()
+  else if document.attachEvent?
+    for e in ["onkeydown", "onkeypress", "onkeyup"]
+      document.attachEvent e, fn
 
-  statusCodeToString = (s) ->
-    switch s
-      when 0 then "Error"
-      when 1 then "Connecting"
-      when 2 then "Connection failed"
-      when 3 then "Authenticating"
-      when 4 then "Authentication failed"
-      when 5 then "Connected"
-      when 6 then "Disconnected"
-      when 7 then "Disconnecting"
-      when 8 then "Reconnected"
+    # Save connection properties before reloading the page.
+    document.attachEvent "onunload", onunload
 
-  # Processes the Strophe connection staus.
-  #
-  # Parameters:
-  # (int) status - The connection status code. See <Strophe.Status>
+  connection.send $pres()
 
-  on_connection_change = (status) ->
+statusCodeToString = (s) ->
+  switch s
+    when 0 then "Error"
+    when 1 then "Connecting"
+    when 2 then "Connection failed"
+    when 3 then "Authenticating"
+    when 4 then "Authentication failed"
+    when 5 then "Connected"
+    when 6 then "Disconnected"
+    when 7 then "Disconnecting"
+    when 8 then "Reconnected"
 
-    console.info "xmpp status changed: " + statusCodeToString status
+# Processes the Strophe connection staus.
+#
+# Parameters:
+# (int) status - The connection status code. See <Strophe.Status>
 
-    s = Strophe.Status
+on_connection_change = (status) ->
 
-    switch status
+  console.info "xmpp status changed: " + statusCodeToString status
 
-      when s.ERROR
-        resetPlugin()
-        scaleApp.emit "#{ID}/error", "an error occoured"
-      when s.CONNECTING
-        resetPlugin()
-        scaleApp.emit "#{ID}/connecting"
-      when s.CONFAIL
-        resetPlugin()
-        scaleApp.emit "#{ID}/error", "could not connect to xmpp server"
-      when s.AUTHENTICATING
-        resetPlugin()
-        scaleApp.emit "#{ID}/authenticating"
-      when s.AUTHFAIL
-        resetPlugin()
-        scaleApp.emit "#{ID}/authfail"
-      when s.CONNECTED
-        updatePlugin connection
-        onConnected()
-        scaleApp.emit "#{ID}/connected"
-      when s.DISCONNECTED
-        clearData()
-        resetPlugin()
-        scaleApp.emit "#{ID}/disconnected"
-      when s.DISCONNECTING
-        resetPlugin()
-        scaleApp.emit "#{ID}/disconnecting"
-      when s.ATTACHED
-        updatePlugin connection
-        onConnected()
-        scaleApp.emit "#{ID}/attached"
+  s = Strophe.Status
 
-  resetPlugin = ->
-    xmppPlugin.connection = null
-    xmppPlugin.jid = ""
+  switch status
 
-  updatePlugin = (conn) ->
-    xmppPlugin.connection = conn
-    xmppPlugin.jid = conn.jid
+    when s.ERROR
+      resetPlugin()
+      mediator.emit "error", "an error occoured"
+    when s.CONNECTING
+      resetPlugin()
+      mediator.emit "connecting"
+    when s.CONFAIL
+      resetPlugin()
+      mediator.emit "error", "could not connect to xmpp server"
+    when s.AUTHENTICATING
+      resetPlugin()
+      mediator.emit "authenticating"
+    when s.AUTHFAIL
+      resetPlugin()
+      mediator.emit "authfail"
+    when s.CONNECTED
+      updatePlugin connection
+      onConnected()
+      mediator.emit "connected"
+    when s.DISCONNECTED
+      clearData()
+      resetPlugin()
+      mediator.emit "disconnected"
+    when s.DISCONNECTING
+      resetPlugin()
+      mediator.emit "disconnecting"
+    when s.ATTACHED
+      updatePlugin connection
+      onConnected()
+      mediator.emit "attached"
 
-  # Attaches an existing connection to the Strophe connection object.
-  #
-  # Parameters:
-  # (Object) cookie - the cookie object that contains the connection properties
-  # like host, port, path, rid, sid and jid.
-  attach_connection = (opt) ->
+resetPlugin = ->
+  xmppPlugin.connection = null
+  xmppPlugin.jid = ""
 
-    connection = create_connection_obj()
-    connection_options.jid = Strophe.getBareJidFromJid connection_options.jid
-    connection.attach connection_options.jid
-      , connection_options.sid
-      , connection_options.rid
-      , on_connection_change
-      , 60
+updatePlugin = (conn) ->
+  xmppPlugin.connection = conn
+  xmppPlugin.jid = conn.jid
 
-  # Connects to the xmpp server and login with the given JID.
-  #
-  # Parameters:
-  # (String) jid  - Jabber ID
-  # (String) pw - Password
-  # (Object) opt - Connection options.
+# Attaches an existing connection to the Strophe connection object.
+#
+# Parameters:
+# (Object) cookie - the cookie object that contains the connection properties
+# like host, port, path, rid, sid and jid.
+attach_connection = (opt) ->
 
-  login = (jid, pw, opt) ->
+  connection = create_connection_obj()
+  connection_options.jid = Strophe.getBareJidFromJid connection_options.jid
+  connection.attach connection_options.jid
+    , connection_options.sid
+    , connection_options.rid
+    , on_connection_change
+    , 60
 
-    if opt?
-      connection_options.path = opt.path if opt.path
-      connection_options.port = opt.port if opt.port
-      connection_options.host = opt.host if opt.host
+# Connects to the xmpp server and login with the given JID.
+#
+# Parameters:
+# (String) jid  - Jabber ID
+# (String) pw - Password
+# (Object) opt - Connection options.
 
-    connection = create_connection_obj()
-    connection.connect jid, pw, on_connection_change
+login = (jid, pw, opt) ->
 
-  disconnect = ->
+  if opt?
+    connection_options.path = opt.path if opt.path
+    connection_options.port = opt.port if opt.port
+    connection_options.host = opt.host if opt.host
 
-    console.debug "try to disconnect"
+  connection = create_connection_obj()
+  connection.connect jid, pw, on_connection_change
 
-    if connection isnt null
-      connection.send $pres(type: "unavailable")
-      connection.pause()
-      connection.disconnect()
-    clearData()
+disconnect = ->
 
-  # Converts a Jabber ID to an css friendly id.
-  #
-  # It replaces '.' and '@' with '-'.
-  #
-  # Parameters:
-  # (String) - Jabber ID
-  jid_to_id = (jid) ->
-    Strophe.getBareJidFromJid(jid)
-      .replace("@", "-")
-      .replace(".", "-")
-      .replace ".", "-"
+  console.debug "try to disconnect"
 
-  # Loads the connection data from local storage.
-  restoreData = ->
-    if localStorage?
-      for k in [ "jid", "sid", "rid", "host", "port", "path" ]
-        j = cache2key k
-        connection_options[k] = localStorage[j]  if localStorage[j]
+  if connection isnt null
+    connection.send $pres(type: "unavailable")
+    connection.pause()
+    connection.disconnect()
+  clearData()
 
-  hasConnectionData = ->
-    opt = connection_options
-    for k in [ "jid", "sid", "rid"  ]
-      if not opt[k] or opt[k] is 'null' or opt[k] is 'undefined'
-        return false
-    true
+# Converts a Jabber ID to an css friendly id.
+#
+# It replaces '.' and '@' with '-'.
+#
+# Parameters:
+# (String) - Jabber ID
+jid_to_id = (jid) ->
+  Strophe.getBareJidFromJid(jid)
+    .replace("@", "-")
+    .replace(".", "-")
+    .replace ".", "-"
 
-  init = ->
-    if not Strophe?
-      throw new Error "This plugin requires strophe.js"
-    else
-      restoreData()
-      if hasConnectionData()
-        attach_connection()
-      else
-        scaleApp.emit "#{ID}/disconnected"
+# Loads the connection data from local storage.
+restoreData = ->
+  if localStorage?
+    for k in [ "jid", "sid", "rid", "host", "port", "path" ]
+      j = cache2key k
+      connection_options[k] = localStorage[j]  if localStorage[j]
 
-  # TODO: create core plugin
-  xmppPlugin =
-    init:       init
-    jid:        ""
-    connection: null
-    login:      login
-    logout:     disconnect
+hasConnectionData = ->
+  opt = connection_options
+  for k in [ "jid", "sid", "rid"  ]
+    if not opt[k] or opt[k] is 'null' or opt[k] is 'undefined'
+      return false
+  true
 
-  plugin =
-    id: ID
-    base:
-      xmpp: xmppPlugin
+init = ->
+  restoreData()
+  if hasConnectionData()
+    attach_connection()
+  else
+    mediator.emit "disconnected"
 
-  scaleApp.plugin.register plugin if window?.scaleApp?
-  module.exports = plugin if module?.exports?
-  (define -> plugin) if define?.amd?
+# TODO: create core plugin
+xmppPlugin =
+  init:       init
+  jid:        ""
+  connection: null
+  login:      login
+  logout:     disconnect
+  on:  -> mediator.on.apply mediator, arguments
+  off: -> mediator.off.apply mediator, arguments
+
+plugin =
+  id: ID
+  base:
+    xmpp: xmppPlugin
+
+scaleApp.plugin.register plugin if window?.scaleApp?
+module.exports = plugin if module?.exports?
+(define -> plugin) if define?.amd?
