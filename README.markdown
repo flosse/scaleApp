@@ -242,16 +242,16 @@ lsInstances() // returns an array of all running instance IDs
 
 ## Publish/Subscribe
 
-If the module needs to communicate with others, you can use the `publish` and
-`subscribe` methods.
+If the module needs to communicate with others, you can use the `emit` and
+`on` methods.
 
 ### Publish
 
-The `publish` function takes three parameters whereas the last one is optional:
+The `emit` function takes three parameters whereas the last one is optional:
 - `topic` : the channel name you want to publish to
 - `data`  : the data itself
 - `opt`   : options or callback
-    - `publishReference` : If the data should be passed as a reference to the
+    - `emitReference` : If the data should be passed as a reference to the
        other modules this parameter has to be set to `true`.
        By default the data object gets copied so that other modules can't
        influence the original object.
@@ -259,7 +259,7 @@ The `publish` function takes three parameters whereas the last one is optional:
 The publish function is accessible through the sandbox:
 
 ```javascript
-sb.publish( "myEventTopic", myData );
+sb.emit( "myEventTopic", myData );
 ```
 
 You can also use the shorter method alias `emit`.
@@ -272,7 +272,7 @@ A message handler could look like this:
 var messageHandler = function( data, topic ){
   switch( topic ){
     case "somethingHappend":
-      sb.publish( "myEventTopic", processData(data) );
+      sb.emit( "myEventTopic", processData(data) );
       break;
     case "aNiceTopic":
       justProcess( data );
@@ -284,13 +284,13 @@ var messageHandler = function( data, topic ){
 ... and it can listen to one or more channels:
 
 ```javascript
-sub1 = sb.subscribe( "somthingHappend", messageHandler );
-sub2 = sb.subscribe( "aNiceTopic", messageHandler );
+sub1 = sb.on( "somthingHappend", messageHandler );
+sub2 = sb.on( "aNiceTopic", messageHandler );
 ```
 Or just do it at once:
 
 ```javascript
-sb.subscribe({
+sb.on({
   topicA: cbA
   topicB: cbB
   topicC: cbC
@@ -300,7 +300,7 @@ sb.subscribe({
 You can also subscribe to several channels at once:
 
 ```javascript
-sb.subscribe(["a", "b"], cb);
+sb.on(["a", "b"], cb);
 ```
 
 If you prefer a shorter method name you can use the alias `on`.
@@ -319,19 +319,19 @@ sub.attach(); // receive upcoming messages
 You can unsubscribe a function from a channel
 
 ```javascript
-sb.unsubscribe("a-channel", callback);
+sb.off("a-channel", callback);
 ```
 
 And you can remove a callback function from all channels
 
 ```javascript
-sb.unsubscribe(callback);
+sb.off(callback);
 ```
 
 Or remove all subscriptions from a channel:
 
 ```javascript
-sb.unsubscribe("channelName");
+sb.off("channelName");
 ```
 
 ## Flow control
@@ -458,17 +458,17 @@ core.registerModule "myModule", (@sb) ->
     @c = new MyController @m, @v
 
     # listen to the "changeName" event
-    @sb.subscribe "changeName", @c.changeName, @c
+    @sb.on "changeName", @c.changeName, @c
 
   destroy: ->
     delete @c
     delete @v
     delete @m
-    @sb.unsubscribe @
+    @sb.off @
 ```
 
 ```coffeescript
-core.publish "changeName", "Peter"
+core.emit "changeName", "Peter"
 ```
 ## state - Finite State Machine
 
@@ -515,24 +515,24 @@ If you include the `permission` plugin, all `Mediator` methods will be rejected
 by default to enforce you to permit any message method explicitely.
 
 ```coffeescript
-core.permission.add "instanceA", "subscribe", "a"
-core.permission.add "instanceB", "publish", ["b", "c"]
+core.permission.add "instanceA", "on", "a"
+core.permission.add "instanceB", "emit", ["b", "c"]
 ```
 
 Now `instanceA` is allowed to subscribe to channel `a` but `instanceB` cannot
-subscribe to it. Therefore `instanceB` can publish data on channel `a` and
+subscribe to it. Therefore `instanceB` can emit data on channel `a` and
 `instanceB` can not.
 
 Of course you can remove a permission at any time:
 
 ```coffeescript
-core.permission.remove "moduleA", "publish", "x"
+core.permission.remove "moduleA", "emit", "x"
 ```
 
 Or remove the subscribe permissions of all channels:
 
 ```coffeescript
-core.permission.remove "moduleB", "subscribe"
+core.permission.remove "moduleB", "on"
 ```
 
 ## strophe - XMPP plugin
@@ -644,6 +644,8 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.4.0 (??-??)
 
+- drop `subscribe`, `unsubscribe`, `publish` from Mediator API
+  (use `on`, `off` and `emit` instead)
 - added a Core class that can be instantiated
 - new submodule plugin
 - emit events on module state changes

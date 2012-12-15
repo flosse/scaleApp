@@ -12,15 +12,15 @@ class Mediator
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
   # - (Object) context    - The context the function(s) belongs to
-  subscribe: (channel, fn, context=@) ->
+  on: (channel, fn, context=@) ->
 
     @channels[channel] ?= []
     that = @
 
     if channel instanceof Array
-      @subscribe id, fn, context for id in channel
+      @on id, fn, context for id in channel
     else if typeof channel is "object"
-      @subscribe k,v,fn for k,v of channel
+      @on k,v,fn for k,v of channel
     else
       return false unless typeof fn      is "function"
       return false unless typeof channel is "string"
@@ -30,9 +30,6 @@ class Mediator
         detach: -> Mediator._rm that, channel, subscription.callback; @
       ).attach()
 
-  # Alias for subscribe
-  on: @::subscribe
-
   # ## Unsubscribe from a topic
   #
   # Parameters:
@@ -40,7 +37,7 @@ class Mediator
   # - (String) topic      - The topic name
   # - (Function) callback - The function that gets called if an other module
   #                         publishes to the specified topic
-  unsubscribe: (ch, cb) ->
+  off: (ch, cb) ->
     switch typeof ch
       when "string"
         Mediator._rm @,ch,cb if typeof cb is "function"
@@ -50,9 +47,6 @@ class Mediator
       when "object"    then Mediator._rm @,id,null,ch for id of @channels
     @
 
-  # Alias for unsubscribe
-  off: @::unsubscribe
-
   # ## Publish an event
   #
   # Parameters:
@@ -60,13 +54,13 @@ class Mediator
   # (Object) data              - The data that gets published
   # (Object)
   #     callback:              - callback metthod
-  #     publishReference       - If the data should be passed as a reference to
+  #     emitReference         - If the data should be passed as a reference to
   #                              the other modules this parameter has to be set
   #                              to *true*.
   #                              By default the data object gets copied so that
   #                              other modules can't influence the original
   #                              object.
-  publish: (channel, data, opt={}) ->
+  emit: (channel, data, opt={}) ->
 
     if typeof data is "function"
       opt  = data
@@ -74,7 +68,7 @@ class Mediator
     return false unless typeof channel is "string"
     subscribers = @channels[channel] or []
 
-    if typeof data is "object" and opt.publishReference isnt true
+    if typeof data is "object" and opt.emitReference isnt true
       copy = util.clone data
 
     tasks = for sub in subscribers then do (sub) ->
@@ -93,11 +87,8 @@ class Mediator
       opt? e), true
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
-      @publish chnls[0...-1].join('/'), data, opt
+      @emit chnls[0...-1].join('/'), data, opt
     @
-
-  # Alias for publish
-  emit: @::publish
 
   # ## Install Pub/Sub functions to an object
   installTo: (obj) ->

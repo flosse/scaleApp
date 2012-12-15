@@ -126,7 +126,7 @@ start = (moduleId, opt={}) ->
 stop = (id, cb) ->
   if instance = @instances[id]
 
-    @mediator.unsubscribe instance
+    @mediator.off instance
 
     # if the module wants destroy in an asynchronous way
     if (util.getArgumentNames instance.destroy).length >= 1
@@ -139,7 +139,7 @@ stop = (id, cb) ->
       cb? null
 
     for n in [id, '_always']
-      @moduleStates.unsubscribe "instantiate/#{n}"
+      @moduleStates.off "instantiate/#{n}"
       @moduleStates.emit "destroy/#{n}"
 
     # remove
@@ -227,12 +227,9 @@ class Core
   startAll:           -> startAll.apply @, arguments
   stop:               -> stop.apply     @, arguments
   stopAll:            -> stopAll.apply  @, arguments
-  publish:            -> @mediator.publish.apply     @mediator, arguments
-  subscribe:          -> @mediator.subscribe.apply   @mediator, arguments
-  on:                 -> @mediator.subscribe.apply   @mediator, arguments
-  unsubscribe:        -> @mediator.unsubscribe.apply @mediator, arguments
-  publish:            -> @mediator.publish.apply     @mediator, arguments
-  emit:               -> @mediator.publish.apply     @mediator, arguments
+  on:                 -> @mediator.on.apply   @mediator, arguments
+  off:                -> @mediator.off.apply  @mediator, arguments
+  emit:               -> @mediator.emit.apply @mediator, arguments
   unregisterAll:      -> unregisterAll  @modules
   unregister: (id)    -> unregister id, @modules
   onModuleState:      -> onModuleState.apply      @, arguments

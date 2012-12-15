@@ -46,12 +46,7 @@ class SBPlugin
   constructor: (sb) ->
 
     # override original functions
-    tweakSandboxMethod sb, a for a in [
-     "subscribe"
-     "on"
-     "publish"
-     "emit"
-     "unsubscribe" ]
+    tweakSandboxMethod sb, a for a in ["on", "emit", "off"]
 
 plugin =
   id: "permission"
@@ -61,6 +56,6 @@ plugin =
       add: addPermission
       remove: removePermission
 
-window.scaleApp.registerPlugin plugin if window?.scaleApp?
+window.scaleApp.plugin.register plugin if window?.scaleApp?
 module.exports = plugin if module?.exports?
 (define -> plugin) if define?.amd?

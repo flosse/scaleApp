@@ -31,8 +31,8 @@ describe "mvc plugin", ->
       @m = new @scaleApp.Model { id: "myId" }
       (expect @m.id).toEqual "myId"
 
-    it "provides a subscribe function", ->
-      (expect typeof @m.subscribe).toEqual "function"
+    it "provides a on function", ->
+      (expect typeof @m.on).toEqual "function"
 
     it "modifies a new value", ->
       @m = new @scaleApp.Model { key: "value" }
@@ -60,14 +60,14 @@ describe "mvc plugin", ->
     it "publishes a 'changed' event", ->
       cb = sinon.spy()
       @m = new @scaleApp.Model { key: "value" }
-      @m.subscribe "changed", cb
+      @m.on "changed", cb
       @m.set "key", 123
       (expect cb).toHaveBeenCalled()
 
     it "does not publishes a 'changed' event if the value is the same", ->
       cb = sinon.spy()
       @m = new @scaleApp.Model { key: "value" }
-      @m.subscribe "changed", cb
+      @m.on "changed", cb
       @m.set "key", "value"
       (expect cb).not.toHaveBeenCalled()
 

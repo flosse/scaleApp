@@ -40,7 +40,7 @@ class CorePlugin
       setLanguage: (code) ->
         if typeof code is "string"
           lang = code
-          mediator.publish channelName, lang
+          mediator.emit channelName, lang
       getLanguage: -> lang
       setGlobal: (obj) ->
         if typeof obj is "object"

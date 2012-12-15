@@ -38,11 +38,10 @@ describe "permission plugin", ->
   it "rejects all mediator methods if no explicit permission was defined", (done) ->
 
     test = (sb) ->
-      (expect typeof sb.subscribe).toEqual "function"
-      (expect sb.subscribe "x", ->).toBe false
+      (expect typeof sb.on).toEqual "function"
       (expect sb.on "x", ->).toBe false
-      (expect sb.unsubscribe "x", ->).toBe false
-      (expect sb.publish "x").toBe false
+      (expect sb.off "x", ->).toBe false
+      (expect sb.emit "x").toBe false
       (expect sb.emit "x").toBe false
       done()
 
@@ -50,45 +49,44 @@ describe "permission plugin", ->
 
   it "executes the required methods if a permission was defined", (done) ->
 
-    @core.permission.add "anId", "subscribe", "x"
-    @core.permission.add "anId", "subscribe", ["a", "b"]
+    @core.permission.add "anId", "on", "x"
+    @core.permission.add "anId", "on", ["a", "b"]
 
     test = (sb) ->
-      (expect sb.subscribe "y", ->).toEqual false
-      (expect sb.subscribe "x", ->).not.toEqual false
-      (expect sb.subscribe "a", ->).not.toEqual false
-      (expect sb.subscribe "b", ->).not.toEqual false
-      #(expect sb.on "b", ->).not.toEqual false
-      (expect sb.publish "x", ->).toBe false
+      (expect sb.on "y", ->).toEqual false
+      (expect sb.on "x", ->).not.toEqual false
+      (expect sb.on "a", ->).not.toEqual false
+      (expect sb.on "b", ->).not.toEqual false
+      (expect sb.emit "x", ->).toBe false
       done()
 
     @run test, "anId"
 
   it "rejects a methods if no permission was defined", (done) ->
 
-    @core.permission.add "oo", "subscribe", "x"
-    @core.permission.add "ii", "publish", "x"
+    @core.permission.add "oo", "on", "x"
+    @core.permission.add "ii", "emit", "x"
 
     test = (sb) ->
-      (expect sb.subscribe "x", ->).toBe false
-      (expect sb.publish "x", ->).not.toBe false
+      (expect sb.on "x", ->).toBe false
+      (expect sb.emit "x", ->).not.toBe false
       done()
 
     @run test, "ii"
 
   it "removes a permission", (done) ->
 
-    @core.permission.add "ee", "subscribe", "x"
-    @core.permission.add "ee", "publish", ["z", "w"]
+    @core.permission.add "ee", "on", "x"
+    @core.permission.add "ee", "emit", ["z", "w"]
 
     test = (sb) =>
-      (expect sb.subscribe "x", ->).not.toBe false
-      @core.permission.remove "ee", "subscribe"
-      (expect sb.subscribe "x", ->).toBe false
-      (expect sb.publish "z", ->).not.toBe false
-      @core.permission.remove "ee", "publish", "z"
-      (expect sb.publish "z", ->).toBe false
-      (expect sb.publish "w", ->).not.toBe false
+      (expect sb.on "x", ->).not.toBe false
+      @core.permission.remove "ee", "on"
+      (expect sb.on "x", ->).toBe false
+      (expect sb.emit "z", ->).not.toBe false
+      @core.permission.remove "ee", "emit", "z"
+      (expect sb.emit "z", ->).toBe false
+      (expect sb.emit "w", ->).not.toBe false
       done()
 
     @run test, "ee"

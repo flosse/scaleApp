@@ -3,25 +3,26 @@ describe "clock module", ->
   before ->
     @timeout = 3000
     @sa = window.scaleApp
+    @core = new @sa.Core
     @div = document.createElement "div"
     @div.setAttribute "id", "clock"
     document
       .getElementsByTagName("body")[0]
       .appendChild @div
-    @sa.register "clock", Clock
-    @sa.start "clock"
+    @core.register "clock", Clock
+    @core.start "clock"
     @secondsDiv = @div.getElementsByClassName("seconds")[0]
     @minutesDiv = @div.getElementsByClassName("minutes")[0]
     @getSeconds = -> @secondsDiv.innerText
     @getMinutes = -> @minutesDiv.innerText
 
   after ->
-    @sa.stopAll()
-    @sa.unregisterAll()
+    @core.stopAll()
+    @core.unregisterAll()
 
   it "can be registered", ->
     (expect typeof Clock).toEqual "function"
-    (expect @sa.register "clock2", Clock).toBe true
+    (expect @core.register "clock2", Clock).toBe true
 
   it "creates separate div with 'clock' as class attribute", ->
     (expect typeof Clock).toEqual "function"
@@ -32,7 +33,7 @@ describe "clock module", ->
     setTimeout((=>
       s2 = @getSeconds()
       (expect s).not.toEqual s2
-      @sa.publish "clock/pause"
+      @core.emit "clock/pause"
       s3 = @getSeconds()
       setTimeout((=>
         (expect s3).toEqual @getSeconds()
@@ -41,46 +42,46 @@ describe "clock module", ->
     ),1400)
 
   it "can be resumed", (done) ->
-    @sa.publish "clock/pause"
+    @core.emit "clock/pause"
     s = @getSeconds()
-    @sa.publish "clock/resume"
+    @core.emit "clock/resume"
     setTimeout((=>
       (expect s).not.toEqual @getSeconds()
       done()
     ),1400)
 
   it "can be set", ->
-    @sa.publish "clock/pause"
-    @sa.publish "clock/set", (2 * 60 * 1000 + 3*1000)
+    @core.emit "clock/pause"
+    @core.emit "clock/set", (2 * 60 * 1000 + 3*1000)
     s = @getSeconds()
     (expect @getSeconds()  * 1).toEqual 3
     (expect @getMinutes() * 1).toEqual 2
 
   it "sends an event at a specific time", (done)->
-    @sa.publish "clock/pause"
-    @sa.publish "clock/set",      (5*60*1000 + 2000)
-    @sa.publish "clock/setAlert", (5*60*1000 + 3000)
-    @sa.on "clock/alert", =>
+    @core.emit "clock/pause"
+    @core.emit "clock/set",      (5*60*1000 + 2000)
+    @core.emit "clock/setAlert", (5*60*1000 + 3000)
+    @core.on "clock/alert", =>
       (expect @getSeconds()  * 1).toEqual 3
       (expect @getMinutes() * 1).toEqual 5
       done()
-    @sa.publish "clock/forward"
-    @sa.publish "clock/resume"
+    @core.emit "clock/forward"
+    @core.emit "clock/resume"
 
   it "stops at a specific time", (done)->
-    @sa.publish "clock/pause"
-    @sa.publish "clock/set",     (60*1000 + 1000)
-    @sa.publish "clock/setStop", (60*1000 + 2000)
+    @core.emit "clock/pause"
+    @core.emit "clock/set",     (60*1000 + 1000)
+    @core.emit "clock/setStop", (60*1000 + 2000)
     setTimeout((=>
       (expect @getSeconds() * 1).toEqual 2
       (expect @getMinutes() * 1).toEqual 1
       done()
     ),2400)
-    @sa.publish "clock/forward"
-    @sa.publish "clock/resume"
+    @core.emit "clock/forward"
+    @core.emit "clock/resume"
 
   it "can run reverse", (done) ->
-    @sa.publish "clock/reverse"
+    @core.emit "clock/reverse"
     s = @getSeconds() * 1
     setTimeout((=>
       s -= 1
@@ -90,7 +91,7 @@ describe "clock module", ->
     ),1100)
 
   it "can run reverse with a start time", (done) ->
-    @sa.publish "clock/reverse", 2000
+    @core.emit "clock/reverse", 2000
     s = @getSeconds() * 1
     (expect s).toEqual 2
     done()

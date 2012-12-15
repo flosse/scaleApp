@@ -73,11 +73,12 @@ describe "scaleApp core", ->
 
     it "has an plugin.ls method", ->
       (expect typeof @scaleApp.plugin.ls).toEqual "function"
-      (expect @scaleApp.plugin.ls()).toEqual []
-      (expect @scaleApp.plugin.register {
-        id: "dummy"
-      }).toBeTruthy()
-      (expect @scaleApp.plugin.ls()).toEqual ["dummy"]
+      if not window? # because the scaleApp object is loaded only once
+        (expect @scaleApp.plugin.ls()).toEqual []
+        (expect @scaleApp.plugin.register {
+          id: "dummy"
+        }).toBeTruthy()
+        (expect @scaleApp.plugin.ls()).toEqual ["dummy"]
 
   describe "unregister function", ->
 
@@ -423,18 +424,18 @@ describe "scaleApp core", ->
       (expect @core.start "syncDestroy", instanceId: "second").toBeTruthy()
       (expect @core.stopAll done).toBeTruthy()
 
-  describe "publish function", ->
+  describe "emit function", ->
     it "is an accessible function", ->
-      (expect typeof @core.publish).toEqual "function"
+      (expect typeof @core.emit).toEqual "function"
 
-  describe "subscribe function", ->
+  describe "on function", ->
     it "is an accessible function", ->
-      (expect typeof @core.subscribe).toEqual "function"
+      (expect typeof @core.on).toEqual "function"
 
-  describe "unsubscribe function", ->
+  describe "off function", ->
 
     it "is an accessible function", ->
-      (expect typeof @core.unsubscribe).toEqual "function"
+      (expect typeof @core.off).toEqual "function"
 
     it "removes subscriptions from a channel", (done) ->
 
@@ -444,19 +445,19 @@ describe "scaleApp core", ->
       mod = (sb) ->
 
         init: ->
-          sb.subscribe "X", globalA
-          sb.subscribe "X", globalB
-          sb.subscribe "Y", globalB
+          sb.on "X", globalA
+          sb.on "X", globalB
+          sb.on "Y", globalB
           switch sb.instanceId
             when "a"
               localCB = sinon.spy()
-              sb.subscribe "X", localCB
+              sb.on "X", localCB
             when "b"
               localCB = sinon.spy()
-              sb.subscribe "X", localCB
-              sb.subscribe "Y", localCB
+              sb.on "X", localCB
+              sb.on "Y", localCB
 
-          sb.subscribe "test1", ->
+          sb.on "test1", ->
             switch sb.instanceId
               when "a"
                 (expect localCB.callCount).toEqual 3
@@ -464,9 +465,9 @@ describe "scaleApp core", ->
                 (expect localCB.callCount).toEqual 2
             done()
 
-          sb.subscribe "unregister", ->
+          sb.on "unregister", ->
             if sb.instanceId is "b"
-              sb.unsubscribe "X"
+              sb.off "X"
 
         destroy: ->
 
@@ -475,21 +476,21 @@ describe "scaleApp core", ->
       (expect @core.start "mod", instanceId: "a").toBeTruthy()
       (expect @core.start "mod", instanceId: "b").toBeTruthy()
 
-      @core.publish "X", "foo"
-      @core.publish "Y", "bar"
+      @core.emit "X", "foo"
+      @core.emit "Y", "bar"
 
       (expect globalA.callCount).toEqual 2
       (expect globalB.callCount).toEqual 4
-      @core.publish "test"
+      @core.emit "test"
 
-      @core.publish "unregister"
-      @core.publish "X", "foo"
+      @core.emit "unregister"
+      @core.emit "X", "foo"
 
       (expect globalA.callCount).toEqual 3
       (expect globalB.callCount).toEqual 5
 
-      @core.publish "X"
-      @core.publish "test1"
+      @core.emit "X"
+      @core.emit "test1"
 
   describe "register Plugin function", ->
 
@@ -523,7 +524,8 @@ describe "scaleApp core", ->
 
     it "installs a base plugin", ->
       (expect @scaleApp.plugin.register @validPlugin).toBe true
-      (expect @scaleApp.foo).toBe @validPlugin.base.foo
+      if not window? # because the scaleApp object is loaded only once
+        (expect @scaleApp.foo).toBe @validPlugin.base.foo
       (expect @scaleApp.bar).toEqual "x"
 
     it "installs the sandbox plugin", (done) ->

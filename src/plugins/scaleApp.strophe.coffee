@@ -149,34 +149,34 @@ else
 
       when s.ERROR
         resetPlugin()
-        scaleApp.publish "#{ID}/error", "an error occoured"
+        scaleApp.emit "#{ID}/error", "an error occoured"
       when s.CONNECTING
         resetPlugin()
-        scaleApp.publish "#{ID}/connecting"
+        scaleApp.emit "#{ID}/connecting"
       when s.CONFAIL
         resetPlugin()
-        scaleApp.publish "#{ID}/error", "could not connect to xmpp server"
+        scaleApp.emit "#{ID}/error", "could not connect to xmpp server"
       when s.AUTHENTICATING
         resetPlugin()
-        scaleApp.publish "#{ID}/authenticating"
+        scaleApp.emit "#{ID}/authenticating"
       when s.AUTHFAIL
         resetPlugin()
-        scaleApp.publish "#{ID}/authfail"
+        scaleApp.emit "#{ID}/authfail"
       when s.CONNECTED
         updatePlugin connection
         onConnected()
-        scaleApp.publish "#{ID}/connected"
+        scaleApp.emit "#{ID}/connected"
       when s.DISCONNECTED
         clearData()
         resetPlugin()
-        scaleApp.publish "#{ID}/disconnected"
+        scaleApp.emit "#{ID}/disconnected"
       when s.DISCONNECTING
         resetPlugin()
-        scaleApp.publish "#{ID}/disconnecting"
+        scaleApp.emit "#{ID}/disconnecting"
       when s.ATTACHED
         updatePlugin connection
         onConnected()
-        scaleApp.publish "#{ID}/attached"
+        scaleApp.emit "#{ID}/attached"
 
   resetPlugin = ->
     xmppPlugin.connection = null
@@ -262,7 +262,7 @@ else
       if hasConnectionData()
         attach_connection()
       else
-        scaleApp.publish "#{ID}/disconnected"
+        scaleApp.emit "#{ID}/disconnected"
 
   # TODO: create core plugin
   xmppPlugin =

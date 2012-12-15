@@ -11,19 +11,19 @@ class Model extends scaleApp.Mediator
     switch typeof key
       when "object"
         @set k,v,true for k,v of key
-        @publish Model.CHANGED, (k for k,v of key) if not silent
+        @emit Model.CHANGED, (k for k,v of key) if not silent
       when "string"
         if not (key in ["set","get"]) and @[key] isnt val
           @[key] = val
-          @publish Model.CHANGED, [key] if not silent
+          @emit Model.CHANGED, [key] if not silent
       else console?.error? "key is not a string"
     @
 
   change: (cb, context) ->
     if typeof cb is "function"
-      @subscribe Model.CHANGED, cb, context
+      @on Model.CHANGED, cb, context
     else if arguments.length is 0
-      @publish Model.CHANGED
+      @emit Model.CHANGED
 
   notify: -> @change()
 
