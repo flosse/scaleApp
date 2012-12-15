@@ -1,39 +1,17 @@
 var config = module.exports;
 
-config["node-core"] = {
+config["node-specs"] = {
   environment: "node",
-  specs: ["spec/*.spec.coffee"],
-  extensions: [require("buster-coffee")]
-};
-
-config["node-i18n-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.i18n.spec.coffee"],
-};
-
-config["node-util-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.util.spec.coffee"],
-};
-
-config["node-mvc-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.mvc.spec.coffee"],
-};
-
-config["node-permission-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.permission.spec.coffee"],
-};
-
-config["node-statemachine-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.state.spec.coffee"],
-};
-
-config["node-submodule-plugin"] = {
-  environment: "node",
-  specs: ["spec/plugins/scaleApp.submodule.spec.coffee"],
+  extensions: [require("buster-coffee")],
+  specs: [
+    "spec/*.spec.coffee",
+    "spec/plugins/scaleApp.i18n.spec.coffee",
+    "spec/plugins/scaleApp.util.spec.coffee",
+    "spec/plugins/scaleApp.mvc.spec.coffee",
+    "spec/plugins/scaleApp.permission.spec.coffee",
+    "spec/plugins/scaleApp.state.spec.coffee",
+    "spec/plugins/scaleApp.submodule.spec.coffee",
+    ]
 };
 
 config["browser-core"] = {
@@ -41,6 +19,7 @@ config["browser-core"] = {
   specs: ["spec/*.spec.coffee"],
   specHelpers: ["spec/browserSetup.coffee"],
   sources: ["dist/scaleApp.min.js"],
+  extensions: [require("buster-coffee")]
 };
 
 config["browser-i18n-plugin"] = {
