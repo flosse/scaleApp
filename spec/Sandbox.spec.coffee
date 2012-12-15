@@ -4,9 +4,10 @@ describe "scaleApp Sanbox", ->
 
   before ->
     if typeof(require) is "function"
-      @Sandbox = require "../src/Sandbox"
+      @scaleApp = require "../dist/scaleApp"
     else if window?
-      @Sandbox = window.scaleApp.Sandbox
+      @scaleApp = window.scaleApp
+    @Sandbox = @scaleApp.Sandbox
     @sb = new @Sandbox {}, "id"
 
   it "is an accessible function", ->

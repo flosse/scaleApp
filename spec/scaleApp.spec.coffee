@@ -9,16 +9,14 @@ describe "scaleApp core", ->
   before ->
 
     if typeof(require) is "function"
-      @scaleApp  = require "../dist/scaleApp"
+      @scaleApp = getScaleApp()
     else if window?
-      @scaleApp  = window.scaleApp
+      @scaleApp = window.scaleApp
+    @core = new @scaleApp.Core
 
     @validModule = (sb) ->
       init: (opt, done) -> setTimeout (-> done()), 0
       destroy: (done) -> setTimeout (-> done()), 0
-
-  after ->
-    @scaleApp.unregisterAll()
 
   it "provides the global and accessible namespace scaleApp", ->
     (expect typeof @scaleApp).toEqual "object"
@@ -29,113 +27,109 @@ describe "scaleApp core", ->
   describe "register function", ->
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.register).toEqual "function"
+      (expect typeof @core).toEqual "object"
 
     it "returns true if the module is valid", ->
-      (expect @scaleApp.register "myModule", @validModule).toBeTruthy()
+      (expect @core.register "myModule", @validModule).toBeTruthy()
 
     it "returns false if the module creator is an object", ->
-      (expect @scaleApp.register "myObjectModule", {}).toBeFalsy()
+      (expect @core.register "myObjectModule", {}).toBeFalsy()
 
     it "returns false if the module creator does not return an object", ->
-      (expect @scaleApp.register "myModuleIsInvalid", -> "I'm not an object").toBeFalsy()
+      (expect @core.register "myModuleIsInvalid", -> "I'm not an object").toBeFalsy()
 
     it "returns false if the created module object has not the functions init and destroy", ->
-      (expect @scaleApp.register "myModuleOtherInvalid", ->).toBeFalsy()
+      (expect @core.register "myModuleOtherInvalid", ->).toBeFalsy()
 
     it "returns true if option parameter is an object", ->
-      (expect @scaleApp.register "moduleWithOpt", @validModule, { } ).toBeTruthy()
+      (expect @core.register "moduleWithOpt", @validModule, { } ).toBeTruthy()
 
     it "returns false if the option parameter is not an object", ->
-      (expect @scaleApp.register "myModuleWithWrongObj", @validModule, "I'm not an object" ).toBeFalsy()
+      (expect @core.register "myModuleWithWrongObj", @validModule, "I'm not an object" ).toBeFalsy()
 
     it "returns false if module already exits", ->
-      (expect @scaleApp.register "myDoubleModule", @validModule).toBeTruthy()
-      (expect @scaleApp.register "myDoubleModule", @validModule).toBeFalsy()
+      (expect @core.register "myDoubleModule", @validModule).toBeTruthy()
+      (expect @core.register "myDoubleModule", @validModule).toBeFalsy()
 
   describe "list methods", ->
 
-    beforeEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
-      @scaleApp.unregisterAllPlugins()
-      @scaleApp.register "myModule", @validModule
+    before ->
+      @core.stopAll()
+      @core.register "myModule", @validModule
 
     it "has an lsModules method", ->
-      (expect typeof @scaleApp.lsModules).toEqual "function"
-      (expect @scaleApp.lsModules()).toEqual ["myModule"]
+      (expect typeof @core.lsModules).toEqual "function"
+      (expect @core.lsModules()).toEqual ["myModule"]
 
     it "has an lsInstances method", ->
-      (expect typeof @scaleApp.lsInstances).toEqual "function"
-      (expect @scaleApp.lsInstances()).toEqual []
-      (expect @scaleApp.start "myModule" ).toBeTruthy()
-      (expect @scaleApp.lsInstances()).toEqual ["myModule"]
-      (expect @scaleApp.start "myModule", instanceId: "test" ).toBeTruthy()
-      (expect @scaleApp.lsInstances()).toEqual ["myModule", "test"]
-      (expect @scaleApp.stop "myModule").toBeTruthy()
-      (expect @scaleApp.lsInstances()).toEqual ["test"]
+      (expect typeof @core.lsInstances).toEqual "function"
+      (expect @core.lsInstances()).toEqual []
+      (expect @core.start "myModule" ).toBeTruthy()
+      (expect @core.lsInstances()).toEqual ["myModule"]
+      (expect @core.start "myModule", instanceId: "test" ).toBeTruthy()
+      (expect @core.lsInstances()).toEqual ["myModule", "test"]
+      (expect @core.stop "myModule").toBeTruthy()
+      (expect @core.lsInstances()).toEqual ["test"]
 
-    it "has an lsPlugins method", ->
-      (expect typeof @scaleApp.lsPlugins).toEqual "function"
-      (expect @scaleApp.lsPlugins()).toEqual []
-      (expect @scaleApp.registerPlugin {
+    it "has an plugin.ls method", ->
+      (expect typeof @scaleApp.plugin.ls).toEqual "function"
+      (expect @scaleApp.plugin.ls()).toEqual []
+      (expect @scaleApp.plugin.register {
         id: "dummy"
       }).toBeTruthy()
-      (expect @scaleApp.lsPlugins()).toEqual ["dummy"]
+      (expect @scaleApp.plugin.ls()).toEqual ["dummy"]
 
   describe "unregister function", ->
 
     it "returns true if the module was successfully removed", ->
-      (expect @scaleApp.register "m", @validModule).toBeTruthy()
-      (expect @scaleApp.unregister "m").toBeTruthy()
-      (expect @scaleApp.start "m").toBeFalsy()
+      (expect @core.register "m", @validModule).toBeTruthy()
+      (expect @core.unregister "m").toBeTruthy()
+      (expect @core.start "m").toBeFalsy()
 
   describe "unregisterAll function", ->
 
     it "removes all modules", ->
-      (expect @scaleApp.register "a", @validModule).toBeTruthy()
-      (expect @scaleApp.register "b", @validModule).toBeTruthy()
-      @scaleApp.unregisterAll()
-      (expect @scaleApp.start "a").toBeFalsy()
-      (expect @scaleApp.start "b").toBeFalsy()
+      (expect @core.register "a", @validModule).toBeTruthy()
+      (expect @core.register "b", @validModule).toBeTruthy()
+      @core.unregisterAll()
+      (expect @core.start "a").toBeFalsy()
+      (expect @core.start "b").toBeFalsy()
 
   describe "start function", ->
 
-    beforeEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
-      @scaleApp.register "myId", @validModule
-
-    afterEach -> @scaleApp.stop "myId"
+    before ->
+      @core.stopAll()
+      @core.unregisterAll()
+      @core.register "myId", @validModule
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.start).toEqual "function"
+      (expect typeof @core.start).toEqual "function"
 
     describe "start parameters", ->
 
       it "returns false if first parameter is not a string or an object", ->
-        (expect @scaleApp.start 123).toBeFalsy()
-        (expect @scaleApp.start ->).toBeFalsy()
-        (expect @scaleApp.start []).toBeFalsy()
+        (expect @core.start 123).toBeFalsy()
+        (expect @core.start ->).toBeFalsy()
+        (expect @core.start []).toBeFalsy()
 
       it "returns true if first parameter is a string", ->
-        (expect @scaleApp.start "myId").toBeTruthy()
+        (expect @core.start "myId").toBeTruthy()
 
       it "returns true if second parameter is a an object", ->
-        (expect @scaleApp.start "myId", {}).toBeTruthy()
+        (expect @core.start "myId", {}).toBeTruthy()
 
       it "returns false if second parameter is a number", ->
-        (expect @scaleApp.start "myId", 123).toBeFalsy()
+        (expect @core.start "myId", 123).toBeFalsy()
 
       it "returns false if module does not exist", ->
-        (expect @scaleApp.start "foo").toBeFalsy()
+        (expect @core.start "foo").toBeFalsy()
 
       it "returns true if module exist", ->
-        (expect @scaleApp.start "myId").toBeTruthy()
+        (expect @core.start "myId").toBeTruthy()
 
       it "returns false if instance was aleready started", ->
-        @scaleApp.start "myId"
-        (expect @scaleApp.start "myId").toBeFalsy()
+        @core.start "myId"
+        (expect @core.start "myId").toBeFalsy()
 
       it "passes the options", (done) ->
         mod = (sb) ->
@@ -144,29 +138,29 @@ describe "scaleApp core", ->
             (expect opt.foo).toEqual "bar"
             done()
           destroy: ->
-        @scaleApp.register "foo", mod
-        @scaleApp.start "foo", options: {foo: "bar"}
+        @core.register "foo", mod
+        @core.start "foo", options: {foo: "bar"}
 
       it "calls the callback function after the initialization", (done) ->
 
         x     = 0
         cb    = -> (expect x).toBe(2); done()
 
-        @scaleApp.register "anId", (sb) ->
+        @core.register "anId", (sb) ->
           init: (opt, fini) ->
             setTimeout (-> x = 2; fini()), 0
             x = 1
           destroy: ->
 
-        @scaleApp.start "anId", { callback: cb }
+        @core.start "anId", { callback: cb }
 
       it "calls the callback immediately if no callback was defined", ->
         cb = sinon.spy()
         mod1 = (sb) ->
           init: (opt) ->
           destroy: ->
-        (expect @scaleApp.register "anId", mod1).toBeTruthy()
-        @scaleApp.start "anId", { callback: cb }
+        (expect @core.register "anId", mod1).toBeTruthy()
+        @core.start "anId", { callback: cb }
         (expect cb).toHaveBeenCalled()
 
       it "calls the callback function with an error if an error occours", (done) ->
@@ -176,8 +170,8 @@ describe "scaleApp core", ->
             initCB()
             thisWillProcuceAnError()
           destroy: ->
-        (expect @scaleApp.register "anId", mod1).toBeTruthy()
-        (expect @scaleApp.start "anId", { callback: (err)->
+        (expect @core.register "anId", mod1).toBeTruthy()
+        (expect @core.start "anId", { callback: (err)->
           (expect initCB).toHaveBeenCalled()
           (expect err.message).toEqual "could not start module: thisWillProcuceAnError is not defined"
           done()
@@ -190,18 +184,18 @@ describe "scaleApp core", ->
           init: -> initCB()
           destroy: ->
 
-        (expect @scaleApp.register "separate", mod1).toBeTruthy()
-        @scaleApp.start "separate", { instanceId: "instance" }
+        (expect @core.register "separate", mod1).toBeTruthy()
+        @core.start "separate", { instanceId: "instance" }
         (expect initCB).toHaveBeenCalled()
 
   describe "startAll function", ->
 
-    beforeEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
+    before ->
+      @core.stopAll()
+      @core.unregisterAll()
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.startAll).toEqual "function"
+      (expect typeof @core.startAll).toEqual "function"
 
     it "instantiates and starts all available modules", ->
 
@@ -216,13 +210,13 @@ describe "scaleApp core", ->
         init: -> cb2()
         destroy: ->
 
-      (expect @scaleApp.register "first", mod1 ).toBeTruthy()
-      (expect @scaleApp.register "second", mod2).toBeTruthy()
+      (expect @core.register "first", mod1 ).toBeTruthy()
+      (expect @core.register "second", mod2).toBeTruthy()
 
       (expect cb1).not.toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
 
-      (expect @scaleApp.startAll()).toBeTruthy()
+      (expect @core.startAll()).toBeTruthy()
       (expect cb1).toHaveBeenCalled()
       (expect cb2).toHaveBeenCalled()
 
@@ -244,18 +238,18 @@ describe "scaleApp core", ->
         init: -> cb3()
         destroy: ->
 
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
+      @core.stopAll()
+      @core.unregisterAll()
 
-      (expect @scaleApp.register "first", mod1 ).toBeTruthy()
-      (expect @scaleApp.register "second",mod2 ).toBeTruthy()
-      (expect @scaleApp.register "third", mod3 ).toBeTruthy()
+      (expect @core.register "first", mod1 ).toBeTruthy()
+      (expect @core.register "second",mod2 ).toBeTruthy()
+      (expect @core.register "third", mod3 ).toBeTruthy()
 
       (expect cb1).not.toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
       (expect cb3).not.toHaveBeenCalled()
 
-      (expect @scaleApp.startAll ["first","third"]).toBeTruthy()
+      (expect @core.startAll ["first","third"]).toBeTruthy()
       (expect cb1).toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
       (expect cb3).toHaveBeenCalled()
@@ -286,11 +280,11 @@ describe "scaleApp core", ->
           ), 0
         destroy: ->
 
-      @scaleApp.register "first", sync
-      @scaleApp.register "second", async
-      @scaleApp.register "third", pseudoAsync
+      @core.register "first", sync
+      @core.register "second", async
+      @core.register "third", pseudoAsync
 
-      (expect @scaleApp.startAll ->
+      (expect @core.startAll ->
         (expect cb1.callCount).toEqual 3
         done()
       ).toBeTruthy()
@@ -314,10 +308,10 @@ describe "scaleApp core", ->
           (expect finished).not.toHaveBeenCalled()
         destroy: ->
 
-      @scaleApp.register "first", mod1, { callback: cb1 }
-      @scaleApp.register "second", mod2, { callback: cb2 }
+      @core.register "first", mod1, { callback: cb1 }
+      @core.register "second", mod2, { callback: cb2 }
 
-      (expect @scaleApp.startAll ["first","second"], ->
+      (expect @core.startAll ["first","second"], ->
         finished()
         (expect cb1).toHaveBeenCalled()
         (expect cb2).toHaveBeenCalled()
@@ -333,9 +327,9 @@ describe "scaleApp core", ->
       mod2 = (sb) ->
         init: -> spy2()
         destroy: ->
-      @scaleApp.register "invalid", mod1
-      @scaleApp.register "valid", mod2
-      @scaleApp.startAll ["invalid", "valid"], (err) ->
+      @core.register "invalid", mod1
+      @core.register "valid", mod2
+      @core.startAll ["invalid", "valid"], (err) ->
         (expect spy1).toHaveBeenCalled()
         (expect spy2).toHaveBeenCalled()
         (expect err.message).toEqual "errors occoured in the following modules: 'invalid'"
@@ -349,12 +343,12 @@ describe "scaleApp core", ->
           spy2()
           setTimeout (-> done()), 0
         destroy: ->
-      @scaleApp.register "valid", @validModule
-      @scaleApp.register "x", mod
+      @core.register "valid", @validModule
+      @core.register "x", mod
       finished = (err) ->
         (expect err.message).toEqual "these modules don't exist: 'invalid','y'"
         done()
-      (expect @scaleApp.startAll ["valid","invalid", "x", "y"], finished).toBeFalsy()
+      (expect @core.startAll ["valid","invalid", "x", "y"], finished).toBeFalsy()
       (expect spy2).toHaveBeenCalled()
 
     it "calls the callback without an error if module array is empty", ->
@@ -362,41 +356,41 @@ describe "scaleApp core", ->
       finished = (err) ->
         (expect err).toEqual null
         spy()
-      (expect @scaleApp.startAll [], finished).toBeTruthy()
+      (expect @core.startAll [], finished).toBeTruthy()
       (expect spy).toHaveBeenCalled()
 
   describe "stop function", ->
 
     beforeEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
+      @core.stopAll()
+      @core.unregisterAll()
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.stop).toEqual "function"
+      (expect typeof @core.stop).toEqual "function"
 
     it "calls the callback afterwards", (done) ->
-      (expect @scaleApp.register "valid", @validModule).toBeTruthy()
-      (expect @scaleApp.start "valid").toBeTruthy()
-      (expect @scaleApp.stop "valid", done).toBeTruthy()
+      (expect @core.register "valid", @validModule).toBeTruthy()
+      (expect @core.start "valid").toBeTruthy()
+      (expect @core.stop "valid", done).toBeTruthy()
 
     it "supports synchronous stopping", ->
       mod = (sb) ->
         init: ->
         destroy: ->
       end = false
-      (expect @scaleApp.register "mod", mod).toBeTruthy()
-      (expect @scaleApp.start "mod").toBeTruthy()
-      (expect @scaleApp.stop "mod", -> end = true).toBeTruthy()
+      (expect @core.register "mod", mod).toBeTruthy()
+      (expect @core.start "mod").toBeTruthy()
+      (expect @core.stop "mod", -> end = true).toBeTruthy()
       (expect end).toEqual true
 
   describe "stopAll function", ->
 
     beforeEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
+      @core.stopAll()
+      @core.unregisterAll()
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.stopAll).toEqual "function"
+      (expect typeof @core.stopAll).toEqual "function"
 
     it "stops all running instances", ->
       cb1 = sinon.spy()
@@ -405,42 +399,42 @@ describe "scaleApp core", ->
         init: ->
         destroy: -> cb1()
 
-      @scaleApp.register "mod", mod1
+      @core.register "mod", mod1
 
-      @scaleApp.start "mod", { instanceId: "a" }
-      @scaleApp.start "mod", { instanceId: "b" }
+      @core.start "mod", { instanceId: "a" }
+      @core.start "mod", { instanceId: "b" }
 
-      (expect @scaleApp.stopAll()).toBeTruthy()
+      (expect @core.stopAll()).toBeTruthy()
       (expect cb1.callCount).toEqual 2
 
     it "calls the callback afterwards", (done) ->
-      (expect @scaleApp.register "valid", @validModule).toBeTruthy()
-      (expect @scaleApp.start "valid").toBeTruthy()
-      (expect @scaleApp.start "valid", instanceId: "valid2").toBeTruthy()
-      (expect @scaleApp.stopAll done).toBeTruthy()
+      (expect @core.register "valid", @validModule).toBeTruthy()
+      (expect @core.start "valid").toBeTruthy()
+      (expect @core.start "valid", instanceId: "valid2").toBeTruthy()
+      (expect @core.stopAll done).toBeTruthy()
 
     it "calls the callback if not destroyed in a asynchronous way", (done) ->
       cb1 = sinon.spy()
       mod = (sb) ->
         init: ->
         destroy: -> cb1()
-      (expect @scaleApp.register "syncDestroy", mod).toBeTruthy()
-      (expect @scaleApp.start "syncDestroy").toBeTruthy()
-      (expect @scaleApp.start "syncDestroy", instanceId: "second").toBeTruthy()
-      (expect @scaleApp.stopAll done).toBeTruthy()
+      (expect @core.register "syncDestroy", mod).toBeTruthy()
+      (expect @core.start "syncDestroy").toBeTruthy()
+      (expect @core.start "syncDestroy", instanceId: "second").toBeTruthy()
+      (expect @core.stopAll done).toBeTruthy()
 
   describe "publish function", ->
     it "is an accessible function", ->
-      (expect typeof @scaleApp.publish).toEqual "function"
+      (expect typeof @core.publish).toEqual "function"
 
   describe "subscribe function", ->
     it "is an accessible function", ->
-      (expect typeof @scaleApp.subscribe).toEqual "function"
+      (expect typeof @core.subscribe).toEqual "function"
 
   describe "unsubscribe function", ->
 
     it "is an accessible function", ->
-      (expect typeof @scaleApp.unsubscribe).toEqual "function"
+      (expect typeof @core.unsubscribe).toEqual "function"
 
     it "removes subscriptions from a channel", (done) ->
 
@@ -476,138 +470,61 @@ describe "scaleApp core", ->
 
         destroy: ->
 
-      (expect @scaleApp.unregisterAll()).toBeTruthy()
-      (expect @scaleApp.register "mod", mod).toBeTruthy()
-      (expect @scaleApp.start "mod", instanceId: "a").toBeTruthy()
-      (expect @scaleApp.start "mod", instanceId: "b").toBeTruthy()
+      (expect @core.unregisterAll()).toBeTruthy()
+      (expect @core.register "mod", mod).toBeTruthy()
+      (expect @core.start "mod", instanceId: "a").toBeTruthy()
+      (expect @core.start "mod", instanceId: "b").toBeTruthy()
 
-      @scaleApp.publish "X", "foo"
-      @scaleApp.publish "Y", "bar"
+      @core.publish "X", "foo"
+      @core.publish "Y", "bar"
 
       (expect globalA.callCount).toEqual 2
       (expect globalB.callCount).toEqual 4
-      @scaleApp.publish "test"
+      @core.publish "test"
 
-      @scaleApp.publish "unregister"
-      @scaleApp.publish "X", "foo"
+      @core.publish "unregister"
+      @core.publish "X", "foo"
 
       (expect globalA.callCount).toEqual 3
       (expect globalB.callCount).toEqual 5
 
-      @scaleApp.publish "X"
-      @scaleApp.publish "test1"
+      @core.publish "X"
+      @core.publish "test1"
 
-  describe "registerPlugin function", ->
+  describe "register Plugin function", ->
 
-    beforeEach ->
+    before ->
 
       @validPlugin =
         id: "myPluginId"
         version: "0.2.4"
         sandbox: (sb) -> { yeah: "great" }
         core: { aKey: "txt", aFunc: -> }
+        base:
+          foo: -> "yeah"
+          bar: "x"
         on:
           instantiate: (data) ->
           destroy: (data) ->
 
-    afterEach ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
-
     it "returns false if plugin is not an object", ->
-      (expect @scaleApp.registerPlugin "foo").toBeFalsy()
-
-    it "returns false if sandbox plugin uses reserved keywords", (done) ->
-
-      keys = [
-        "core"
-        "instanceId"
-        "options"
-        "publish"
-        "subscribe"
-        "unsubscribe" ]
-
-      for name in keys
-        sbP = {}
-        sbP[name] = ->
-        plugin =
-          id: "myPluginId"
-          sandbox: (sb) -> sbP
-          core: { }
-        (expect @scaleApp.registerPlugin plugin).toBeFalsy()
-
-      for name in keys
-        sbP = ->
-        sbP::[name] = ->
-        plugin =
-          id: "myPluginId"
-          sandbox: sbP
-          core: { }
-        (expect @scaleApp.registerPlugin plugin).toBeFalsy()
-      done()
-
-    it "returns false if core plugin uses reserved keywords", (done) ->
-
-      keys = [
-        "VERSION"
-        "register"
-        "unregister"
-        "unregisterAll"
-        "unregisterPlugin"
-        "unregisterAllPlugins"
-        "registerPlugin"
-        "start"
-        "stop"
-        "startAll"
-        "stopAll"
-        "publish"
-        "subscribe"
-        "unsubscribe"
-        "Mediator"
-        "Sandbox" ]
-
-      coreKeys = (k for k of @scaleApp)
-
-      (expect k in coreKeys).toBeTruthy() for k in keys
-
-      for name in keys
-        p = {}
-        p[name] = ->
-        plugin =
-          id: "myPluginId"
-          sandbox: (sb) -> { }
-          core: p
-        (expect @scaleApp.registerPlugin plugin).toBeFalsy()
-      done()
-
-    it "returns true if core plugin uses non-reserved keywords", (done) ->
-
-      keys = [
-        "ImFree"
-        "foo"
-        "bar"
-        "blub" ]
-
-      for name in keys
-        p = {}
-        p[name] = ->
-        plugin =
-          id: "myPluginId"
-          sandbox: (sb) -> { }
-          core: p
-        (expect @scaleApp.registerPlugin plugin).toBeTruthy()
-      done()
+      (expect @scaleApp.plugin.register "foo").toBe false
 
     it "returns true if plugin is valid", ->
-      (expect @scaleApp.registerPlugin @validPlugin).toBeTruthy()
-      (expect @scaleApp.register "nice", @validModule).toBeTruthy()
-      (expect @scaleApp.start "nice").toBeTruthy()
+      (expect @scaleApp.plugin.register @validPlugin).toBeTruthy()
+      (expect @core.register "nice", @validModule).toBeTruthy()
+      (expect @core.start "nice").toBeTruthy()
 
-    it "installs the core plugin", ->
-      (expect @scaleApp.registerPlugin @validPlugin).toBeTruthy()
-      (expect @scaleApp.aKey).toEqual "txt"
-      (expect @scaleApp.aFunc).toEqual @validPlugin.core.aFunc
-      (expect @scaleApp.aFunc).not.toEqual ->
+    it "installs a core plugin", ->
+      (expect @scaleApp.plugin.register @validPlugin).toBeTruthy()
+      c = new @scaleApp.Core
+      (expect c.aKey).toEqual "txt"
+      (expect c.aFunc.toString()).toEqual @validPlugin.core.aFunc.toString()
+
+    it "installs a base plugin", ->
+      (expect @scaleApp.plugin.register @validPlugin).toBe true
+      (expect @scaleApp.foo).toBe @validPlugin.base.foo
+      (expect @scaleApp.bar).toEqual "x"
 
     it "installs the sandbox plugin", (done) ->
       aModule = (sb) ->
@@ -615,18 +532,15 @@ describe "scaleApp core", ->
           (expect sb.yeah).toEqual "great"
           done()
         destroy: ->
-      @scaleApp.register "anId", aModule
-      @scaleApp.registerPlugin @validPlugin
-      @scaleApp.start "anId"
+      @core.register "anId", aModule
+      @scaleApp.plugin.register @validPlugin
+      @core.start "anId"
 
   describe "onModuleState function", ->
     before ->
-      @scaleApp.register "mod", (sb) ->
+      @core.register "mod", (sb) ->
         init: ->
         destroy: ->
-    after ->
-      @scaleApp.stopAll()
-      @scaleApp.unregisterAll()
 
     it "calls a registered method on instatiation", (done) ->
       fn = (data, channel) ->
@@ -634,17 +548,17 @@ describe "scaleApp core", ->
       fn2 = (data, channel) ->
         (expect channel).toEqual "instantiate/_always"
         done()
-      @scaleApp.onModuleState "instantiate", fn, "mod"
-      @scaleApp.onModuleState "instantiate", fn2
-      @scaleApp.start "mod"
+      @core.onModuleState "instantiate", fn, "mod"
+      @core.onModuleState "instantiate", fn2
+      @core.start "mod"
 
     it "calls a registered method on destruction", (done) ->
       fn = (data, channel) ->
         (expect channel).toEqual "destroy/mod"
         done()
-      @scaleApp.onModuleState "destroy", fn, "mod"
-      @scaleApp.start "mod"
-      @scaleApp.stop "mod"
+      @core.onModuleState "destroy", fn, "mod"
+      @core.start "mod"
+      @core.stop "mod"
 
     it "registers the plugin methods", (done) ->
       instFn = (data, channel) ->
@@ -659,6 +573,6 @@ describe "scaleApp core", ->
         on:
           instantiate: instFn
           destroy: destFn
-      (expect @scaleApp.registerPlugin plugin).toBe true
-      (expect @scaleApp.start "mod").toBe true
-      (expect @scaleApp.stop "mod").toBe true
+      (expect @scaleApp.plugin.register plugin).toBe true
+      (expect @core.start "mod").toBe true
+      (expect @core.stop "mod").toBe true

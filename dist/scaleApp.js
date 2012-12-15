@@ -1,13 +1,13 @@
 
 /*
-scaleapp - v0.4.0 - 2012-12-10
+scaleapp - v0.4.0 - 2012-12-14
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 */
 
 
 (function() {
-  var Mediator, Sandbox, VERSION, addModule, checkType, clone, core, coreKeywords, createInstance, doForAll, error, getArgumentNames, getInstanceOptions, instanceOpts, instances, k, ls, mediator, moduleStateMediator, modules, onModuleState, plugins, register, registerPlugin, runSeries, runWaterfall, sandboxKeywords, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util, v,
+  var Core, Mediator, Sandbox, addModule, base, checkType, clone, createInstance, doForAll, getArgumentNames, getInstanceOptions, ls, onModuleState, plugins, register, registerPlugin, runSeries, runWaterfall, setInstanceOptions, start, startAll, stop, stopAll, uniqueId, unregister, unregisterAll, util,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -394,40 +394,20 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   })();
 
-  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = Sandbox;
-  }
-
-  VERSION = "0.4.0";
-
   checkType = function(type, val, name) {
     if (typeof val !== type) {
       throw new TypeError("" + name + " has to be a " + type);
     }
   };
 
-  modules = {};
-
-  instances = {};
-
-  instanceOpts = {};
-
-  mediator = new Mediator;
-
   plugins = {};
-
-  error = function(e) {
-    return typeof console !== "undefined" && console !== null ? typeof console.error === "function" ? console.error(e.message) : void 0 : void 0;
-  };
-
-  moduleStateMediator = new Mediator;
 
   onModuleState = function(state, fn, moduleId) {
     if (moduleId == null) {
       moduleId = '_always';
     }
     checkType("function", fn, "parameter");
-    return moduleStateMediator.on("" + state + "/" + moduleId, fn, this);
+    return this.moduleStates.on("" + state + "/" + moduleId, fn, this);
   };
 
   getInstanceOptions = function(instanceId, module, opt) {
@@ -438,7 +418,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       val = _ref[key];
       o[key] = val;
     }
-    io = instanceOpts[instanceId];
+    io = this.instanceOpts[instanceId];
     if (io) {
       for (key in io) {
         val = io[key];
@@ -455,17 +435,17 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   createInstance = function(moduleId, instanceId, opt) {
-    var i, iOpts, instance, k, module, n, p, plugin, sb, v, _i, _len, _ref;
+    var cb, ev, i, iOpts, instance, k, module, n, p, plugin, sb, v, _i, _len, _ref, _ref1;
     if (instanceId == null) {
       instanceId = moduleId;
     }
-    module = modules[moduleId];
-    if (instances[instanceId] != null) {
-      return instances[instanceId];
+    module = this.modules[moduleId];
+    if (this.instances[instanceId] != null) {
+      return this.instances[instanceId];
     }
-    iOpts = getInstanceOptions(instanceId, module, opt);
-    sb = new Sandbox(core, instanceId, iOpts);
-    mediator.installTo(sb);
+    iOpts = getInstanceOptions.apply(this, [instanceId, module, opt]);
+    sb = new Sandbox(this, instanceId, iOpts);
+    this.mediator.installTo(sb);
     for (i in plugins) {
       p = plugins[i];
       if (!(p.sandbox != null)) {
@@ -477,15 +457,24 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
         v = plugin[k];
         sb[k] = v;
       }
+      if (typeof p.on === "object") {
+        _ref = p.on;
+        for (ev in _ref) {
+          cb = _ref[ev];
+          if (typeof cb === "function") {
+            this.onModuleState(ev, cb);
+          }
+        }
+      }
     }
     instance = new module.creator(sb);
     instance.options = iOpts;
     instance.id = instanceId;
-    instances[instanceId] = instance;
-    _ref = [instanceId, '_always'];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      n = _ref[_i];
-      moduleStateMediator.emit("instantiate/" + n);
+    this.instances[instanceId] = instance;
+    _ref1 = [instanceId, '_always'];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      n = _ref1[_i];
+      this.moduleStates.emit("instantiate/" + n);
     }
     return instance;
   };
@@ -499,10 +488,10 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     checkType("object", modObj, "the return value of the creator");
     checkType("function", modObj.init, "'init' of the module");
     checkType("function", modObj.destroy, "'destroy' of the module ");
-    if (modules[moduleId] != null) {
+    if (this.modules[moduleId] != null) {
       throw new TypeError("module " + moduleId + " was already registered");
     }
-    modules[moduleId] = {
+    this.modules[moduleId] = {
       creator: creator,
       options: opt,
       id: moduleId
@@ -515,24 +504,24 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       opt = {};
     }
     try {
-      return addModule(moduleId, creator, opt);
+      return addModule.apply(this, [moduleId, creator, opt]);
     } catch (e) {
-      error(new Error("could not register module '" + moduleId + "': " + e.message));
+      console.error("could not register module '" + moduleId + "': " + e.message);
       return false;
     }
   };
 
   setInstanceOptions = function(instanceId, opt) {
-    var k, v, _ref, _results;
+    var k, v, _base, _ref, _results;
     checkType("string", instanceId, "instance ID");
     checkType("object", opt, "option parameter");
-    if ((_ref = instanceOpts[instanceId]) == null) {
-      instanceOpts[instanceId] = {};
+    if ((_ref = (_base = this.instanceOpts)[instanceId]) == null) {
+      _base[instanceId] = {};
     }
     _results = [];
     for (k in opt) {
       v = opt[k];
-      _results.push(instanceOpts[instanceId][k] = v);
+      _results.push(this.instanceOpts[instanceId][k] = v);
     }
     return _results;
   };
@@ -562,10 +551,10 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     try {
       checkType("string", moduleId, "module ID");
       checkType("object", opt, "second parameter");
-      if (modules[moduleId] == null) {
+      if (this.modules[moduleId] == null) {
         throw new Error("module doesn't exist");
       }
-      instance = createInstance(moduleId, opt.instanceId, opt.options);
+      instance = createInstance.apply(this, [moduleId, opt.instanceId, opt.options]);
       if (instance.running === true) {
         throw new Error("module was already started");
       }
@@ -582,7 +571,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       instance.running = true;
       return true;
     } catch (e) {
-      error(e);
+      console.error(e);
       if (typeof opt.callback === "function") {
         opt.callback(new Error("could not start module: " + e.message));
       }
@@ -592,8 +581,8 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
 
   stop = function(id, cb) {
     var instance, n, _i, _len, _ref;
-    if (instance = instances[id]) {
-      mediator.unsubscribe(instance);
+    if (instance = this.instances[id]) {
+      this.mediator.unsubscribe(instance);
       if ((util.getArgumentNames(instance.destroy)).length >= 1) {
         instance.destroy(function(err) {
           return typeof cb === "function" ? cb(err) : void 0;
@@ -607,10 +596,10 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       _ref = [id, '_always'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         n = _ref[_i];
-        moduleStateMediator.unsubscribe("instantiate/" + n);
-        moduleStateMediator.emit("destroy/" + n);
+        this.moduleStates.unsubscribe("instantiate/" + n);
+        this.moduleStates.emit("destroy/" + n);
       }
-      delete instances[id];
+      delete this.instances[id];
       return true;
     } else {
       return false;
@@ -618,7 +607,8 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   startAll = function(cb, opt) {
-    var id, invalid, invalidErr, mods, startAction, valid, _ref;
+    var id, invalid, invalidErr, mods, startAction, valid, _ref,
+      _this = this;
     if (cb instanceof Array) {
       mods = cb;
       cb = opt;
@@ -628,21 +618,21 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
         _results = [];
         for (_i = 0, _len = mods.length; _i < _len; _i++) {
           id = mods[_i];
-          if (modules[id] != null) {
+          if (this.modules[id] != null) {
             _results.push(id);
           }
         }
         return _results;
-      })();
+      }).call(this);
     } else {
       mods = valid = (function() {
         var _results;
         _results = [];
-        for (id in modules) {
+        for (id in this.modules) {
           _results.push(id);
         }
         return _results;
-      })();
+      }).call(this);
     }
     if ((valid.length === (_ref = mods.length) && _ref === 0)) {
       if (typeof cb === "function") {
@@ -666,7 +656,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
     startAction = function(m, next) {
       var k, modOpts, o, v;
       o = {};
-      modOpts = modules[m].options;
+      modOpts = _this.modules[m].options;
       for (k in modOpts) {
         if (!__hasProp.call(modOpts, k)) continue;
         v = modOpts[k];
@@ -680,7 +670,7 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
         }
         return next(err);
       };
-      return start(m, o);
+      return _this.start(m, o);
     };
     util.doForAll(valid, startAction, function(err) {
       var e, i, x;
@@ -703,18 +693,19 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   stopAll = function(cb) {
-    var id;
+    var id,
+      _this = this;
     return util.doForAll((function() {
       var _results;
       _results = [];
-      for (id in instances) {
+      for (id in this.instances) {
         _results.push(id);
       }
       return _results;
-    })(), stop, cb);
+    }).call(this), (function() {
+      return stop.apply(_this, arguments);
+    }), cb);
   };
-
-  sandboxKeywords = ["core", "instanceId", "options", "publish", "emit", "on", "subscribe", "unsubscribe"];
 
   ls = function(o) {
     var id, m, _results;
@@ -727,129 +718,178 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   registerPlugin = function(plugin) {
-    var RESERVED_ERROR, cb, ev, k, v, _ref, _ref1, _ref2;
-    RESERVED_ERROR = new Error("plugin uses reserved keyword");
+    var k, v, _base, _base1, _base2, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
     try {
       checkType("object", plugin, "plugin");
       checkType("string", plugin.id, "'id' of plugin");
       if (typeof plugin.sandbox === "function") {
-        for (k in new plugin.sandbox(new Sandbox(core, ''))) {
-          if (__indexOf.call(sandboxKeywords, k) >= 0) {
-            throw RESERVED_ERROR;
-          }
-        }
         _ref = plugin.sandbox.prototype;
         for (k in _ref) {
           v = _ref[k];
-          Sandbox.prototype[k] = v;
+          if ((_ref1 = (_base = Sandbox.prototype)[k]) == null) {
+            _base[k] = v;
+          }
+        }
+      }
+      if (typeof plugin.core === "function") {
+        _ref2 = plugin.core.prototype;
+        for (k in _ref2) {
+          v = _ref2[k];
+          if ((_ref3 = (_base1 = Core.prototype)[k]) == null) {
+            _base1[k] = v;
+          }
         }
       }
       if (typeof plugin.core === "object") {
-        for (k in plugin.core) {
-          if (__indexOf.call(coreKeywords, k) >= 0) {
-            throw RESERVED_ERROR;
-          }
-        }
-        _ref1 = plugin.core;
-        for (k in _ref1) {
-          v = _ref1[k];
-          core[k] = v;
-          if (typeof exports !== "undefined" && exports !== null) {
-            exports[k] = v;
+        _ref4 = plugin.core;
+        for (k in _ref4) {
+          v = _ref4[k];
+          if ((_ref5 = (_base2 = Core.prototype)[k]) == null) {
+            _base2[k] = v;
           }
         }
       }
-      if (typeof plugin.on === "object") {
-        _ref2 = plugin.on;
-        for (ev in _ref2) {
-          cb = _ref2[ev];
-          if (typeof cb === "function") {
-            onModuleState(ev, cb);
+      if (typeof plugin.base === "object") {
+        _ref6 = plugin.base;
+        for (k in _ref6) {
+          v = _ref6[k];
+          if ((_ref7 = base[k]) == null) {
+            base[k] = v;
           }
         }
       }
       plugins[plugin.id] = plugin;
       return true;
     } catch (e) {
-      error(e);
+      console.error(e);
       return false;
     }
   };
 
-  core = {
-    VERSION: VERSION,
-    register: register,
-    unregister: function(id) {
-      return unregister(id, modules);
-    },
-    unregisterAll: function() {
-      return unregisterAll(modules);
-    },
-    registerPlugin: registerPlugin,
-    unregisterPlugin: function(id) {
-      return unregister(id, plugins);
-    },
-    unregisterAllPlugins: function() {
-      return unregisterAll(plugins);
-    },
-    setInstanceOptions: setInstanceOptions,
-    onModuleState: onModuleState,
-    start: start,
-    stop: stop,
-    startAll: startAll,
-    stopAll: stopAll,
-    uniqueId: util.uniqueId,
-    lsInstances: function() {
-      return ls(instances);
-    },
-    lsModules: function() {
-      return ls(modules);
-    },
-    lsPlugins: function() {
-      return ls(plugins);
+  Core = (function() {
+
+    function Core() {
+      var core, id, k, p, v, _ref;
+      this.modules = {};
+      this.instances = {};
+      this.instanceOpts = {};
+      this.mediator = new Mediator;
+      this.moduleStates = new Mediator;
+      for (id in plugins) {
+        p = plugins[id];
+        if (p.core) {
+          if (typeof p.core === "function") {
+            core = new p.core();
+            for (k in core) {
+              if (!__hasProp.call(core, k)) continue;
+              v = core[k];
+              if ((_ref = this[k]) == null) {
+                this[k] = v;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    Core.prototype.register = function() {
+      return register.apply(this, arguments);
+    };
+
+    Core.prototype.lsInstances = function() {
+      return ls(this.instances);
+    };
+
+    Core.prototype.lsModules = function() {
+      return ls(this.modules);
+    };
+
+    Core.prototype.start = function() {
+      return start.apply(this, arguments);
+    };
+
+    Core.prototype.startAll = function() {
+      return startAll.apply(this, arguments);
+    };
+
+    Core.prototype.stop = function() {
+      return stop.apply(this, arguments);
+    };
+
+    Core.prototype.stopAll = function() {
+      return stopAll.apply(this, arguments);
+    };
+
+    Core.prototype.publish = function() {
+      return this.mediator.publish.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.subscribe = function() {
+      return this.mediator.subscribe.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.on = function() {
+      return this.mediator.subscribe.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.unsubscribe = function() {
+      return this.mediator.unsubscribe.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.publish = function() {
+      return this.mediator.publish.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.emit = function() {
+      return this.mediator.publish.apply(this.mediator, arguments);
+    };
+
+    Core.prototype.unregisterAll = function() {
+      return unregisterAll(this.modules);
+    };
+
+    Core.prototype.unregister = function(id) {
+      return unregister(id, this.modules);
+    };
+
+    Core.prototype.onModuleState = function() {
+      return onModuleState.apply(this, arguments);
+    };
+
+    Core.prototype.setInstanceOptions = function() {
+      return setInstanceOptions.apply(this, arguments);
+    };
+
+    return Core;
+
+  })();
+
+  base = {
+    VERSION: "0.4.0",
+    plugin: {
+      register: registerPlugin,
+      ls: function() {
+        return ls(plugins);
+      }
     },
     util: util,
     Mediator: Mediator,
     Sandbox: Sandbox,
-    subscribe: function() {
-      return mediator.subscribe.apply(mediator, arguments);
-    },
-    on: function() {
-      return mediator.subscribe.apply(mediator, arguments);
-    },
-    unsubscribe: function() {
-      return mediator.unsubscribe.apply(mediator, arguments);
-    },
-    publish: function() {
-      return mediator.publish.apply(mediator, arguments);
-    },
-    emit: function() {
-      return mediator.publish.apply(mediator, arguments);
-    }
+    Core: Core
   };
 
-  coreKeywords = (function() {
-    var _results;
-    _results = [];
-    for (k in core) {
-      v = core[k];
-      _results.push(k);
-    }
-    return _results;
-  })();
-
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = core;
+    module.exports = base;
   }
 
   if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
     if ((typeof define !== "undefined" && define !== null ? define.amd : void 0) != null) {
       define(function() {
-        return core;
+        return base;
       });
     }
   } else if (typeof window !== "undefined" && window !== null) {
-    window.scaleApp = core;
+    window.scaleApp = base;
   }
 
 }).call(this);

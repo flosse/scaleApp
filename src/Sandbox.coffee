@@ -13,5 +13,3 @@ class Sandbox
     throw new TypeError "core was not defined" unless @core?
     throw new TypeError "no id was specified"  unless instanceId?
     throw new TypeError "id is not a string"   unless typeof instanceId is "string"
-
-module.exports = Sandbox if module?.exports?

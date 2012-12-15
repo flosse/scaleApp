@@ -81,10 +81,18 @@ or use [bower](http://twitter.github.com/bower/):
 
     bower install scaleapp
 
+## Create a core
+
+First of all create a new core instance:
+
+```javascript
+var core = new scaleApp.Core();
+```
+
 ## Register modules
 
 ```javascript
-scaleApp.register( "myModuleId", function( sb ){
+core.register( "myModuleId", function( sb ){
   return {
     init:    function(){ /*...*/ },
     destroy: function(){ /*...*/ }
@@ -104,7 +112,7 @@ class MyGreatModule
   init: -> alert "Hello world!"
   destroy: -> alert "Bye bye!"
 
-scaleApp.register "myGreatModule", MyGreatModule
+core.register "myGreatModule", MyGreatModule
 ```
 
 The `init` function is called by the framework when the module is supposed to
@@ -113,12 +121,12 @@ start. The `destroy` function is called when the module has to shut down.
 ### Show registered modules
 
 ```javascript
-scaleApp.lsModules() // returns an array of module names
+core.lsModules() // returns an array of module names
 ```
 ### Show running instances
 
 ```javascript
-scaleApp.lsInstances() // returns an array of instance names
+core.lsInstances() // returns an array of instance names
 ```
 
 ### Show registered plugins
@@ -143,9 +151,9 @@ class MyAsyncModule
     doSomethingAsync (err) ->
       done err
 
-scaleApp.register "myGreatModule", MyGreatModule
+core.register "myGreatModule", MyGreatModule
 end -> alert "now the initialization is done"
-scaleApp.start "myGreatModule", callback: end
+core.start "myGreatModule", callback: end
 ```
 
 ## Unregister modules
@@ -153,7 +161,7 @@ scaleApp.start "myGreatModule", callback: end
 It's simple:
 
 ```javascript
-scaleApp.unregister("myGreatModule");
+core.unregister("myGreatModule");
 ```
 
 ## Start modules
@@ -161,8 +169,8 @@ scaleApp.unregister("myGreatModule");
 After your modules are registered, start your modules:
 
 ```javascript
-scaleApp.start( "myModuleId" );
-scaleApp.start( "anOtherModule" );
+core.start( "myModuleId" );
+core.start( "anOtherModule" );
 ```
 
 ### Start options
@@ -170,20 +178,20 @@ scaleApp.start( "anOtherModule" );
 You may also want to start several instances of a module:
 
 ```javascript
-scaleApp.start( "myModuleId", {instanceId: "myInstanceId" } );
-scaleApp.start( "myModuleId", {instanceId: "anOtherInstanceId" });
+core.start( "myModuleId", {instanceId: "myInstanceId" } );
+core.start( "myModuleId", {instanceId: "anOtherInstanceId" });
 ```
 
 If you pass a callback function it will be called after the module started:
 
 ```javascript
-scaleApp.start( "myModuleId", {callback: function(){ /*...*/ } );
+core.start( "myModuleId", {callback: function(){ /*...*/ } );
 ```
 
 All other options you pass are available through the sandbox:
 
 ```javascript
-scaleApp.register( "mod", function(s){
+core.register( "mod", function(s){
   sb = s
   return {
     init:    function(){ alert( sb.options.myProperty ); },
@@ -191,27 +199,27 @@ scaleApp.register( "mod", function(s){
   };
 });
 
-scaleApp.start("mod", {myProperty: "myValue"});
+core.start("mod", {myProperty: "myValue"});
 ```
 
 If all your modules just needs to be instanciated once, you can simply starting
 them all:
 
 ```javascript
-scaleApp.startAll();
+core.startAll();
 ```
 
 To start some special modules at once you can pass an array with the module
 names:
 
 ```javascript
-scaleApp.startAll(["moduleA","moduleB"]);
+core.startAll(["moduleA","moduleB"]);
 ```
 
 You can also pass a callback function:
 
 ```javascript
-scaleApp.startAll(function(){
+core.startAll(function(){
   // do something when all modules were initialized
 });
 ```
@@ -221,8 +229,8 @@ scaleApp.startAll(function(){
 It's obvious:
 
 ```javascript
-scaleApp.stop("moduleB");
-scaleApp.stopAll();
+core.stop("moduleB");
+core.stopAll();
 ```
 
 ## Listing modules and instances
@@ -387,7 +395,7 @@ var myLocalization =
   ...
 }
 ...
-scaleApp.register( "moduleId", myModule, { i18n: myLocalization } );
+core.register( "moduleId", myModule, { i18n: myLocalization } );
 ```
 
 Now you can access these strings easily trough the sandbox using the `_` method.
@@ -401,13 +409,13 @@ sb._("myStringId");
 You can set the language globally by using the `setLanguage` method:
 
 ```javascript
-scaleApp.i18n.setLanguage( "de" );
+core.i18n.setLanguage( "de" );
 ```
 
 You can also set a global i18n object which can be used by all modules:
 
 ```javascript
-scaleApp.i18n.setGlobal( myGlobalObj );
+core.i18n.setGlobal( myGlobalObj );
 ```
 
 ## mvc - very simple MVC
@@ -437,7 +445,7 @@ class MyController extends scaleApp.Controller
 ```
 
 ```coffeescript
-registerModule "myModule", (@sb) ->
+core.registerModule "myModule", (@sb) ->
 
   init: (opt) ->
 
@@ -460,7 +468,7 @@ registerModule "myModule", (@sb) ->
 ```
 
 ```coffeescript
-scaleApp.publish "changeName", "Peter"
+core.publish "changeName", "Peter"
 ```
 ## state - Finite State Machine
 
@@ -507,8 +515,8 @@ If you include the `permission` plugin, all `Mediator` methods will be rejected
 by default to enforce you to permit any message method explicitely.
 
 ```coffeescript
-scaleApp.permission.add "instanceA", "subscribe", "a"
-scaleApp.permission.add "instanceB", "publish", ["b", "c"]
+core.permission.add "instanceA", "subscribe", "a"
+core.permission.add "instanceB", "publish", ["b", "c"]
 ```
 
 Now `instanceA` is allowed to subscribe to channel `a` but `instanceB` cannot
@@ -518,13 +526,13 @@ subscribe to it. Therefore `instanceB` can publish data on channel `a` and
 Of course you can remove a permission at any time:
 
 ```coffeescript
-scaleApp.permission.remove "moduleA", "publish", "x"
+core.permission.remove "moduleA", "publish", "x"
 ```
 
 Or remove the subscribe permissions of all channels:
 
 ```coffeescript
-scaleApp.permission.remove "moduleB", "subscribe"
+core.permission.remove "moduleB", "subscribe"
 ```
 
 ## strophe - XMPP plugin
@@ -533,16 +541,16 @@ This is an adapter plugin for [Strophe.js](http://strophe.im/strophejs/) with
 some helpful features (e.g. automatically reconnect on page refresh).
 
 ```javascript
-scaleApp.xmpp.login("myjid@server.tld", "myPassword");
-scaleApp.xmpp.logout();
-scaleApp.xmpp.jid       // the current JID
+core.xmpp.login("myjid@server.tld", "myPassword");
+core.xmpp.logout();
+core.xmpp.jid       // the current JID
 ```
 
 ## submodule
 
 ```javascript
 
-scaleApp.register("parent", function(sb){
+core.register("parent", function(sb){
 
   var childModule = function(sb){
     return({
@@ -564,10 +572,10 @@ scaleApp.register("parent", function(sb){
 
 });
 
-scaleApp.start("parent");
+core.start("parent");
 // the "parent" module starts a child within the init method
 
-scaleApp.stop("parent");
+core.stop("parent");
 // all children of "parent" were automatically stopped
 ```
 
@@ -597,6 +605,10 @@ scaleApp.registerPlugin
   sandbox: (@sb) ->
     appendFoo: -> @sb.getContainer.append "foo"
 
+  # define base extensions
+  base:
+    globalHello: -> "Hello"
+
   # define methods for module changes
   on:
     instantiate: ->
@@ -606,7 +618,7 @@ scaleApp.registerPlugin
 Usage:
 
 ```coffeescript
-scaleApp.myCoreFunction()   # alerts "Hello core plugin"
+core.myCoreFunction()   # alerts "Hello core plugin"
 
 class MyModule
   constructor: (@sb) ->
@@ -632,6 +644,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.4.0 (??-??)
 
+- added a Core class that can be instantiated
 - new submodule plugin
 - emit events on module state changes
 
