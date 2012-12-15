@@ -21,6 +21,6 @@ plugin =
   id: "util"
   sandbox: UtilPlugin
 
-scaleApp.registerPlugin plugin if scaleApp?
+scaleApp.plugin.register plugin if scaleApp?
 module.exports = plugin if module?.exports?
 (define -> plugin) if define?.amd?

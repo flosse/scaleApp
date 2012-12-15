@@ -5,10 +5,12 @@ describe "i18n plugin", ->
   before ->
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
-      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.i18n"
+      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.i18n"
 
     else if window?
       @scaleApp  = window.scaleApp
+
+    @core = new @scaleApp.Core
 
     @myLangObj =
       en:
@@ -34,37 +36,33 @@ describe "i18n plugin", ->
           destroy: ->
 
         # register module
-        @scaleApp.register "myId", mod, {i18n: @myLangObj }
+        @core.register "myId", mod, {i18n: @myLangObj }
 
-        # start that moudle
-        @scaleApp.start "myId", callback: cb
-
-  after ->
-    @scaleApp.stopAll()
-    @scaleApp.unregisterAll()
+        # start that module
+        @core.start "myId", callback: cb
 
   it "provides the method getBrowserLanguage", ->
-    (expect typeof @scaleApp.i18n.getBrowserLanguage ).toEqual "function"
+    (expect typeof @scaleApp.getBrowserLanguage ).toEqual "function"
 
   it "has a method for setting a language code", ->
     lang = "en-US"
-    @scaleApp.i18n.setLanguage lang
-    (expect lang).toEqual @scaleApp.i18n.getLanguage()
+    @core.i18n.setLanguage lang
+    (expect lang).toEqual @core.i18n.getLanguage()
 
   it "has a method for setting a global object", ->
-    (expect typeof @scaleApp.i18n.setGlobal).toEqual "function"
-    (expect @scaleApp.i18n.setGlobal @globalObj).toEqual true
+    (expect typeof @core.i18n.setGlobal).toEqual "function"
+    (expect @core.i18n.setGlobal @core).toEqual true
 
-  it "fires an event if the languages has changed", (done) ->
+  it "fires an event when the languages was changed", (done) ->
 
     cb = sinon.spy()
     scb = sinon.spy()
 
-    @scaleApp.i18n.subscribe cb
+    @core.i18n.onChange cb
 
     test = (sb) =>
-      sb.i18n.subscribe scb
-      @scaleApp.i18n.setLanguage "de-CH"
+      sb.i18n.onChange scb
+      @core.i18n.setLanguage "de-CH"
 
     @run test, ->
       (expect cb).toHaveBeenCalled()
@@ -75,8 +73,8 @@ describe "i18n plugin", ->
 
     it "returns the global text if nothing was defined locally", (done) ->
 
-      @scaleApp.i18n.setLanguage "de"
-      @scaleApp.i18n.setGlobal @globalObj
+      @core.i18n.setLanguage "de"
+      @core.i18n.setGlobal @globalObj
 
       test = (sb) =>
         # yes is only defined globally
@@ -89,30 +87,30 @@ describe "i18n plugin", ->
 
     it "returns english string if current language is not supported", (done) ->
       test = (sb) =>
-        @scaleApp.i18n.setLanguage( "es" )
+        @core.i18n.setLanguage( "es" )
         (expect sb._ "helloWorld" ).toEqual "Hello world"
-        (expect sb.getLanguage()).toEqual "es"
+        (expect sb.i18n.getLanguage()).toEqual "es"
         done()
       @run test
 
     it "returns base language string if current language is not supported", (done) ->
       test = (sb) =>
-        @scaleApp.i18n.setLanguage "de-CH"
+        @core.i18n.setLanguage "de-CH"
         (expect sb._ "helloWorld" ).toEqual "Hallo Welt"
         done()
       @run test
 
     it "returns not the base language string if current language is supported", (done) ->
       test = (sb) =>
-        @scaleApp.i18n.setLanguage "de-CH"
+        @core.i18n.setLanguage "de-CH"
         (expect sb._ "hello" ).toEqual "Grüezi!"
         done()
       @run test
 
     it "returns the key itself if nothing was found", (done) ->
-      @scaleApp.register "mod", (sb) ->
+      @core.register "mod", (sb) ->
         init: =>
           (expect sb._ "nothing").toEqual "nothing"
           done()
         destroy: ->
-      @scaleApp.start "mod"
+      @core.start "mod"

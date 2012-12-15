@@ -4,7 +4,7 @@ class Model extends scaleApp.Mediator
 
   constructor: (obj) ->
     super()
-    @id = obj?.id or scaleApp.uniqueId()
+    @id = obj?.id or scaleApp.util.uniqueId()
     @[k] = v for k,v of obj when not @[k]?
 
   set: (key, val, silent=false) ->
@@ -50,11 +50,11 @@ class Controller
 
 plugin =
   id: "mvc"
-  core:
+  base:
     Model: Model
     View: View
     Controller: Controller
 
-scaleApp.registerPlugin plugin if window?.scaleApp?
+scaleApp.plugin.register plugin if window?.scaleApp?
 module.exports = plugin if module?.exports?
 (define -> plugin) if define?.amd?

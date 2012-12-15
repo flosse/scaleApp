@@ -6,9 +6,10 @@ describe "permission plugin", ->
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
       @plugin    = require "../../dist/plugins/scaleApp.permission"
-      @scaleApp.registerPlugin @plugin
+      @scaleApp.plugin.register @plugin
     else if window?
       @scaleApp  = window.scaleApp
+    @core = new @scaleApp.Core
 
     # helper method
     @run = (fn, id="id", cb=->) =>
@@ -19,20 +20,20 @@ describe "permission plugin", ->
           destroy: ->
 
         # register module
-        @scaleApp.register id, mod, {i18n: @myLangObj }
+        @core.register id, mod, {i18n: @myLangObj }
 
         # start that moudle
-        @scaleApp.start id, callback: cb
+        @core.start id, callback: cb
 
   afterEach ->
-    @scaleApp.stopAll()
-    @scaleApp.unregisterAll()
+    @core.stopAll()
+    @core.unregisterAll()
 
   it "provides the method add", ->
-    (expect typeof @scaleApp.permission.add).toEqual "function"
+    (expect typeof @core.permission.add).toEqual "function"
 
   it "provides the method remove", ->
-    (expect typeof @scaleApp.permission.remove).toEqual "function"
+    (expect typeof @core.permission.remove).toEqual "function"
 
   it "rejects all mediator methods if no explicit permission was defined", (done) ->
 
@@ -49,8 +50,8 @@ describe "permission plugin", ->
 
   it "executes the required methods if a permission was defined", (done) ->
 
-    @scaleApp.permission.add "anId", "subscribe", "x"
-    @scaleApp.permission.add "anId", "subscribe", ["a", "b"]
+    @core.permission.add "anId", "subscribe", "x"
+    @core.permission.add "anId", "subscribe", ["a", "b"]
 
     test = (sb) ->
       (expect sb.subscribe "y", ->).toEqual false
@@ -65,8 +66,8 @@ describe "permission plugin", ->
 
   it "rejects a methods if no permission was defined", (done) ->
 
-    @scaleApp.permission.add "oo", "subscribe", "x"
-    @scaleApp.permission.add "ii", "publish", "x"
+    @core.permission.add "oo", "subscribe", "x"
+    @core.permission.add "ii", "publish", "x"
 
     test = (sb) ->
       (expect sb.subscribe "x", ->).toBe false
@@ -77,15 +78,15 @@ describe "permission plugin", ->
 
   it "removes a permission", (done) ->
 
-    @scaleApp.permission.add "ee", "subscribe", "x"
-    @scaleApp.permission.add "ee", "publish", ["z", "w"]
+    @core.permission.add "ee", "subscribe", "x"
+    @core.permission.add "ee", "publish", ["z", "w"]
 
     test = (sb) =>
       (expect sb.subscribe "x", ->).not.toBe false
-      @scaleApp.permission.remove "ee", "subscribe"
+      @core.permission.remove "ee", "subscribe"
       (expect sb.subscribe "x", ->).toBe false
       (expect sb.publish "z", ->).not.toBe false
-      @scaleApp.permission.remove "ee", "publish", "z"
+      @core.permission.remove "ee", "publish", "z"
       (expect sb.publish "z", ->).toBe false
       (expect sb.publish "w", ->).not.toBe false
       done()

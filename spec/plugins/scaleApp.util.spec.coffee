@@ -6,10 +6,11 @@ describe "util plugin", ->
 
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
-      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.util"
-
+      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.util"
     else if window?
       @scaleApp  = window.scaleApp
+      @Core  = window.scaleApp
+    @core = new @scaleApp.Core
 
     # helper method
     @run = (fn, cb=->) =>
@@ -20,14 +21,14 @@ describe "util plugin", ->
           destroy: ->
 
         # register module
-        @scaleApp.register "myId", mod, {i18n: @myLangObj }
+        @core.register "myId", mod, {i18n: @myLangObj }
 
         # start that moudle
-        @scaleApp.start "myId", callback: cb
+        @core.start "myId", callback: cb
 
    after ->
-     @scaleApp.stopAll()
-     @scaleApp.unregisterAll()
+     @core.stopAll()
+     @core.unregisterAll()
 
   it "installs it to the sandbox", (done) ->
 

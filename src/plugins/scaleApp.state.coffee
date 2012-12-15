@@ -83,9 +83,9 @@ class StateMachine extends scaleApp.Mediator
 
 plugin =
   id: "state"
-  core:
+  base:
     StateMachine: StateMachine
 
-scaleApp.registerPlugin plugin if window?.scaleApp?
+scaleApp.plugin.register plugin if window?.scaleApp?
 module.exports = plugin if module?.exports?
 (define -> plugin) if define?.amd?

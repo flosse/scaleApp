@@ -6,14 +6,15 @@ describe "stateMachine plugin", ->
 
     if typeof(require) is "function"
       @scaleApp = require "../../dist/scaleApp"
-      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.state"
+      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.state"
 
     else if window?
       @scaleApp = window.scaleApp
 
+    @core    = new @scaleApp.Core
     @machine = new @scaleApp.StateMachine
 
-  after -> @scaleApp.unregisterAll()
+  after -> @core.unregisterAll()
 
   it "installs it to the core", ->
     (expect typeof @scaleApp.StateMachine).toEqual "function"

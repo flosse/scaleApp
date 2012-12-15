@@ -5,10 +5,11 @@ describe "mvc plugin", ->
   before ->
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
-      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.mvc"
+      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.mvc"
 
     else if window?
       @scaleApp  = window.scaleApp
+    @core = new @scaleApp.Core
 
   describe "Model", ->
 

@@ -1,7 +1,8 @@
 describe "dom plugin", ->
 
   before ->
-    @scaleApp  = window.scaleApp
+    @scaleApp = window.scaleApp
+    @core     = new @scaleApp.Core
 
     # helper method
     @run = (fn, opt={}) =>
@@ -12,16 +13,12 @@ describe "dom plugin", ->
           destroy: ->
 
         # register module
-        @scaleApp.register "myId", mod
+        @core.register "myId", mod
 
         # start that moudle
-        @scaleApp.start "myId", options: opt
+        @core.start "myId", options: opt
 
     @dummy = { a: "dummy" }
-
-  after ->
-    @scaleApp.stopAll()
-    @scaleApp.unregisterAll()
 
   it "installs itself to the sandbox", (done) ->
 

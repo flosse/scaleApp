@@ -264,6 +264,7 @@ else
       else
         scaleApp.publish "#{ID}/disconnected"
 
+  # TODO: create core plugin
   xmppPlugin =
     init:       init
     jid:        ""
@@ -273,9 +274,9 @@ else
 
   plugin =
     id: ID
-    core:
+    base:
       xmpp: xmppPlugin
 
-  scaleApp.registerPlugin plugin if window?.scaleApp?
+  scaleApp.plugin.register plugin if window?.scaleApp?
   module.exports = plugin if module?.exports?
   (define -> plugin) if define?.amd?
