@@ -9,7 +9,7 @@ class SBPlugin
     @sb.core.onModuleState "destroy", destroy, @sb.instanceId
     @sub = {}
 
-    for fn in ["register", "start", "stop", "on", "off"] then do (fn) =>
+    for fn in ["register", "start", "stop", "on", "off", "emit"] then do (fn) =>
       @sub[fn] = -> core[fn].apply core, arguments
 
     if core.permission?
