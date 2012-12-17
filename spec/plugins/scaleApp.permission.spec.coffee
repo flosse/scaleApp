@@ -4,7 +4,7 @@ describe "permission plugin", ->
 
   beforeEach ->
     if typeof(require) is "function"
-      @scaleApp  = require "../../dist/scaleApp"
+      @scaleApp  = getScaleApp()
       @plugin    = require "../../dist/plugins/scaleApp.permission"
       @scaleApp.plugin.register @plugin
     else if window?
@@ -52,7 +52,7 @@ describe "permission plugin", ->
     @core.permission.add "anId", "on", "x"
     @core.permission.add "anId", "on", ["a", "b"]
     # add permission for all channels
-    @core.permission.add "anId", "off", true
+    @core.permission.add "anId", "off", '*'
 
     test = (sb) ->
       (expect sb.on "y", ->).toEqual false
@@ -72,7 +72,7 @@ describe "permission plugin", ->
     @core.permission.add "anId",
       on: ["a", "b"]
       emit: "x"
-      off: true
+      off: '*'
 
     test = (sb) ->
       (expect sb.on "y", ->).toEqual false
@@ -81,6 +81,23 @@ describe "permission plugin", ->
       (expect sb.emit "x", ->).not.toBe false
       (expect sb.off "x", ->).not.toBe false
       (expect sb.off "a", ->).not.toBe false
+      done()
+
+    @run test, "anId"
+
+  it "it can add all permissions to a channel", (done) ->
+
+    @timeout = 1000
+    (expect @core.permission.add "anId", '*', "x").toBe true
+    (expect @core.permission.add "anId", {'*': ["j", "k"]}).toBe true
+
+    test = (sb) ->
+      (expect sb.on   "foo", ->).toEqual false
+      (expect sb.on   "x", ->).not.toBe false
+      (expect sb.emit "x", ->).not.toBe false
+      (expect sb.off  "x", ->).not.toBe false
+      (expect sb.on   "j", ->).not.toBe false
+      (expect sb.emit "k", ->).not.toBe false
       done()
 
     @run test, "anId"

@@ -1,19 +1,26 @@
 permissions = {}
+controlledActions = ["on", "emit", "off"]
 
 addPermission = (id, action, channels) ->
   if typeof action is "object"
     not false in (addPermission id,k,v for k,v of action)
   else if channels?
+
     p = permissions[id] ?= {}
-    a = p[action] ?= {}
+
     if typeof channels is "string"
-      channels = [channels]
-    else if channels is true
-      channels = ["__all__"]
-    a[c] = true for c in channels
-    true
-  else
-    false
+      channels = if channels is '*' then ["__all__"] else [channels]
+
+    if typeof action is "string"
+      if action is '*'
+        not false in (addPermission id, act, channels for act in controlledActions)
+      else
+        a = p[action] ?= {}
+        a[c] = true for c in channels
+        true
+
+    else false
+  else false
 
 removePermission = (id, action, channel) ->
   p = permissions[id]
@@ -49,9 +56,8 @@ tweakSandboxMethod = (sb, methodName) ->
 class SBPlugin
 
   constructor: (sb) ->
-
     # override original functions
-    tweakSandboxMethod sb, a for a in ["on", "emit", "off"]
+    tweakSandboxMethod sb, a for a in controlledActions
 
 plugin =
   id: "permission"
