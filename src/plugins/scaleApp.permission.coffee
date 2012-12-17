@@ -1,11 +1,15 @@
 permissions = {}
 
 addPermission = (id, action, channels) ->
-  if channels?
+  if typeof action is "object"
+    not false in (addPermission id,k,v for k,v of action)
+  else if channels?
     p = permissions[id] ?= {}
     a = p[action] ?= {}
     if typeof channels is "string"
       channels = [channels]
+    else if channels is true
+      channels = ["__all__"]
     a[c] = true for c in channels
     true
   else
@@ -23,7 +27,8 @@ removePermission = (id, action, channel) ->
     true
 
 hasPermission = (id, action, channel) ->
-  if channel? and permissions[id]?[action]?[channel]
+  p = permissions[id]?[action] or {}
+  if channel? and (p[channel] or p["__all__"])
     true
   else
     console.warn "'#{id}' has no permissions for '#{action}' with '#{channel}'"

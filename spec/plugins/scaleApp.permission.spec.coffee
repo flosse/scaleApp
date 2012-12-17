@@ -51,6 +51,8 @@ describe "permission plugin", ->
 
     @core.permission.add "anId", "on", "x"
     @core.permission.add "anId", "on", ["a", "b"]
+    # add permission for all channels
+    @core.permission.add "anId", "off", true
 
     test = (sb) ->
       (expect sb.on "y", ->).toEqual false
@@ -58,6 +60,27 @@ describe "permission plugin", ->
       (expect sb.on "a", ->).not.toEqual false
       (expect sb.on "b", ->).not.toEqual false
       (expect sb.emit "x", ->).toBe false
+      (expect sb.off "x", ->).not.toBe false
+      (expect sb.off "a", ->).not.toBe false
+      (expect sb.off "unknown", ->).not.toBe false
+      done()
+
+    @run test, "anId"
+
+  it "can add permissions by an object", (done) ->
+
+    @core.permission.add "anId",
+      on: ["a", "b"]
+      emit: "x"
+      off: true
+
+    test = (sb) ->
+      (expect sb.on "y", ->).toEqual false
+      (expect sb.on "a", ->).not.toEqual false
+      (expect sb.on "b", ->).not.toEqual false
+      (expect sb.emit "x", ->).not.toBe false
+      (expect sb.off "x", ->).not.toBe false
+      (expect sb.off "a", ->).not.toBe false
       done()
 
     @run test, "anId"
