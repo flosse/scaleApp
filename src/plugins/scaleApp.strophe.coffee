@@ -3,7 +3,7 @@ Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 throw new Error "This plugin only can be used in the browser" unless window?
-throw new Error "This plugin requires strophe.js" unless window.Strophe?
+console.warn "This plugin requires strophe.js" unless window.Strophe?
 
 scaleApp = window.scaleApp
 
