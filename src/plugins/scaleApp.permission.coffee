@@ -2,7 +2,9 @@ permissions = {}
 controlledActions = ["on", "emit", "off"]
 
 addPermission = (id, action, channels) ->
-  if typeof action is "object"
+  if typeof id is "object"
+    not false in (addPermission k,v for k,v of id)
+  else if typeof action is "object"
     not false in (addPermission id,k,v for k,v of action)
   else if channels?
 

@@ -72,7 +72,8 @@ describe "permission plugin", ->
     @core.permission.add "anId",
       on: ["a", "b"]
       emit: "x"
-      off: '*'
+
+    @core.permission.add anId: { off: '*' }
 
     test = (sb) ->
       (expect sb.on "y", ->).toEqual false
