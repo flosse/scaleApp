@@ -418,6 +418,20 @@ You can also set a global i18n object which can be used by all modules:
 core.i18n.setGlobal( myGlobalObj );
 ```
 
+Within your module you can define your local texts:
+
+```javascript
+function(sb){
+  init: function(){
+    sb.i18n.addLocal({
+      en: {hello: "Hello" },
+      de: {hello: "Hallo" }
+    });
+  },
+  destroy: function(){}
+}
+```
+
 ## mvc - very simple MVC
 
 ![scaleApp mvc](https://raw.github.com/flosse/scaleApp/master/mvc.png)
@@ -517,11 +531,16 @@ by default to enforce you to permit any message method explicitely.
 ```coffeescript
 core.permission.add "instanceA", "on", "a"
 core.permission.add "instanceB", "emit", ["b", "c"]
+core.permission.add "instanceC", "emit", '*'
+core.permission.add "instanceD", '*', 'd'
 ```
 
-Now `instanceA` is allowed to subscribe to channel `a` but `instanceB` cannot
-subscribe to it. Therefore `instanceB` can emit data on channel `a` and
-`instanceB` can not.
+Now `instanceA` is allowed to subscribe to channel `a` but all others cannot
+subscribe to it.
+`InstanceB` can emit data on channels `a` and `c`.
+`InstanceC` can publish to all channels.
+`InstanceD` can perform all actions (`on`, `off`, `emit`)
+but only on channel `d`.
 
 Of course you can remove a permission at any time:
 
@@ -565,6 +584,9 @@ core.register("parent", function(sb){
     init: function(){
       sb.sub.register("child",childModule);
       sb.permission.add("child", "emit", "x");
+      sb.sub.on("x",function(msg){
+        console.log("a child send this: " + msg);
+      });
       sb.sub.start("child");
     },
     destroy: function(){}
@@ -649,6 +671,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 - added a Core class that can be instantiated
 - new submodule plugin
 - emit events on module state changes
+- improved permission and i18n plugins
 
 #### v0.3.9 (12-2012)
 

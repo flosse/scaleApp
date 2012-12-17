@@ -100,6 +100,20 @@ describe "i18n plugin", ->
         done()
       @run test
 
+    it "returns the local language string if it is set", (done) ->
+      @timeout = 1000
+      @core.i18n.setGlobal "de": { hey: "Tach!" }
+      test = (sb) =>
+        (expect typeof sb.i18n.addLocal).toEqual "function"
+        sb.i18n.addLocal {en: { time: "Time"}, de: {time: "Zeit"} }
+        @core.i18n.setLanguage "de"
+        (expect sb._ "time" ).toEqual "Zeit"
+        (expect sb._ "hey" ).toEqual "Tach!"
+        @core.i18n.setLanguage "en"
+        (expect sb._ "time" ).toEqual "Time"
+        done()
+      @run test
+
     it "returns not the base language string if current language is supported", (done) ->
       test = (sb) =>
         @core.i18n.setLanguage "de-CH"

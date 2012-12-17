@@ -12,8 +12,14 @@ getText = (key, x, l, global) -> x[l]?[key] or global[l]?[key]
 get = (key, x={}, lang="", global) ->
   getText(key, x, lang, global)                 or
   getText(key, x, lang.substring(0,2), global)  or
-  getText(key, x, baseLanguage,global)         or
+  getText(key, x, baseLanguage,global)          or
   key
+
+addLocal = (dict, i18n) ->
+  return false unless typeof dict is "object"
+  for lang,txt of dict
+    i18n[lang] ?= {}
+    i18n[lang][k] ?= v for k,v of txt
 
 class SBPlugin
 
@@ -25,8 +31,11 @@ class SBPlugin
       onChange: i18nLocal.onChange
       unsubscribe: i18nLocal.unsubscribe
       getLanguage: i18nLocal.getLanguage
+      addLocal: (dict) ->
+        sb.options.i18n ?= {}
+        addLocal dict, sb.options.i18n
 
-    @_ = (text) => i18nLocal._ text, sb.options.i18n
+    @_ = (text) => i18nLocal._ text, sb.options.localDict or sb.options.i18n
 
 class CorePlugin
 
