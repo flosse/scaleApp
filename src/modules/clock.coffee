@@ -19,17 +19,31 @@ getDigits = (n) ->
   n
 
 getTimeObject = (t) ->
-  d = new Date 0,0
-  d.setMilliseconds t
+  if typeof t is "number"
+    d = new Date 0,0
+    d.setMilliseconds t
+  else if t instanceof Date
+    d = t
   s: d.getSeconds()
   m: d.getMinutes()
   h: d.getHours()
+
+getTime = (t) -> new Date(0,0,0,t.h,t.m,t.s).getTime()
+
+compare = (t1, t2) ->
+  a = getTime t1
+  b = getTime t2
+  if a is b then 0 else if a > b then 1 else -1
 
 class Clock
 
   constructor: (@sb) ->
 
   init: (opt) ->
+    { start, min, max, reverse, @loop } = opt
+    @minTime    = getTimeObject min if min
+    @maxTime    = getTimeObject max if max
+    @runReverse = true if reverse
     @container = @sb.getContainer()
     @container.innerHTML = template
     @hDiv = @container.getElementsByClassName("hours"  )[0]
@@ -45,16 +59,18 @@ class Clock
     @sb.on "#{id}/setStop",  @setStop,  @
     @alertTime = false
     @stopTime  = false
+    @set start if start?
     @resume()
 
   resume: ->
     @set()
-    @update()
     @timer = setInterval @update, 1000
 
   pause: -> clearInterval @timer
 
   set: (ev) ->
+    if typeof ev is "object"
+      ev = ((ev.h *60 + ev.m) * 60 + ev.s) * 1000
     @refDate = new Date
     if ev? and typeof ev is "number"
       @startDate = new Date 0,0
@@ -62,7 +78,7 @@ class Clock
     else
       @startDate = @date or new Date @refDate.getTime()
     @date = new Date @startDate.getTime()
-    @update()
+    @render getTimeObject @date
 
   setAlert: (t) ->
     @alertTime = getTimeObject t if typeof t is "number"
@@ -78,27 +94,56 @@ class Clock
     @runReverse = false
     @set ev
 
-  check: ->
-    if @alertTime.s is @s and
-       @alertTime.m is @m and
-       @alertTime.h is @h
-      @sb.emit "#{@sb.instanceId}/alert"
-    if @stopTime.s is @s and
-       @stopTime.m is @m and
-       @stopTime.h is @h
+  minReached: (t) -> @minTime and compare(t, @minTime) < 0
+
+  maxReached: (t) -> @maxTime and compare(t, @maxTime) > 0
+
+  onMinReached: ->
+    if @loop
+      if not @runReverse
+        @onMaxReached()
+      else
+        if @maxTime then @set @maxTime else @set h:59, m:59, s:59
+    else
       @pause()
+      @render @minTime
+
+  onMaxReached: ->
+    if @loop
+      if @runReverse
+        @onMinReached()
+      else
+        if @minTime then @set @minTime else @set 0
+    else
+      @pause()
+      @render @maxTime
 
   update: =>
     diff  = (new Date) - @refDate
     diff = -diff if @runReverse
-    @date = new Date (@startDate.getTime() +  diff)
-    @h = @date.getHours()
-    @m = @date.getMinutes()
-    @s = @date.getSeconds()
-    @hDiv.textContent = getDigits @h
-    @mDiv.textContent = getDigits @m
-    @sDiv.textContent = getDigits @s
-    @check()
+    date = new Date (@startDate.getTime() +  diff)
+    t = getTimeObject date
+    if @minReached t
+      @onMinReached()
+      return
+    if @maxReached t
+      @onMaxReached()
+      return
+    if @stopTime and compare @stopTime,t is 0
+      @pause()
+      @render t
+      return
+    if @alertTime and compare @alertTime,t is 0
+      @render t
+      @sb.emit "#{@sb.instanceId}/alert" if alert
+      return
+    @render t
+    @date = date
+
+  render: (t) ->
+    @hDiv.textContent = getDigits t.h
+    @mDiv.textContent = getDigits t.m
+    @sDiv.textContent = getDigits t.s
 
   destroy: ->
     @pause()

@@ -11,10 +11,10 @@ describe "clock module", ->
       .appendChild @div
     @core.register "clock", Clock
     @core.start "clock"
-    @secondsDiv = @div.getElementsByClassName("seconds")[0]
-    @minutesDiv = @div.getElementsByClassName("minutes")[0]
-    @getSeconds = -> @secondsDiv.innerText
-    @getMinutes = -> @minutesDiv.innerText
+    @getSeconds = ->
+      @div.getElementsByClassName("seconds")[0].innerText
+    @getMinutes = ->
+      @div.getElementsByClassName("minutes")[0].innerText
 
   after ->
     @core.stopAll()
@@ -53,6 +53,7 @@ describe "clock module", ->
   it "can be set", ->
     @core.emit "clock/pause"
     @core.emit "clock/set", (2 * 60 * 1000 + 3*1000)
+    @core.emit "clock/resume"
     s = @getSeconds()
     (expect @getSeconds()  * 1).toEqual 3
     (expect @getMinutes() * 1).toEqual 2
@@ -95,3 +96,40 @@ describe "clock module", ->
     s = @getSeconds() * 1
     (expect s).toEqual 2
     done()
+
+  it "can configured with a min time", (done) ->
+    @core.stop "clock"
+    @core.start "clock",
+      options: min: 60000
+    @core.emit "clock/reverse", 60010, =>
+      setTimeout((=>
+        (expect @getMinutes() * 1).toEqual 1
+        (expect @getSeconds() * 1).toEqual 0
+        done()
+      ),1100)
+
+  it "can configured with a max time", (done) ->
+    @core.stop "clock"
+    @core.start "clock",
+      options: max: 60000
+    @core.emit "clock/set", 59990, =>
+      setTimeout((=>
+        (expect @getMinutes() * 1).toEqual 1
+        (expect @getSeconds() * 1).toEqual 0
+        done()
+      ),1100)
+
+  it "can configured with a loop option", (done) ->
+    @core.stop "clock"
+    @core.start "clock",
+      options:
+        start: 62000
+        min:   1000
+        max:   62000
+        loop:  true
+
+    setTimeout((=>
+      (expect @getMinutes() * 1).toEqual 0
+      (expect @getSeconds() * 1).toEqual 1
+      done()
+    ),1100)

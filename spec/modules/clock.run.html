@@ -36,8 +36,9 @@
   </body>
   <script>
 
-    scaleApp.register("clock", Clock);
-    scaleApp.start("clock");
+    var app = new scaleApp.Core();
+    app.register("clock", Clock);
+    app.start("clock");
 
     var startModule = document.getElementById("startModule");
     var stopModule  = document.getElementById("stopModule");
@@ -54,51 +55,51 @@
     resume.disabled = false;
 
     startModule.onclick = function(){
-      scaleApp.start("clock");
+      app.start("clock");
       startModule.disabled  = true;
       stopModule.disabled   = false;
     };
 
     stopModule.onclick  = function(){
-      scaleApp.stop("clock");
+      app.stop("clock");
       stopModule.disabled   = true;
       startModule.disabled  = false;
     };
 
     pause.onclick = function(){
-      scaleApp.publish("clock/pause");
+      app.emit("clock/pause");
       pause.disabled = true;
       resume.disabled = false;
     };
 
     resume.onclick = function(){
-      scaleApp.publish("clock/resume");
+      app.emit("clock/resume");
       pause.disabled = false;
       resume.disabled = true;
     };
 
     setTimer.onclick = function(){
       var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
-      scaleApp.publish("clock/pause");
-      scaleApp.publish("clock/set", t);
+      app.emit("clock/pause");
+      app.emit("clock/set", t);
     };
 
     setAlert.onclick = function(){
       var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
-      scaleApp.publish("clock/setAlert", t);
-      scaleApp.on("clock/alert", function(){
+      app.emit("clock/setAlert", t);
+      app.on("clock/alert", function(){
         console.log("pling!");
       });
     };
 
     setStop.onclick = function(){
       var t = h.value*60*60*1000 + m.value*60*1000 + s.value*1000;
-      scaleApp.publish("clock/setStop", t);
+      app.emit("clock/setStop", t);
     };
 
     runTimer.onclick = function(){
-      scaleApp.publish("clock/reverse");
-      scaleApp.publish("clock/resume");
+      app.publish("clock/reverse");
+      app.publish("clock/resume");
     };
 
   </script>
