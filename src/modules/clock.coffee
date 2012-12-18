@@ -40,9 +40,12 @@ class Clock
   constructor: (@sb) ->
 
   init: (opt) ->
-    { start, min, max, reverse, @loop } = opt
-    @minTime    = getTimeObject min if min
-    @maxTime    = getTimeObject max if max
+    { start, stop, min, max, reverse, @loop } = opt
+    @minTime    = getTimeObject min   if min?
+    @maxTime    = getTimeObject max   if max?
+    @startTime  = getTimeObject start if start?
+    @setStop stop
+    @setAlert opt.alert
     @runReverse = true if reverse
     @container = @sb.getContainer()
     @container.innerHTML = template
@@ -57,9 +60,7 @@ class Clock
     @sb.on "#{id}/forward",  @forward,  @
     @sb.on "#{id}/setAlert", @setAlert, @
     @sb.on "#{id}/setStop",  @setStop,  @
-    @alertTime = false
-    @stopTime  = false
-    @set start if start?
+    @set @startTime
     @resume()
 
   resume: ->
@@ -123,19 +124,18 @@ class Clock
     diff = -diff if @runReverse
     date = new Date (@startDate.getTime() +  diff)
     t = getTimeObject date
+    if @alertTime and compare(@alertTime,t) is 0
+      @render t
+      @sb.emit "#{@sb.instanceId}/alert" if alert
+    if @stopTime and compare(@stopTime,t) is 0
+      @pause()
+      @render t
+      return
     if @minReached t
       @onMinReached()
       return
     if @maxReached t
       @onMaxReached()
-      return
-    if @stopTime and compare @stopTime,t is 0
-      @pause()
-      @render t
-      return
-    if @alertTime and compare @alertTime,t is 0
-      @render t
-      @sb.emit "#{@sb.instanceId}/alert" if alert
       return
     @render t
     @date = date
