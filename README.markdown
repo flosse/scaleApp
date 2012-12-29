@@ -744,7 +744,7 @@ npm test
 
 # Demo
 
-**WARNING**: the demo is out of date
+**WARNING**: the demo is totally out of date!
 
 You can try out the [sample application](http://www.scaleapp.org/demo/fast/)
 that is build on [scaleApp](http://www.scaleapp.org).

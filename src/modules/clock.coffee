@@ -2,14 +2,21 @@
 Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
-template =
+secondsTemplate = ->
+  if @showSeconds
+    """
+    <span class="delimiter">:</span>
+    <span class="seconds"></span>
+    """
+  else ''
+
+template = ->
   """
   <div class="clock">
     <span class="hours"></span>
     <span class="delimiter">:</span>
     <span class="minutes"></span>
-    <span class="delimiter">:</span>
-    <span class="seconds"></span>
+    #{secondsTemplate.call @}
   </div>
   """
 
@@ -40,18 +47,20 @@ class Clock
   constructor: (@sb) ->
 
   init: (opt) ->
-    { start, stop, min, max, reverse, @loop } = opt
+    { start, stop, min, max, reverse, @loop, @showSeconds } = opt
     @minTime    = getTimeObject min   if min?
     @maxTime    = getTimeObject max   if max?
     @startTime  = getTimeObject start if start?
+    @showSeconds ?= true
+    @timerIntervall = if @showSeconds then 1000 else 10000
     @setStop stop
     @setAlert opt.alert
     @runReverse = true if reverse
     @container = @sb.getContainer()
-    @container.innerHTML = template
+    @container.innerHTML = template.call @
     @hDiv = @container.getElementsByClassName("hours"  )[0]
     @mDiv = @container.getElementsByClassName("minutes")[0]
-    @sDiv = @container.getElementsByClassName("seconds")[0]
+    @sDiv = @container.getElementsByClassName("seconds")?[0]
     id = @sb.instanceId
     @sb.on "#{id}/pause",    @pause,    @
     @sb.on "#{id}/resume",   @resume,   @
@@ -65,7 +74,7 @@ class Clock
 
   resume: ->
     @set()
-    @timer = setInterval @update, 1000
+    @timer = setInterval @update, @timerIntervall
 
   pause: -> clearInterval @timer
 
@@ -143,7 +152,7 @@ class Clock
   render: (t) ->
     @hDiv.textContent = getDigits t.h
     @mDiv.textContent = getDigits t.m
-    @sDiv.textContent = getDigits t.s
+    @sDiv.textContent = getDigits t.s if @showSeconds
 
   destroy: ->
     @pause()

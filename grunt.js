@@ -64,13 +64,28 @@ module.exports = function(grunt) {
       src: {
         files: ['src/*.coffee', 'src/**/*.coffee'],
         tasks: ['default']
+      },
+      styles: {
+        files: ['src/modules/*.styl'],
+        tasks: ['stylus']
+      },
+    },
+    stylus: {
+      compile: {
+        options: {
+          compress: true
+        },
+        files: {
+          'dist/modules/*.css': ["src/modules/*.styl"]
+        }
       }
     }
   });
 
   grunt.loadNpmTasks("grunt-contrib-coffee");
   grunt.loadNpmTasks("grunt-contrib-copy");
-  grunt.registerTask('default', 'concat:dist coffee concat:full min copy');
+  grunt.loadNpmTasks("grunt-contrib-stylus");
+  grunt.registerTask('default', 'concat:dist coffee concat:full stylus min copy');
 
   // Quick and dirty task to build a custom bundle
   // Does s.o. know how to do that properly?
