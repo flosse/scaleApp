@@ -664,7 +664,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 # Changelog
 
-#### v0.4.0 (??-??)
+#### v0.4.0 (??-2013)
 
 - drop `subscribe`, `unsubscribe`, `publish` from Mediator API
   (use `on`, `off` and `emit` instead)
