@@ -54,6 +54,7 @@ describe "permission plugin", ->
     # add permission for all channels
     @core.permission.add "anId", "off", '*'
 
+    @timeout = 500
     test = (sb) ->
       (expect sb.on "y", ->).toEqual false
       (expect sb.on "x", ->).not.toEqual false
