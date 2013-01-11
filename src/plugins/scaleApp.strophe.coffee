@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2012 Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2012 - 2013 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 throw new Error "This plugin only can be used in the browser" unless window?
@@ -88,7 +88,6 @@ create_connection_obj = ->
     port: connection_options.port
 
 key2cache   = (k) -> "#{CACHE_PREFIX}#{k}"
-cache2key   = (c) -> c.split(CACHE_PREFIX)[1]
 
 saveData = ->
   if localStorage?
@@ -246,7 +245,7 @@ jid_to_id = (jid) ->
 restoreData = ->
   if localStorage?
     for k in [ "jid", "sid", "rid", "host", "port", "path" ]
-      j = cache2key k
+      j = key2cache k
       connection_options[k] = localStorage[j]  if localStorage[j]
 
 hasConnectionData = ->
