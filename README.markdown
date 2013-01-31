@@ -26,7 +26,7 @@ framework from the base library, scaleApp does not implement any DOM methods.
 Instead scaleApp can be extended by plugins. So you can just use one of your
 favorite libs (e.g. jQuery) as base library or you are going to implement all
 your needed DOM methods into the DOM plugin (`scaleApp.dom.coffee`) for a more
-clean and scaleable architecture.
+clean and scalable architecture.
 
 ## Features
 
@@ -245,18 +245,14 @@ lsInstances() // returns an array of all running instance IDs
 If the module needs to communicate with others, you can use the `emit` and
 `on` methods.
 
-### Publish
+### emit
 
 The `emit` function takes three parameters whereas the last one is optional:
-- `topic` : the channel name you want to publish to
+- `topic` : the channel name you want to emit to
 - `data`  : the data itself
-- `opt`   : options or callback
-    - `emitReference` : If the data should be passed as a reference to the
-       other modules this parameter has to be set to `true`.
-       By default the data object gets copied so that other modules can't
-       influence the original object.
+- `cb`    : callback method
 
-The publish function is accessible through the sandbox:
+The emit function is accessible through the sandbox:
 
 ```javascript
 sb.emit( "myEventTopic", myData );
@@ -264,7 +260,7 @@ sb.emit( "myEventTopic", myData );
 
 You can also use the shorter method alias `emit`.
 
-### Subscribe
+### on
 
 A message handler could look like this:
 
@@ -538,7 +534,7 @@ core.permission.add "instanceD", '*', 'd'
 Now `instanceA` is allowed to subscribe to channel `a` but all others cannot
 subscribe to it.
 `InstanceB` can emit data on channels `a` and `c`.
-`InstanceC` can publish to all channels.
+`InstanceC` can emit to all channels.
 `InstanceD` can perform all actions (`on`, `off`, `emit`)
 but only on channel `d`.
 
@@ -666,6 +662,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.4.0 (??-2013)
 
+- `Mediator`: do not *clone* objects any more (do it manually instead)
 - drop `subscribe`, `unsubscribe`, `publish` from Mediator API
   (use `on`, `off` and `emit` instead)
 - added a Core class that can be instantiated

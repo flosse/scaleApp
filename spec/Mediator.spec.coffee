@@ -327,31 +327,16 @@ describe "Mediator", ->
       @paul.emit "channel"
       (expect cb.callCount).toEqual 2
 
-    it "publishes a copy of data objects by default", (done) ->
+    it "publishes the reference of data objects by default", (done) ->
 
       obj = {a:true,b:"x",c:{ y:0 }}
-      arr = ["a",1,false]
 
       @paul.on "obj", (data) ->
-        (expect data isnt obj).toBeTruthy()
-        (expect data.b).toEqual obj.b
-
-      @paul.on "obj-ref", (data) ->
-        (expect data is obj).toBeTruthy()
-
-      @paul.on "arr", (data) ->
-        (expect data isnt arr).toBeTruthy()
-        (expect data instanceof Array).toBeTruthy()
-
-      @paul.on "arr-ref", (data) ->
-        (expect data is arr).toBeTruthy()
-        (expect data instanceof Array).toBeTruthy()
+        (expect data).toBe obj
+        (expect data is obj).toBe true
+        done()
 
       @paul.emit "obj", obj
-      @paul.emit "obj-ref", obj, emitReference: true
-      @paul.emit "arr", arr
-      @paul.emit "arr-ref", arr, emitReference: true
-      done()
 
     it "does not publish data to other topics", ->
 

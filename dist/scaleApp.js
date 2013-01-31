@@ -1,8 +1,8 @@
 
 /*
-scaleapp - v0.4.0 - 2012-12-15
+scaleapp - v0.4.0 - 2013-01-31
 This program is distributed under the terms of the MIT license.
-Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
 */
 
 
@@ -273,22 +273,19 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
       return this;
     };
 
-    Mediator.prototype.emit = function(channel, data, opt) {
-      var chnls, copy, sub, subscribers, tasks;
-      if (opt == null) {
-        opt = {};
+    Mediator.prototype.emit = function(channel, data, cb) {
+      var chnls, sub, subscribers, tasks;
+      if (cb == null) {
+        cb = function() {};
       }
       if (typeof data === "function") {
-        opt = data;
+        cb = data;
         data = void 0;
       }
       if (typeof channel !== "string") {
         return false;
       }
       subscribers = this.channels[channel] || [];
-      if (typeof data === "object" && opt.emitReference !== true) {
-        copy = util.clone(data);
-      }
       tasks = (function() {
         var _i, _len, _results;
         _results = [];
@@ -298,9 +295,9 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
             return function(next) {
               try {
                 if ((util.getArgumentNames(sub.callback)).length >= 3) {
-                  return sub.callback.apply(sub.context, [copy || data, channel, next]);
+                  return sub.callback.apply(sub.context, [data, channel, next]);
                 } else {
-                  return next(null, sub.callback.apply(sub.context, [copy || data, channel]));
+                  return next(null, sub.callback.apply(sub.context, [data, channel]));
                 }
               } catch (e) {
                 return next(e);
@@ -325,10 +322,10 @@ Copyright (c) 2011-2012  Markus Kohlhase <mail@markus-kohlhase.de>
             return _results;
           })()).join('; '));
         }
-        return typeof opt === "function" ? opt(e) : void 0;
+        return cb(e);
       }), true);
       if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
-        this.emit(chnls.slice(0, -1).join('/'), data, opt);
+        this.emit(chnls.slice(0, -1).join('/'), data, cb);
       }
       return this;
     };

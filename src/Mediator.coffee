@@ -52,42 +52,32 @@ class Mediator
   # Parameters:
   # (String) topic             - The topic name
   # (Object) data              - The data that gets published
-  # (Object)
-  #     callback:              - callback metthod
-  #     emitReference         - If the data should be passed as a reference to
-  #                              the other modules this parameter has to be set
-  #                              to *true*.
-  #                              By default the data object gets copied so that
-  #                              other modules can't influence the original
-  #                              object.
-  emit: (channel, data, opt={}) ->
+  # (Funtction)                - callback method
+  emit: (channel, data, cb=->) ->
 
     if typeof data is "function"
-      opt  = data
+      cb  = data
       data = undefined
     return false unless typeof channel is "string"
     subscribers = @channels[channel] or []
-
-    if typeof data is "object" and opt.emitReference isnt true
-      copy = util.clone data
 
     tasks = for sub in subscribers then do (sub) ->
       (next) ->
         try
           if (util.getArgumentNames sub.callback).length >= 3
-            sub.callback.apply sub.context, [(copy or data), channel, next]
+            sub.callback.apply sub.context, [data, channel, next]
           else
-            next null, sub.callback.apply sub.context, [(copy or data), channel]
+            next null, sub.callback.apply sub.context, [data, channel]
         catch e
           next e
 
     util.runSeries tasks,((errors, results) ->
       if errors
         e = new Error (x.message for x in errors when x?).join '; '
-      opt? e), true
+      cb e), true
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
-      @emit chnls[0...-1].join('/'), data, opt
+      @emit chnls[0...-1].join('/'), data, cb
     @
 
   # ## Install Pub/Sub functions to an object
