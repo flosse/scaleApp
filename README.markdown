@@ -428,6 +428,14 @@ function(sb){
 }
 ```
 
+Subscribe to change event:
+
+```javascript
+sb.i18n.onChange(function(){
+  // update ui
+});
+```
+
 ## mvc - very simple MVC
 
 ![scaleApp mvc](https://raw.github.com/flosse/scaleApp/master/mvc.png)
@@ -665,7 +673,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 - `Mediator`: do not *clone* objects any more (do it manually instead)
 - drop `subscribe`, `unsubscribe`, `publish` from Mediator API
   (use `on`, `off` and `emit` instead)
-- added a Core class that can be instantiated
+- added a `Core` class that can be instantiated
 - new submodule plugin
 - emit events on module state changes
 - improved permission and i18n plugins

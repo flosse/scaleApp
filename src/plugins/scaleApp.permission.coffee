@@ -44,11 +44,15 @@ hasPermission = (id, action, channel) ->
     false
 
 grantAction = (sb, action, method, args) ->
- channel = args[0] if args?.length > 0
- p = hasPermission sb.instanceId, action, channel
- if p is true
-   method.apply sb, args
- else false
+  channel = args[0] if args?.length > 0
+  p =
+    if channel instanceof Array
+      (c for c in channel when not hasPermission sb.instanceId, action, c).length is 0
+    else
+      hasPermission sb.instanceId, action, channel
+  if p is true
+    method.apply sb, args
+  else false
 
 tweakSandboxMethod = (sb, methodName) ->
   originalMethod = sb[methodName]
