@@ -195,7 +195,6 @@ updatePlugin = (conn) ->
 attach_connection = (opt) ->
 
   connection = create_connection_obj()
-  #connection_options.jid = Strophe.getBareJidFromJid connection_options.jid
   connection.attach connection_options.jid
     , connection_options.sid
     , connection_options.rid
