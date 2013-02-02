@@ -90,14 +90,14 @@ create_connection_obj = ->
 key2cache   = (k) -> "#{CACHE_PREFIX}#{k}"
 
 saveData = ->
-  if localStorage?
+  if sessionStorage?
     for k in ["jid", "sid", "rid"] when connection[k]?
-      localStorage[key2cache k] = connection[k]
+      sessionStorage[key2cache k] = connection[k]
 
     for k in ["host", "port", "path"] when connection_options[k]?
-      localStorage[key2cache k] = connection_options[k]
+      sessionStorage[key2cache k] = connection_options[k]
 
-clearData = -> localStorage?.clear()
+clearData = -> sessionStorage?.clear()
 
 onConnected = ->
 
@@ -195,7 +195,7 @@ updatePlugin = (conn) ->
 attach_connection = (opt) ->
 
   connection = create_connection_obj()
-  connection_options.jid = Strophe.getBareJidFromJid connection_options.jid
+  #connection_options.jid = Strophe.getBareJidFromJid connection_options.jid
   connection.attach connection_options.jid
     , connection_options.sid
     , connection_options.rid
@@ -243,10 +243,10 @@ jid_to_id = (jid) ->
 
 # Loads the connection data from local storage.
 restoreData = ->
-  if localStorage?
+  if sessionStorage?
     for k in [ "jid", "sid", "rid", "host", "port", "path" ]
       j = key2cache k
-      connection_options[k] = localStorage[j]  if localStorage[j]
+      connection_options[k] = sessionStorage[j]  if sessionStorage[j]
 
 hasConnectionData = ->
   opt = connection_options
