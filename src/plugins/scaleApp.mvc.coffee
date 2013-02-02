@@ -48,12 +48,15 @@ class Controller
 
   constructor: (@model, @view) ->
 
+p =
+  Model: Model
+  View: View
+  Controller: Controller
+
 plugin =
   id: "mvc"
-  base:
-    Model: Model
-    View: View
-    Controller: Controller
+  base:p
+  sandbox: (@sb) -> p
 
 scaleApp.plugin.register plugin if window?.scaleApp?
 module.exports = plugin if module?.exports?
