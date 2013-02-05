@@ -9,22 +9,24 @@ scaleApp = window.scaleApp
 
 mediator = new scaleApp.Mediator
 
-ID           = "xmpp"
-DEFAULT_PATH = "http-bind/"
-DEFAULT_PORT = 5280
-CACHE_PREFIX = "scaleApp.#{ID}.cache."
+ID               = "xmpp"
+DEFAULT_PATH     = "http-bind/"
+DEFAULT_PROTOCOL = "http"
+DEFAULT_PORT     = 5280
+CACHE_PREFIX     = "scaleApp.#{ID}.cache."
 
 # Variable that holds the Strophe connection object
 connection = null
 
 # Object that holds all connection sepecific options.
 connection_options =
-  host: document.domain
-  port: DEFAULT_PORT
-  path: DEFAULT_PATH
-  jid: null
-  sid: null
-  rid: null
+  host:     document.domain
+  port:     DEFAULT_PORT
+  path:     DEFAULT_PATH
+  protocol: DEFAULT_PROTOCOL
+  jid:      null
+  sid:      null
+  rid:      null
 
 # Generates an appropriate bosh url for the connection.
 #
@@ -46,35 +48,35 @@ get_bosh_url = (opt) ->
 
     # case 1
     if opt.host and opt.port and opt.path
-      return "http://#{ opt.host }:#{ opt.port }/#{ opt.path }"
+      return "#{ opt.protocol }://#{ opt.host }:#{ opt.port }/#{ opt.path }"
 
     # case 2
     if opt.host and opt.port and not opt.path
-      return "http://#{ opt.host }:#{ opt.port }/#{ DEFAULT_PATH }"
+      return "#{ opt.protocol }://#{ opt.host }:#{ opt.port }/#{ DEFAULT_PATH }"
 
     # case 3
     if opt.host and not opt.port and opt.path
-      return "http://#{ opt.host }/#{ opt.path }"
+      return "#{ opt.protocol }://#{ opt.host }/#{ opt.path }"
 
     # case 4
     if opt.host and not opt.port and not opt.path
-      return "http://#{ opt.host }/#{ DEFAULT_PATH }"
+      return "#{ opt.protocol }://#{ opt.host }/#{ DEFAULT_PATH }"
 
     # case 5
     if not opt.host and opt.port and opt.path
-      return "http://#{ domain }:#{ opt.port }/#{ opt.path }"
+      return "#{ opt.protocol }://#{ domain }:#{ opt.port }/#{ opt.path }"
 
     # case 6
     if not opt.host and opt.port and not opt.path
-      return "http://#{ domain }:#{ opt.port }/#{ DEFAULT_PATH }"
+      return "#{ opt.protocol }://#{ domain }:#{ opt.port }/#{ DEFAULT_PATH }"
 
     # case 7
     if not opt.host and not opt.port and opt.path
-      return "http://#{ domain }/#{ opt.path }"
+      return "#{ opt.protocol }://#{ domain }/#{ opt.path }"
 
     # case 8
     if not opt.host and not opt.port and not opt.path
-      return "http://#{ domain }/#{ DEFAULT_PATH }"
+      return "#{ opt.protocol }://#{ domain }/#{ DEFAULT_PATH }"
 
   # fallback
   "http://#{ domain }/#{ DEFAULT_PATH }"
@@ -83,9 +85,10 @@ get_bosh_url = (opt) ->
 create_connection_obj = ->
 
   new Strophe.Connection get_bosh_url
-    path: connection_options.path
-    host: connection_options.host
-    port: connection_options.port
+    path:     connection_options.path
+    host:     connection_options.host
+    port:     connection_options.port
+    protocol: connection_options.protocol
 
 key2cache   = (k) -> "#{CACHE_PREFIX}#{k}"
 
@@ -94,7 +97,7 @@ saveData = ->
     for k in ["jid", "sid", "rid"] when connection[k]?
       sessionStorage[key2cache k] = connection[k]
 
-    for k in ["host", "port", "path"] when connection_options[k]?
+    for k in ["host", "port", "path", "protocol"] when connection_options[k]?
       sessionStorage[key2cache k] = connection_options[k]
 
 clearData = -> sessionStorage?.clear()
@@ -211,9 +214,10 @@ attach_connection = (opt) ->
 login = (jid, pw, opt) ->
 
   if opt?
-    connection_options.path = opt.path if opt.path
-    connection_options.port = opt.port if opt.port
-    connection_options.host = opt.host if opt.host
+    connection_options.path     = opt.path     if opt.path
+    connection_options.port     = opt.port     if opt.port
+    connection_options.host     = opt.host     if opt.host
+    connection_options.protocol = opt.protocol if opt.protocol
 
   connection = create_connection_obj()
   connection.connect jid, pw, on_connection_change
@@ -243,7 +247,7 @@ jid_to_id = (jid) ->
 # Loads the connection data from local storage.
 restoreData = ->
   if sessionStorage?
-    for k in [ "jid", "sid", "rid", "host", "port", "path" ]
+    for k in [ "jid", "sid", "rid", "host", "port", "path", "protocol" ]
       j = key2cache k
       connection_options[k] = sessionStorage[j]  if sessionStorage[j]
 
