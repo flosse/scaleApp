@@ -226,10 +226,12 @@ disconnect = ->
 
   console.debug "try to disconnect"
 
-  if connection isnt null
-    connection.send $pres(type: "unavailable")
-    connection.pause()
-    connection.disconnect()
+  if connection?.connected is true
+    try
+      connection.send $pres(type: "unavailable")
+      connection.pause()
+      connection.disconnect()
+    catch e
   clearData()
 
 # Converts a Jabber ID to an css friendly id.
