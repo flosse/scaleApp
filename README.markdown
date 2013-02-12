@@ -188,18 +188,23 @@ If you pass a callback function it will be called after the module started:
 core.start( "myModuleId", {callback: function(){ /*...*/ } );
 ```
 
-All other options you pass are available through the sandbox:
+All you attach to `options` is accessible within your module:
 
 ```javascript
-core.register( "mod", function(s){
-  sb = s
+core.register( "mod", function(sb){
   return {
-    init:    function(){ alert( sb.options.myProperty ); },
+    init: function(opt){
+      (opt === sb.options)            // true
+      (opt.myProperty === "myValue")  // true
+    },
     destroy: function(){ /*...*/ }
   };
 });
 
-core.start("mod", {myProperty: "myValue"});
+core.start("mod", {
+  instanceId: "test",
+  options: { myProperty: "myValue" }
+});
 ```
 
 If all your modules just needs to be instanciated once, you can simply starting
