@@ -54,10 +54,24 @@ are some plugins available:
 
 You can easily define your own plugin (see plugin section).
 
-## Download latest version
+# Download
+
+## Latest stable 0.4.x version
+
+- not available yet
+
+## Latest stable 0.3.x version
 
 - [scaleApp 0.3.9.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.9)
 - [scaleApp 0.3.9.zip](https://github.com/flosse/scaleApp/zipball/v0.3.9)
+
+## Unstable version
+
+- [scaleApp-master.zip](https://github.com/flosse/scaleApp/archive/master.zip)
+
+```shell
+git clone git://github.com/flosse/scaleApp.git
+```
 
 # Quick Start
 
@@ -121,18 +135,18 @@ start. The `destroy` function is called when the module has to shut down.
 ### Show registered modules
 
 ```javascript
-core.lsModules() // returns an array of module names
+core.lsModules(); // returns an array of module names
 ```
 ### Show running instances
 
 ```javascript
-core.lsInstances() // returns an array of instance names
+core.lsInstances(); // returns an array of instance names
 ```
 
 ### Show registered plugins
 
 ```javascript
-scaleApp.lsPlugins() // returns an array of plugin names
+scaleApp.lsPlugins(); // returns an array of plugin names
 ```
 
 ## Asynchronous initialization
@@ -242,13 +256,6 @@ core.stop("moduleB");
 core.stopAll();
 ```
 
-## Listing modules and instances
-
-```javascript
-lsModules()   // returns an array of all registered module IDs
-lsInstances() // returns an array of all running instance IDs
-```
-
 ## Publish/Subscribe
 
 If the module needs to communicate with others, you can use the `emit` and
@@ -296,8 +303,8 @@ Or just do it at once:
 
 ```javascript
 sandbox.on({
-  topicA: cbA
-  topicB: cbB
+  topicA: cbA,
+  topicB: cbB,
   topicC: cbC
 });
 ```
