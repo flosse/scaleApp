@@ -92,7 +92,7 @@ var core = new scaleApp.Core();
 ## Register modules
 
 ```javascript
-core.register( "myModuleId", function( sb ){
+core.register( "myModuleId", function( sandbox ){
   return {
     init:    function(){ /*...*/ },
     destroy: function(){ /*...*/ }
@@ -103,16 +103,16 @@ core.register( "myModuleId", function( sb ){
 As you can see the module is a function that takes the sandbox as a parameter
 and returns an object that has two functions `init` and `destroy`.
 Of course your module can be any usual class with those two functions.
-Here an coffee-script example:
 
-```coffeescript
-class MyGreatModule
+```javascript
+var MyGreatModule = function(sandbox){
+  return {
+    init:    function(){ alert("Hello world!"); }
+    destroy: function(){ alert("Bye bye!");     }
+  };
+};
 
-  constructor: (@sb) ->
-  init: -> alert "Hello world!"
-  destroy: -> alert "Bye bye!"
-
-core.register "myGreatModule", MyGreatModule
+core.register("myGreatModule", MyGreatModule);
 ```
 
 The `init` function is called by the framework when the module is supposed to
@@ -139,21 +139,25 @@ scaleApp.lsPlugins() // returns an array of plugin names
 
 You can also init or destroy you module in a asynchronous way:
 
-```coffeescript
-class MyAsyncModule
+```javascript
+var MyAsyncModule = function(sandbox){
+  return {
+    init: function(options, done){
+      doSomethingAsync(function(err){
+        // ...
+        done(err);
+      });
+    },
+    destroy: function(done){
+      doSomethingElseAsync(done);
+    }
+  };
+};
 
-  constructor: (@sb) ->
-
-  init: (options, done) ->
-    doSomethingAsync (err) ->
-      done err
-  destroy: (done) ->
-    doSomethingAsync (err) ->
-      done err
-
-core.register "myGreatModule", MyGreatModule
-end -> alert "now the initialization is done"
-core.start "myGreatModule", callback: end
+core.register("myGreatModule", MyGreatModule);
+core.start("myGreatModule", { callback:function(){
+  alert("now the initialization is done");
+}});
 ```
 
 ## Unregister modules
@@ -191,10 +195,10 @@ core.start( "myModuleId", {callback: function(){ /*...*/ } );
 All you attach to `options` is accessible within your module:
 
 ```javascript
-core.register( "mod", function(sb){
+core.register( "mod", function(sandbox){
   return {
     init: function(opt){
-      (opt === sb.options)            // true
+      (opt === sandbox.options)            // true
       (opt.myProperty === "myValue")  // true
     },
     destroy: function(){ /*...*/ }
@@ -260,7 +264,7 @@ The `emit` function takes three parameters whereas the last one is optional:
 The emit function is accessible through the sandbox:
 
 ```javascript
-sb.emit( "myEventTopic", myData );
+sandbox.emit( "myEventTopic", myData );
 ```
 
 You can also use the shorter method alias `emit`.
@@ -273,7 +277,7 @@ A message handler could look like this:
 var messageHandler = function( data, topic ){
   switch( topic ){
     case "somethingHappend":
-      sb.emit( "myEventTopic", processData(data) );
+      sandbox.emit( "myEventTopic", processData(data) );
       break;
     case "aNiceTopic":
       justProcess( data );
@@ -285,13 +289,13 @@ var messageHandler = function( data, topic ){
 ... and it can listen to one or more channels:
 
 ```javascript
-sub1 = sb.on( "somthingHappend", messageHandler );
-sub2 = sb.on( "aNiceTopic", messageHandler );
+sub1 = sandbox.on( "somthingHappend", messageHandler );
+sub2 = sandbox.on( "aNiceTopic", messageHandler );
 ```
 Or just do it at once:
 
 ```javascript
-sb.on({
+sandbox.on({
   topicA: cbA
   topicB: cbB
   topicC: cbC
@@ -301,7 +305,7 @@ sb.on({
 You can also subscribe to several channels at once:
 
 ```javascript
-sb.on(["a", "b"], cb);
+sandbox.on(["a", "b"], cb);
 ```
 
 If you prefer a shorter method name you can use the alias `on`.
@@ -320,19 +324,19 @@ sub.attach(); // receive upcoming messages
 You can unsubscribe a function from a channel
 
 ```javascript
-sb.off("a-channel", callback);
+sandbox.off("a-channel", callback);
 ```
 
 And you can remove a callback function from all channels
 
 ```javascript
-sb.off(callback);
+sandbox.off(callback);
 ```
 
 Or remove all subscriptions from a channel:
 
 ```javascript
-sb.off("channelName");
+sandbox.off("channelName");
 ```
 
 ## Flow control
@@ -404,7 +408,7 @@ Depending on which language is set globally it returns the corresponding
 localized string.
 
 ```javascript
-sb._("myStringId");
+sandbox._("myStringId");
 ```
 
 You can set the language globally by using the `setLanguage` method:
@@ -422,9 +426,9 @@ core.i18n.setGlobal( myGlobalObj );
 Within your module you can define your local texts:
 
 ```javascript
-function(sb){
+function(sandbox){
   init: function(){
-    sb.i18n.addLocal({
+    sandbox.i18n.addLocal({
       en: {hello: "Hello" },
       de: {hello: "Hallo" }
     });
@@ -436,7 +440,7 @@ function(sb){
 Subscribe to change event:
 
 ```javascript
-sb.i18n.onChange(function(){
+sandbox.i18n.onChange(function(){
   // update ui
 });
 ```
@@ -454,11 +458,11 @@ class MyModel extends scaleApp.Model name: "Noname"
 ```coffeescript
 class MyView extends scaleApp.View
 
-  constructor: (@model, @sb, @template) -> super @model
+  constructor: (@model, @sandbox, @template) -> super @model
 
   # The render method gets automatically called when the model changes
   # The 'getContainer' method is provided by the dom plugin
-  render: -> @sb.getContainer.innerHTML = @template @model
+  render: -> @sandbox.getContainer.innerHTML = @template @model
 ```
 
 ```coffeescript
@@ -468,7 +472,7 @@ class MyController extends scaleApp.Controller
 ```
 
 ```coffeescript
-core.registerModule "myModule", (@sb) ->
+core.registerModule "myModule", (@sandbox) ->
 
   init: (opt) ->
 
@@ -477,17 +481,17 @@ core.registerModule "myModule", (@sb) ->
     template = (model) -> "<h1>Hello #{model.name}</h1>"
 
     @m = new MyModel
-    @v = new MyView @m, @sb, @template
+    @v = new MyView @m, @sandbox, @template
     @c = new MyController @m, @v
 
     # listen to the "changeName" event
-    @sb.on "changeName", @c.changeName, @c
+    @sandbox.on "changeName", @c.changeName, @c
 
   destroy: ->
     delete @c
     delete @v
     delete @m
-    @sb.off @
+    @sandbox.off @
 ```
 
 ```coffeescript
@@ -501,35 +505,40 @@ that can be used to keep track of your applications state.
 
 ![scaleApp fsm](https://raw.github.com/flosse/scaleApp/master/fsm.png)
 
-```coffeescript
-s = new scaleApp.StateMachine
-          start: "a"
-          states:
-            a:      { enter: (ev) -> console.log "entering state #{ev.to}"  }
-            b:      { leave: (ev) -> console.log "leaving state #{ev.from}" }
-            c:      { enter: [cb1, cb2], leave: cb3                         }
-            fatal:  { enter: -> console.error "something went wrong"        }
-          transitions:
-            x:    { from: "a"        to: "b"     }
-            y:    { from: ["b","c"]  to: "c"     }
-            uups: { from: "*"        to: "fatal" }
+```javascript
+var s = new scaleApp.StateMachine({
+  start: "a",
+  states: {
+    a:      { enter: function(ev){ console.log("entering state " + ev.to  ); }},
+    b:      { leave: function(ev){ console.log("leaving state " + ev.from ); }},
+    c:      { enter: [cb1, cb2], leave: cb3                                   },
+    fatal:  { enter: function(){ console.error("something went wrong");      }}
+  },
+  transitions:{
+    x:    { from: "a"        to: "b"     },
+    y:    { from: ["b","c"]  to: "c"     },
+    uups: { from: "*"        to: "fatal" }
+  }
+});
 
-s.addState "d", { enter: -> }                 # add an additional state
-s.addState { y: {}, z: { enter: cb } }        # or add multiple states
+s.addState("d", { enter: function(){ /*..*/} });  // add an additional state
+s.addState({ y: {}, z: { enter: cb } });          // or add multiple states
 
-s.addTransition "t", { from: "b", to: "d" }   # add a transition
-s.can "t"                                     # false because 'a' is current state
-s.can "x"                                     # true
+s.addTransition("t", { from: "b", to: "d" });     // add a transition
+s.can("t");   // false because 'a' is current state
+s.can("x");   // true
 
-s.onLeave "a", (transition, eventName, next) ->
-  # ...
+s.onLeave("a", function(transition, eventName, next){
+  // ...
   next()
+});
 
-s.onEnter "b", (transitioin, eventName, next) ->
-  doSomething (err) -> next err
+s.onEnter("b",function(transitioin, eventName, next){
+  doSomething(function(err){next(err);});
+});
 
-s.fire "x"
-s.current                                     # b
+s.fire("x");
+s.current     // b
 ```
 
 ## permission - controll all messages
@@ -537,11 +546,11 @@ s.current                                     # b
 If you include the `permission` plugin, all `Mediator` methods will be rejected
 by default to enforce you to permit any message method explicitely.
 
-```coffeescript
-core.permission.add "instanceA", "on", "a"
-core.permission.add "instanceB", "emit", ["b", "c"]
-core.permission.add "instanceC", "emit", '*'
-core.permission.add "instanceD", '*', 'd'
+```javascript
+core.permission.add("instanceA", "on", "a");
+core.permission.add("instanceB", "emit", ["b", "c"]);
+core.permission.add("instanceC", "emit", '*');
+core.permission.add("instanceD", '*', 'd');
 ```
 
 Now `instanceA` is allowed to subscribe to channel `a` but all others cannot
@@ -553,14 +562,14 @@ but only on channel `d`.
 
 Of course you can remove a permission at any time:
 
-```coffeescript
-core.permission.remove "moduleA", "emit", "x"
+```javascript
+core.permission.remove("moduleA", "emit", "x");
 ```
 
 Or remove the subscribe permissions of all channels:
 
-```coffeescript
-core.permission.remove "moduleB", "on"
+```javascript
+core.permission.remove("moduleB", "on");
 ```
 
 ## strophe - XMPP plugin
@@ -578,12 +587,12 @@ core.xmpp.jid       // the current JID
 
 ```javascript
 
-core.register("parent", function(sb){
+core.register("parent", function(sandbox){
 
-  var childModule = function(sb){
+  var childModule = function(sandbox){
     return({
       init: function(){
-        sb.emit("x", "yeah!");
+        sandbox.emit("x", "yeah!");
       },
       destroy: function(){}
     });
@@ -591,12 +600,12 @@ core.register("parent", function(sb){
 
   return({
     init: function(){
-      sb.sub.register("child",childModule);
-      sb.permission.add("child", "emit", "x");
-      sb.sub.on("x",function(msg){
+      sandbox.sub.register("child",childModule);
+      sandbox.permission.add("child", "emit", "x");
+      sandbox.sub.on("x",function(msg){
         console.log("a child send this: " + msg);
       });
-      sb.sub.start("child");
+      sandbox.sub.start("child");
     },
     destroy: function(){}
   });
@@ -612,8 +621,8 @@ core.stop("parent");
 
 ## util - some helper functions
 
- - `sb.mixin(receivingClass, givingClass, override=false)`
- - `sb.countObjectKeys(object)`
+ - `sandbox.mixin(receivingClass, givingClass, override=false)`
+ - `sandbox.countObjectKeys(object)`
 
 ## Other plugins
 
@@ -621,40 +630,47 @@ core.stop("parent");
 
 ## Write your own plugin
 
-```coffeescript
-scaleApp.registerPlugin
+```javascript
+scaleApp.registerPlugin({
 
-  # set the ID of your plugin
-  id: "myPlgin"
+  // set the ID of your plugin
+  id: "myPlgin",
 
-  # define the core extensions
-  core:
-    myCoreFunction: -> alert "Hello core plugin"
+  // define the core extensions
+  core: {
+    myCoreFunction: function(){ alert("Hello core plugin") },
     myBoringProperty: "boring"
+  },
 
-  # define the sandbox extensions
-  sandbox: (@sb) ->
-    appendFoo: -> @sb.getContainer.append "foo"
+  // define the sandbox extensions
+  sandbox: function(sandbox){
+    return {
+      appendFoo: function(){ sandbox.getContainer.append("foo"); }
+    };
+  },
 
-  # define base extensions
-  base:
-    globalHello: -> "Hello"
+  // define base extensions
+  base:{
+    globalHello: function(){ return "Hello"; }
+  },
 
-  # define methods for module changes
-  on:
-    instantiate: ->
-    destroy: ->
+  // define methods for module changes
+  on: {
+    instantiate: function(){/* ... */},
+    destroy:     function(){/* ... */}
+  }
+});
 ```
 
 Usage:
 
-```coffeescript
-core.myCoreFunction()   # alerts "Hello core plugin"
+```javascript
+core.myCoreFunction() // alerts "Hello core plugin"
 
-class MyModule
-  constructor: (@sb) ->
-  init: -> @sb.appendFoo()  # appends "foo" to the container
-  destroy: ->
+var MyModule = function(sandbox){
+  init: function(){ sandbox.appendFoo(); },  // appends "foo" to the container
+  destroy: function(){}
+};
 ```
 
 # Existing modules
