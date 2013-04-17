@@ -5,8 +5,8 @@ describe "util plugin", ->
   before ->
 
     if typeof(require) is "function"
-      @scaleApp  = require "../../src/scaleApp"
-      @scaleApp.registerPlugin require "../../src/plugins/scaleApp.util"
+      @scaleApp  = require "../../dist/scaleApp"
+      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.util"
 
     else if window?
       @scaleApp  = window.scaleApp

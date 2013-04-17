@@ -5,8 +5,8 @@ describe "stateMachine plugin", ->
   before ->
 
     if typeof(require) is "function"
-      @scaleApp = require "../../src/scaleApp"
-      @scaleApp.registerPlugin require "../../src/plugins/scaleApp.state"
+      @scaleApp = require "../../dist/scaleApp"
+      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.state"
 
     else if window?
       @scaleApp = window.scaleApp

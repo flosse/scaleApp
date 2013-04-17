@@ -4,8 +4,8 @@ describe "permission plugin", ->
 
   beforeEach ->
     if typeof(require) is "function"
-      @scaleApp  = require "../../src/scaleApp"
-      @plugin    = require "../../src/plugins/scaleApp.permission"
+      @scaleApp  = require "../../dist/scaleApp"
+      @plugin    = require "../../dist/plugins/scaleApp.permission"
       @scaleApp.registerPlugin @plugin
     else if window?
       @scaleApp  = window.scaleApp

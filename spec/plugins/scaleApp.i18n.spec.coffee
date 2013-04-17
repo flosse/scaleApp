@@ -4,8 +4,8 @@ describe "i18n plugin", ->
 
   before ->
     if typeof(require) is "function"
-      @scaleApp  = require "../../src/scaleApp"
-      @scaleApp.registerPlugin require "../../src/plugins/scaleApp.i18n"
+      @scaleApp  = require "../../dist/scaleApp"
+      @scaleApp.registerPlugin require "../../dist/plugins/scaleApp.i18n"
 
     else if window?
       @scaleApp  = window.scaleApp
