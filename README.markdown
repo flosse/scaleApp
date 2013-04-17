@@ -174,15 +174,20 @@ scaleApp.start( "myModuleId", {callback: function(){ /*...*/ } );
 All other options you pass are available through the sandbox:
 
 ```javascript
-scaleApp.register( "mod", function(s){
-  sb = s
+scaleApp.register( "mod", function(sandbox){
   return {
-    init:    function(){ alert( sb.options.myProperty ); },
+    init: function(opt){
+      (opt === sandbox.options)      // true
+      (opt.myProperty === "myValue") // true
+    },
     destroy: function(){ /*...*/ }
   };
 });
 
-scaleApp.start("mod", {myProperty: "myValue"});
+scaleApp.start("mod", {
+  instanceId: "test",
+  options: { myProperty: "myValue" }
+});
 ```
 
 If all your modules just needs to be instanciated once, you can simply starting
