@@ -1,63 +1,71 @@
-scaleApp = window?.scaleApp or require? "../scaleApp"
+createPlugin = (scaleApp) ->
+  class Model extends scaleApp.Mediator
 
-class Model extends scaleApp.Mediator
+    constructor: (obj) ->
+      super()
+      @id = obj?.id or scaleApp.util.uniqueId()
+      @[k] = v for k,v of obj when not @[k]?
 
-  constructor: (obj) ->
-    super()
-    @id = obj?.id or scaleApp.util.uniqueId()
-    @[k] = v for k,v of obj when not @[k]?
+    set: (key, val, silent=false) ->
+      switch typeof key
+        when "object"
+          @set k,v,true for k,v of key
+          @emit Model.CHANGED, (k for k,v of key) if not silent
+        when "string"
+          if not (key in ["set","get"]) and @[key] isnt val
+            @[key] = val
+            @emit Model.CHANGED, [key] if not silent
+        else console?.error? "key is not a string"
+      @
 
-  set: (key, val, silent=false) ->
-    switch typeof key
-      when "object"
-        @set k,v,true for k,v of key
-        @emit Model.CHANGED, (k for k,v of key) if not silent
-      when "string"
-        if not (key in ["set","get"]) and @[key] isnt val
-          @[key] = val
-          @emit Model.CHANGED, [key] if not silent
-      else console?.error? "key is not a string"
-    @
+    change: (cb, context) ->
+      if typeof cb is "function"
+        @on Model.CHANGED, cb, context
+      else if arguments.length is 0
+        @emit Model.CHANGED
 
-  change: (cb, context) ->
-    if typeof cb is "function"
-      @on Model.CHANGED, cb, context
-    else if arguments.length is 0
-      @emit Model.CHANGED
+    notify: -> @change()
 
-  notify: -> @change()
+    get: (key) -> @[key]
 
-  get: (key) -> @[key]
+    toJSON: ->
+      json = {}
+      json[k]=v for own k,v of @
+      json
 
-  toJSON: ->
-    json = {}
-    json[k]=v for own k,v of @
-    json
+    @CHANGED: "changed"
 
-  @CHANGED: "changed"
+  class View
 
-class View
+    constructor: (model) -> @setModel model if model
 
-  constructor: (model) -> @setModel model if model
+    setModel: (@model) -> @model.change (-> @render()), @
 
-  setModel: (@model) -> @model.change (-> @render()), @
+    render: ->
 
-  render: ->
+  class Controller
 
-class Controller
+    constructor: (@model, @view) ->
 
-  constructor: (@model, @view) ->
+  p =
+    Model: Model
+    View: View
+    Controller: Controller
 
-p =
-  Model: Model
-  View: View
-  Controller: Controller
+  plugin =
+    id: "mvc"
+    base:p
+    sandbox: (@sb) -> p
 
-plugin =
-  id: "mvc"
-  base:p
-  sandbox: (@sb) -> p
+# AMD support
+if define?.amd?
+  define ['scaleApp'], (sa) -> createPlugin sa
 
-scaleApp.plugin.register plugin if window?.scaleApp?
-module.exports = plugin if module?.exports?
-(define -> plugin) if define?.amd?
+# Browser support
+else if window?.scaleApp?
+  sa = window.scaleApp
+  sa.plugin.register createPlugin sa
+
+# Node.js support
+else if module?.exports?
+  module.exports = createPlugin require "../scaleApp"
