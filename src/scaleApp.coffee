@@ -97,6 +97,10 @@ unregisterAll = (type) -> unregister id, type for id of type
 
 start = (moduleId, opt={}) ->
 
+  if typeof opt is "function"
+    cb = opt
+    opt = callback: cb
+
   try
     checkType "string", moduleId, "module ID"
     checkType "object", opt, "second parameter"

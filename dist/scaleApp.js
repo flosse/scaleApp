@@ -1,6 +1,6 @@
 
 /*
-scaleapp - v0.4.0 - 2013-01-31
+scaleapp - v0.4.0 - 2013-04-27
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -535,9 +535,15 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   start = function(moduleId, opt) {
-    var instance;
+    var cb, instance;
     if (opt == null) {
       opt = {};
+    }
+    if (typeof opt === "function") {
+      cb = opt;
+      opt = {
+        callback: cb
+      };
     }
     try {
       checkType("string", moduleId, "module ID");
