@@ -73,6 +73,11 @@ You can easily define your own plugin (see plugin section).
 git clone git://github.com/flosse/scaleApp.git
 ```
 
+# Changes in 0.4.x
+
+There are some little API changes in version 0.4.x.
+Therefore the Github docs (master branch) are not compatible to v0.3.9.
+
 # Quick Start
 
 Link `scaleApp.min.js` in your HTML file:
