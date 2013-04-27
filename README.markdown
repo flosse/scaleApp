@@ -208,7 +208,16 @@ core.start( "myModuleId", {instanceId: "anOtherInstanceId" });
 If you pass a callback function it will be called after the module started:
 
 ```javascript
-core.start( "myModuleId", {callback: function(){ /*...*/ } );
+core.start( "myModuleId", {
+  callback:   function(){ /*...*/ },
+  instanceId: "foo"
+);
+```
+
+or if the callback is your only parameter:
+
+```javascript
+core.start( "myModuleId",function(){ /*...*/ });
 ```
 
 All you attach to `options` is accessible within your module:
