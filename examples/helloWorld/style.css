@@ -1,0 +1,25 @@
+body {
+  font-family: sans-serif;
+}
+
+button {
+  font-size: 1.5em;
+}
+
+#controlPanel {
+  border: 1px solid #aaa;
+  display: inline-block;
+  background: #999;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 5px;
+}
+
+#helloWorld {
+  width:  200px;
+  height: 100px;
+  padding: 10px;
+  font-size: 3em;
+  border: 1px solid #888;
+  text-align: center;
+}
