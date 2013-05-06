@@ -36,10 +36,11 @@ clean and scalable architecture.
 + modules can be tested separately
 + replacing any module without affecting other modules
 + extendable with plugins
-+ browser and node.js support
++ browser and [Node.js](http://nodejs.org/) support
 + flow control
++ [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) & [CommonJS](http://www.commonjs.org/) support
 
-## Extendable
+### Extendable
 
 scaleApp itself is very small but it can be extended with plugins. There already
 are some plugins available:
