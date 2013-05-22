@@ -8,17 +8,112 @@ describe "Util", ->
     else if window?
       @util = window.scaleApp.util
 
-  describe "runSeries function", ->
+  describe "runParallel", ->
 
     it "runs an array of functions", (done) ->
-      cb1 = (next) -> next null, "one", false
-      cb2 = (next) -> setTimeout (-> next null, "two"), 0
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+      spy3 = sinon.spy()
+      cb1 = (next) ->
+        (expect spy1).not.toHaveBeenCalled()
+        (expect spy2).not.toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        setTimeout (->
+          (expect spy1).not.toHaveBeenCalled()
+          (expect spy2).toHaveBeenCalled()
+          (expect spy3).toHaveBeenCalled()
+          spy1()
+          next null, "one", false
+        ), 30
+
+      cb2 = (next) ->
+        (expect spy1).not.toHaveBeenCalled()
+        (expect spy2).not.toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        setTimeout (->
+          (expect spy1).not.toHaveBeenCalled()
+          (expect spy2).not.toHaveBeenCalled()
+          (expect spy3).toHaveBeenCalled()
+          spy2()
+          next null, "two"
+        ), 0
+
+      cb3 = (next) ->
+        (expect spy1).not.toHaveBeenCalled()
+        (expect spy2).not.toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        spy3()
+        next null, "three"
+
+      (expect typeof @util.runParallel).toEqual "function"
+      @util.runParallel [cb1, cb2, cb3], (err, res) ->
+        (expect err?).toEqual false
+        (expect res).toEqual [["one", false],"two", "three"]
+        done()
+
+    it "does not break if the array is empty or not defined", (done) ->
+      @util.runParallel [], (err, res) =>
+        (expect err?).toBe false
+        @util.runParallel undefined, (err, res) ->
+          (expect err?).toBe false
+          done()
+
+    it "doesn't stop on errors if the 'force' option is 'true'", (done) ->
+      cb1 = (next) -> next null, "one", 2
+      cb2 = (next) -> thisMethodDoesNotExist()
       cb3 = (next) -> next null, "three"
+      cb4 = (next) -> next (new Error "fake"), "four"
+      fini = (err, res) ->
+        (expect err?).toEqual true
+        (expect res[0]).toEqual ["one", 2]
+        (expect res[1]).not.toBeDefined()
+        (expect res[2]).toEqual "three"
+        (expect res[3]).not.toBeDefined()
+        done()
+      @util.runParallel [cb1, cb2, cb3, cb4], fini, true
+
+  describe "runSeries", ->
+    it "runs an array of functions", (done) ->
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+      spy3 = sinon.spy()
+      cb1 = (next) ->
+        (expect spy1).not.toHaveBeenCalled()
+        (expect spy2).not.toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        setTimeout (->
+          (expect spy1).not.toHaveBeenCalled()
+          (expect spy2).not.toHaveBeenCalled()
+          (expect spy3).not.toHaveBeenCalled()
+          spy1()
+          next null, "one", false
+        ), 30
+
+      cb2 = (next) ->
+        (expect spy1).toHaveBeenCalled()
+        (expect spy2).not.toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        setTimeout (->
+          (expect spy1).toHaveBeenCalled()
+          (expect spy2).not.toHaveBeenCalled()
+          (expect spy3).not.toHaveBeenCalled()
+          spy2()
+          next null, "two"
+        ), 0
+
+      cb3 = (next) ->
+        (expect spy1).toHaveBeenCalled()
+        (expect spy2).toHaveBeenCalled()
+        (expect spy3).not.toHaveBeenCalled()
+        spy3()
+        next null, "three"
 
       (expect typeof @util.runSeries).toEqual "function"
       @util.runSeries [cb1, cb2, cb3], (err, res) ->
         (expect err?).toEqual false
-        (expect res).toEqual [["one", false],"two", "three"]
+        (expect res[0]).toEqual ["one", false]
+        (expect res[1]).toEqual "two"
+        (expect res[2]).toEqual "three"
         done()
 
     it "does not break if the array is empty or not defined", (done) ->
@@ -35,7 +130,10 @@ describe "Util", ->
       cb4 = (next) -> next (new Error "fake"), "four"
       fini = (err, res) ->
         (expect err?).toEqual true
-        (expect res).toEqual [["one", 2], undefined, "three", undefined]
+        (expect res[0]).toEqual ["one", 2]
+        (expect res[1]).not.toBeDefined()
+        (expect res[2]).toEqual "three"
+        (expect res[3]).not.toBeDefined()
         done()
       @util.runSeries [cb1, cb2, cb3, cb4], fini, true
 

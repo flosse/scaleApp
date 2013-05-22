@@ -1,4 +1,4 @@
-createPlugin = (scaleApp) ->
+plugin = (core) ->
 
   baseLanguage = "en"
 
@@ -21,64 +21,63 @@ createPlugin = (scaleApp) ->
       i18n[lang] ?= {}
       i18n[lang][k] ?= v for k,v of txt
 
-  class SBPlugin
+  mediator = new core.Mediator
+  lang     = getBrowserLanguage()
+  global   = {}
 
-    constructor: (sb) ->
+  core.getBrowserLanguage = getBrowserLanguage
+  core.baseLanguage = baseLanguage
 
-      i18nLocal = sb.core.i18n
+  getLanguage = -> lang
 
-      @i18n =
-        onChange: i18nLocal.onChange
-        unsubscribe: i18nLocal.unsubscribe
-        getLanguage: i18nLocal.getLanguage
-        addLocal: (dict) ->
-          sb.options.i18n ?= {}
-          addLocal dict, sb.options.i18n
+  unsubscribe = -> mediator.off channelName, arguments...
 
-      @_ = (text) => i18nLocal._ text, sb.options.localDict or sb.options.i18n
+  onChange = -> mediator.on channelName, arguments...
 
-  class CorePlugin
+  setLanguage = (code) ->
+    if typeof code is "string"
+      lang = code
+      mediator.emit channelName, lang
 
-    constructor: ->
+  setGlobal = (obj) ->
+    if typeof obj is "object"
+      global = obj
+      true
+    else false
 
-      mediator = new scaleApp.Mediator
-      lang     = getBrowserLanguage()
-      global   = {}
+  _ = (text, o) -> get text, o, lang, global
 
-      @i18n =
-        setLanguage: (code) ->
-          if typeof code is "string"
-            lang = code
-            mediator.emit channelName, lang
-        getLanguage: -> lang
-        setGlobal: (obj) ->
-          if typeof obj is "object"
-            global = obj
-            true
-          else false
+  core.i18n =
+    setLanguage: setLanguage
+    getLanguage: getLanguage
+    setGlobal: setGlobal
+    onChange: onChange
+    _ : _
+    unsubscribe: unsubscribe
 
-        onChange: -> mediator.on channelName, arguments...
-        _: (text, o) -> get text, o, lang, global
+  core.Sandbox::i18n =
+    onChange : onChange
+    unsubscribe : unsubscribe
+    getLanguage : getLanguage
 
-        unsubscribe: -> mediator.off channelName, arguments...
+  id: "i18n"
 
-  plugin =
-    id: "i18n"
-    sandbox: SBPlugin
-    core: CorePlugin
-    base:
-      getBrowserLanguage: getBrowserLanguage
-      baseLanguage: baseLanguage
+  init: (sb) ->
+
+    sb.i18n.addLocal = (dict) ->
+      sb.options.i18n ?= {}
+      addLocal dict, sb.options.i18n
+
+    sb._ = (text) => _ text, sb.options.localDict or sb.options.i18n
 
 # AMD support
 if define?.amd?
-  define ['scaleApp'], (sa) -> createPlugin sa
+  define -> plugin
 
 # Browser support
 else if window?.scaleApp?
-  sa = window.scaleApp
-  sa.plugin.register createPlugin sa
+  window.scaleApp.plugins.i18n = plugin
 
 # Node.js support
 else if module?.exports?
-  module.exports = createPlugin require "../scaleApp"
+  module.exports = plugin

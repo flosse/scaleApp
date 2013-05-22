@@ -158,4 +158,7 @@ class Clock
     @pause()
     @container.innerHTML = ''
 
-window.Clock = Clock
+if define?.amd?
+  define [], -> Clock
+else if sa = window.scaleApp
+  sa.modules.Clock ?= Clock

@@ -20,18 +20,37 @@ describes the basic ideas.
 
 ![scaleApp architecture](https://raw.github.com/flosse/scaleApp/master/architecture.png)
 
-Unlike Zakas recommendations to abstract DOM manipulations and separating the
-framework from the base library, scaleApp does not implement any DOM methods.
+### Module
 
-Instead scaleApp can be extended by plugins. So you can just use one of your
-favorite libs (e.g. jQuery) as base library or you are going to implement all
-your needed DOM methods into the DOM plugin (`scaleApp.dom.coffee`) for a more
-clean and scalable architecture.
+A module is a completely independent part of your application.
+It has absolutely no reference to another piece of the app.
+The only thing the module knows is the sandbox.
+The sandbox is used to communicate with other parts of the application.
+
+### Sandbox
+
+The main purpose of the sandbox is to use the
+[facade pattern](https://en.wikipedia.org/wiki/Facade_pattern).
+In that way you can hide the features provided by the core and only show
+a well defined (static) API to your modules.
+For each module a separate sandbox will be created.
+
+### Core
+
+The core is responsible for starting and stopping your modules.
+It also handles the messages by using the
+[Publish/Subscribe (Mediator) pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
+
+### Plugin
+
+Plugins can extend the core or the sandbox with additional features.
+For example you could extend the core with basic functionalities
+(like DOM manipulation) or just aliases the features of a base library (e.g. jQuery).
 
 ## Features
 
 + loose coupling of modules
-+ small (about 340 sloc / 10k min / 3.4k gz)
++ small (about 300 sloc / 9k min / 3.5k gz)
 + no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules
@@ -39,7 +58,7 @@ clean and scalable architecture.
 + browser and node.js support
 + flow control
 
-## Extendable
+### Extendable
 
 scaleApp itself is very small but it can be extended with plugins. There already
 are some plugins available:
@@ -89,7 +108,7 @@ Link `scaleApp.min.js` in your HTML file:
 If you're going to use it with node:
 
 ```shell
-npm install scaleapp
+npm install scaleapp --save
 ```
 
 ```javascript
@@ -137,22 +156,6 @@ core.register("myGreatModule", MyGreatModule);
 The `init` function is called by the framework when the module is supposed to
 start. The `destroy` function is called when the module has to shut down.
 
-### Show registered modules
-
-```javascript
-core.lsModules(); // returns an array of module names
-```
-### Show running instances
-
-```javascript
-core.lsInstances(); // returns an array of instance names
-```
-
-### Show registered plugins
-
-```javascript
-scaleApp.lsPlugins(); // returns an array of plugin names
-```
 
 ## Asynchronous initialization
 
@@ -409,6 +412,11 @@ Link `scaleApp.i18n.min.js` in your HTML file:
 <script src="scaleApp.min.js"></script>
 <script src="scaleApp.i18n.min.js"></script>
 ```
+Register the plugin:
+
+```javascript
+core.use(scaleApp.plugins.i18n);
+```
 
 If your application has to support multiple languages, you can pass an objects
 containing the localized strings with the options object.
@@ -642,8 +650,29 @@ core.stop("parent");
 
 ## util - some helper functions
 
- - `sandbox.mixin(receivingClass, givingClass, override=false)`
- - `sandbox.countObjectKeys(object)`
+### Show registered modules
+
+```javascript
+core.lsModules(); // returns an array of module names
+```
+### Show running instances
+
+```javascript
+core.lsInstances(); // returns an array of instance names
+```
+
+### Show registered plugins
+
+```javascript
+core.lsPlugins(); // returns an array of plugin names
+```
+
+### Helper methods
+
+ - `core.mixin(receivingClass, givingClass, override=false)`
+ - `core.countObjectKeys(object)`
+ - `core.clone(object)`
+ - `core.uniqueId(length=8)`
 
 ## Other plugins
 
@@ -651,35 +680,82 @@ core.stop("parent");
 
 ## Write your own plugin
 
+It's easy:
+
 ```javascript
-scaleApp.registerPlugin({
+core.use(function(core){
+  core.helloWorld = function(){ alert("helloWorld"); };
+};
+```
 
-  // set the ID of your plugin
-  id: "myPlgin",
+Here a more complex example:
 
-  // define the core extensions
-  core: {
-    myCoreFunction: function(){ alert("Hello core plugin") },
-    myBoringProperty: "boring"
-  },
+```javascript
+core.use(function(core, done){
 
-  // define the sandbox extensions
-  sandbox: function(sandbox){
-    return {
-      appendFoo: function(){ sandbox.getContainer.append("foo"); }
+  // extend the core
+  core.myCoreFunction = function(){ alert("Hello core plugin") };
+  core.myBoringProperty = "boring";
+
+  // extend the sandbox class
+  core.Sandbox.prototype.myMethod = function( /*...*/);
+
+  // define a method that gets called when a module starts
+  var onModuleInit = function(instanceSandbox, options, done){
+
+    // e.g. define sandbox methods dynamically
+    if (options.mySwitch){
+      instanceSandbox.appendFoo = function(){
+       core.getContainer.append("foo");
+      };
+    }
+
+    // or load a something asynchronously
+    core.myAsyncMethod(function(data){
+
+      // do something...
+      // now tell scaleApp that you're done
+      done();
+    });
+  };
+
+  // define a method that gets called when a module stops
+  var onModuleDestroy = function(done){
+    myCleanUpMethod(function(){
+      done()
+    });
+  };
+
+  // don't forget to return your methods
+  return {
+    init: onModuleInit,
+    destroy: onModuleDestroy
+  };
+
+});
+```
+
+## Use your own Sandbox
+
+
+```javascript
+core.use(function(core){
+
+  core.Sandbox = function(core, instanceId, options){
+
+    var foo = function(){ /* ... */ };
+
+    var myEmit = function(channel, data){
+      core.emit(channel + '/' + instanceId, data);
     };
-  },
 
-  // define base extensions
-  base:{
-    globalHello: function(){ return "Hello"; }
-  },
+    // return your own public API
+    return {
+      foo: foo,
+      emit: myEmit
+    };
 
-  // define methods for module changes
-  on: {
-    instantiate: function(){/* ... */},
-    destroy:     function(){/* ... */}
-  }
+  };
 });
 ```
 
@@ -712,13 +788,22 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 
 #### v0.4.0 (??-2013)
 
+- the API is now chainable
+- removed `setInstanceOptions`
+- removed `unregister` and `unregisterAll`
+- new plugin API
+- `scaleApp.plugins.register` moved to `core.use`
+- support asynchronous plugins
+- added `boot` method
+- the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the util plugin
 - `Mediator`: do not *clone* objects any more (do it manually instead)
 - drop `subscribe`, `unsubscribe`, `publish` from Mediator API
   (use `on`, `off` and `emit` instead)
 - added a `Core` class that can be instantiated
 - new submodule plugin
-- emit events on module state changes
+- new `modulestate` plugin to emit events on module state changes
 - improved permission and i18n plugins
+- cleaner code
 
 #### v0.3.9 (12-2012)
 

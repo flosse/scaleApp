@@ -1,26 +1,46 @@
-scaleApp = window?.scaleApp or require? "../scaleApp"
+plugin = (core, options={}) ->
 
-class SBPlugin
+  methods = ["register", "start", "stop", "on", "off", "emit"]
 
-  constructor: (@sb) ->
+  install = (sb, subCore) ->
+    sb.sub = {}
 
-    core = new scaleApp.Core
-    destroy = -> core.stopAll.apply core
-    @sb.core.onModuleState "destroy", destroy, @sb.instanceId
-    @sub = {}
+    for fn in methods then do (fn) =>
+      sb.sub[fn] = ->
+        subCore[fn].apply subCore, arguments
+        sb
 
-    for fn in ["register", "start", "stop", "on", "off", "emit"] then do (fn) =>
-      @sub[fn] = -> core[fn].apply core, arguments
+    if subCore.permission?
+      sb.sub.permission =
+        add:    subCore.permission.add
+        remove: subCore.permission.remove
 
-    if core.permission?
-      @sub.permission =
-        add: -> core.permission.add.apply core, arguments
-        remove: -> core.permission.remove.apply core, arguments
+  init: (sb, opt, done) ->
 
-plugin=
-  id: "submodule"
-  sandbox: SBPlugin
+    sb._subCore = subCore = new core.constructor
+    if options.use instanceof Array
+      subCore.use p for p in options.use
+      subCore.boot (err) ->
+        return done err if err
+        install sb, subCore
+        done()
+    else
+      if typeof options.use is "function"
+        subCore.use options.use
+      install sb, subCore
+      done()
 
-window.scaleApp.plugin.register plugin if window?.scaleApp?
-module.exports = plugin if module?.exports?
-(define -> plugin) if define?.amd?
+  destroy: (sb) ->
+    sb._subCore.stopAll()
+
+# AMD support
+if define?.amd?
+  define -> plugin
+
+# Browser support
+else if window?.scaleApp?
+  window.scaleApp.plugins.submodule = plugin
+
+# Node.js support
+else if module?.exports?
+  module.exports = plugin

@@ -1,9 +1,9 @@
-createPlugin = (scaleApp) ->
-  class Model extends scaleApp.Mediator
+plugin = (core) ->
+
+  class Model extends core.Mediator
 
     constructor: (obj) ->
       super()
-      @id = obj?.id or scaleApp.util.uniqueId()
       @[k] = v for k,v of obj when not @[k]?
 
     set: (key, val, silent=false) ->
@@ -47,25 +47,18 @@ createPlugin = (scaleApp) ->
 
     constructor: (@model, @view) ->
 
-  p =
-    Model: Model
-    View: View
-    Controller: Controller
-
-  plugin =
-    id: "mvc"
-    base:p
-    sandbox: (@sb) -> p
+  core.Model      = Model
+  core.View       = View
+  core.Controller = Controller
 
 # AMD support
 if define?.amd?
-  define ['scaleApp'], (sa) -> createPlugin sa
+  define -> plugin
 
 # Browser support
 else if window?.scaleApp?
-  sa = window.scaleApp
-  sa.plugin.register createPlugin sa
+  window.scaleApp.plugins.mvc = plugin
 
 # Node.js support
 else if module?.exports?
-  module.exports = createPlugin require "../scaleApp"
+  module.exports = plugin

@@ -2,7 +2,9 @@ describe "dom plugin", ->
 
   before ->
     @scaleApp = window.scaleApp
+    @plugin   = @scaleApp.plugins.dom
     @core     = new @scaleApp.Core
+    @core.use(@plugin).boot()
 
     # helper method
     @run = (fn, opt={}) =>

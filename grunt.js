@@ -16,7 +16,7 @@ module.exports = function(grunt) {
           '<banner>',
           'src/Util.coffee',
           'src/Mediator.coffee',
-          'src/Sandbox.coffee',
+          'src/Core.coffee',
           'src/scaleApp.coffee'
         ],
         dest: 'dist/scaleApp.coffee'

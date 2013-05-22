@@ -6,22 +6,20 @@ describe "stateMachine plugin", ->
 
     if typeof(require) is "function"
       @scaleApp = require "../../dist/scaleApp"
-      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.state"
+      @plugin   = require "../../dist/plugins/scaleApp.state"
 
     else if window?
       @scaleApp = window.scaleApp
 
-    @core    = new @scaleApp.Core
-    @machine = new @scaleApp.StateMachine
-
-  after -> @core.unregisterAll()
+    @core    = (new @scaleApp.Core).use(@plugin).boot()
+    @machine = new @core.StateMachine
 
   it "installs it to the core", ->
-    (expect typeof @scaleApp.StateMachine).toEqual "function"
+    (expect typeof @core.StateMachine).toEqual "function"
 
   describe "constructor", ->
     it "takes a transitions object with multiple transitions", ->
-      machine = new @scaleApp.StateMachine
+      machine = new @core.StateMachine
         states: ["a", "b", "c"]
         transitions:
           x: {from: "a", to: "b"}
@@ -34,7 +32,7 @@ describe "stateMachine plugin", ->
         (expect channel).toBe 'a/enter'
         (expect t).toBe undefined
         done()
-      machine = new @scaleApp.StateMachine
+      machine = new @core.StateMachine
         start: 'a'
         states:
           a: {enter: onEnter}
@@ -44,7 +42,7 @@ describe "stateMachine plugin", ->
         (expect channel).toBe 'a/leave'
         (expect t).toEqual {from: "a", to: "b"}
         done()
-      machine = new @scaleApp.StateMachine
+      machine = new @core.StateMachine
         start: 'a'
         states:
           a: {leave: onLeave}

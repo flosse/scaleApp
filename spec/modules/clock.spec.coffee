@@ -4,28 +4,25 @@ describe "clock module", ->
     @timeout = 3000
     @sa = window.scaleApp
     @core = new @sa.Core
+    @core.use(@sa.plugins.dom).boot()
     @div = document.createElement "div"
     @div.setAttribute "id", "clock"
     document
       .getElementsByTagName("body")[0]
       .appendChild @div
-    @core.register "clock", Clock
+    @core.register "clock", @sa.modules.Clock
     @core.start "clock"
     @getSeconds = ->
       @div.getElementsByClassName("seconds")[0].innerText
     @getMinutes = ->
       @div.getElementsByClassName("minutes")[0].innerText
 
-  after ->
-    @core.stopAll()
-    @core.unregisterAll()
+  after -> @core.stopAll()
 
-  it "can be registered", ->
-    (expect typeof Clock).toEqual "function"
-    (expect @core.register "clock2", Clock).toBe true
+  it "is a function", ->
+    (expect typeof @sa.modules.Clock).toEqual "function"
 
   it "creates separate div with 'clock' as class attribute", ->
-    (expect typeof Clock).toEqual "function"
     (expect @div.childNodes[0].getAttribute "class").toEqual "clock"
 
   it "can be paused", (done) ->

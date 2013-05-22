@@ -5,31 +5,37 @@ describe "submodule plugin", ->
   before ->
     if typeof require is "function"
       @scaleApp  = getScaleApp()
-      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.submodule"
+      @plugin    = require "../../dist/plugins/scaleApp.submodule"
       @permissionPlugin = require "../../dist/plugins/scaleApp.permission"
-      @scaleApp.plugin.register @permissionPlugin
     else if window?
       @scaleApp  = window.scaleApp
+
     @core = new @scaleApp.Core
+    @core
+      .use(@permissionPlugin)
+      .use(@plugin, {use:[@permissionPlugin]})
+      .boot()
 
   it "can start a submodule", (done) ->
 
-    x = false
+    x = sinon.spy()
 
     mySubModule = (sb) ->
-      init: -> x = true
+      init: ->
+        x()
       destroy: -> done()
 
     myModule = (sb) ->
       init: ->
+        (expect typeof sb.sub).toBe "object"
         (expect typeof sb.sub.register).toBe "function"
-        (expect sb.sub.register "sub", mySubModule).toBe true
-        (expect sb.sub.start "sub", {instanceId: "foo"}).toBe true
+        (expect sb.sub.register "sub", mySubModule).toBe sb
+        (expect sb.sub.start "sub", {instanceId: "foo"}).toBe sb
       destroy: ->
 
-    (expect @core.register "parent", myModule).toBe true
+    @core.register "parent", myModule
     @core.start "parent"
-    (expect x).toBe true
+    (expect x).toHaveBeenCalled()
     @core.stop "parent"
 
   it "can stop a submodule", ->
@@ -53,11 +59,13 @@ describe "submodule plugin", ->
 
   it "has methods to add/remove permissons if the permission plugin is registered", (done) ->
 
+    spyA = sinon.spy()
+    spyB = sinon.spy()
+
     mySubModule = (sb) ->
       init: ->
-        (expect sb.emit "a").toBe false
-        (expect sb.emit "b").not.toBe false
-        done()
+        sb.emit "a"
+        sb.emit "b"
       destroy: ->
 
     myModule = (sb) ->
@@ -67,12 +75,18 @@ describe "submodule plugin", ->
         (expect typeof sb.sub.permission.add).toBe "function"
         (expect typeof sb.sub.permission.remove).toBe "function"
         sb.sub.permission.add "foo", "emit", "b"
+        sb.sub.on "a", spyA
+        sb.sub.on "b", spyB
         sb.sub.start "sub", {instanceId: "foo"}
       destroy: ->
     @core.register "parent", myModule
     @core.start "parent"
+    (expect spyA).not.toHaveBeenCalled()
+    (expect spyB).toHaveBeenCalled()
+    done()
 
-  it "has methods to communicat with the submodules", (done) ->
+
+  it "has methods to communicate with the submodules", (done) ->
 
     cb1 = new sinon.spy()
     cb2 = new sinon.spy()

@@ -50,9 +50,9 @@ class Mediator
   # ## Publish an event
   #
   # Parameters:
-  # (String) topic             - The topic name
-  # (Object) data              - The data that gets published
-  # (Funtction)                - callback method
+  # - (String) topic             - The topic name
+  # - (Object) data              - The data that gets published
+  # - (Funtction)                - callback method
   emit: (channel, data, cb=->) ->
 
     if typeof data is "function"
@@ -64,7 +64,7 @@ class Mediator
     tasks = for sub in subscribers then do (sub) ->
       (next) ->
         try
-          if (util.getArgumentNames sub.callback).length >= 3
+          if util.hasArgument sub.callback, 3
             sub.callback.apply sub.context, [data, channel, next]
           else
             next null, sub.callback.apply sub.context, [data, channel]
@@ -83,7 +83,7 @@ class Mediator
   # ## Install Pub/Sub functions to an object
   installTo: (obj) ->
     if typeof obj is "object"
-      obj[k] = v for k,v of @
+      obj[k] ?= v for k,v of @
     @
 
   @_rm: (o, ch, cb, ctxt) ->

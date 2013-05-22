@@ -2,90 +2,78 @@ require?("../nodeSetup")()
 
 describe "util plugin", ->
 
-  before ->
+  if typeof(require) is "function"
+    scaleApp  = require "../../dist/scaleApp"
+    plugin    = require "../../dist/plugins/scaleApp.util"
 
-    if typeof(require) is "function"
-      @scaleApp  = require "../../dist/scaleApp"
-      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.util"
-    else if window?
-      @scaleApp  = window.scaleApp
-      @Core  = window.scaleApp
-    @core = new @scaleApp.Core
+  else if window?
+    scaleApp  = window.scaleApp
+    plugin    = scaleApp.plugins.util
+
+  before (done) ->
+
+    @core = new scaleApp.Core
+    @core.use(plugin).boot done
 
     # helper method
     @run = (fn, cb=->) =>
 
         # create module
-        mod = (sb) ->
-          init: -> fn sb
-          destroy: ->
+      mod = (sb) ->
+        init: -> fn sb
+        destroy: ->
 
-        # register module
-        @core.register "myId", mod, {i18n: @myLangObj }
+      # register module
+      @core.register "myId", mod
 
-        # start that moudle
-        @core.start "myId", callback: cb
+      # start that moudle
+      @core.start "myId", callback: cb
 
-   after ->
-     @core.stopAll()
-     @core.unregisterAll()
+  it "installs it to the core", ->
 
-  it "installs it to the sandbox", (done) ->
-
-    @run (sb) ->
-      (expect typeof sb.countObjectKeys).toEqual "function"
-      (expect typeof sb.mixin).toEqual "function"
-      done()
-
+    (expect typeof @core.countObjectKeys).toEqual "function"
+    (expect typeof @core.mixin).toEqual "function"
+    (expect typeof @core.uniqueId).toEqual "function"
+    (expect typeof @core.clone).toEqual "function"
 
   describe "countObjectKeys", ->
 
-    it "works correctly", (done) ->
+    it "works correctly", ->
 
-      @run (sb) ->
-        (expect sb.countObjectKeys { a:"a", b: "", c: 123 }).toEqual 3
-        (expect sb.countObjectKeys [ "a", false, 123, true ]).toEqual 4
-        done()
-
+      (expect @core.countObjectKeys { a:"a", b: "", c: 123 }).toEqual 3
+      (expect @core.countObjectKeys [ "a", false, 123, true ]).toEqual 4
 
   describe "mixin", ->
 
-    it "extends an object", (done) ->
+    it "extends an object", ->
 
-      @run (sb) ->
         receivingObject = { a: "original", d: 55 }
         givingObject = { a: "one", b: "two", c: ["three"] }
-        sb.mixin receivingObject, givingObject
+        @core.mixin receivingObject, givingObject
         (expect receivingObject).toEqual { a: "original", b: "two", c: ["three"], d: 55 }
-        done()
 
-    it "extends a class with an object", (done) ->
+    it "extends a class with an object", ->
 
       receivingClass = ->
       receivingClass:: = { a: "original", d: 55 }
       expected = { a: "original", b: "two", c: ["three"], d: 55 }
       givingObject = { a: "one", b: "two", c: ["three"] }
 
-      @run (sb) ->
-        sb.mixin receivingClass, givingObject
-        (expect receivingClass:: ).toEqual expected
-        (expect givingObject ).toEqual { a: "one", b: "two", c: ["three"] }
-        done()
+      @core.mixin receivingClass, givingObject
+      (expect receivingClass:: ).toEqual expected
+      (expect givingObject ).toEqual { a: "one", b: "two", c: ["three"] }
 
-    it "extends an object with a class", (done) ->
+    it "extends an object with a class", ->
 
       receivingObject = { a: "original", d: 55 }
       givingClass = ->
       givingClass:: = { a: "one", b: "two", c: ["three"] }
 
-      @run (sb) ->
-        sb.mixin receivingObject, givingClass
-        (expect receivingObject).toEqual { a: "original", b: "two", c: ["three"], d: 55 }
-        (expect givingClass::).toEqual { a: "one", b: "two", c: ["three"] }
-        done()
+      @core.mixin receivingObject, givingClass
+      (expect receivingObject).toEqual { a: "original", b: "two", c: ["three"], d: 55 }
+      (expect givingClass::).toEqual { a: "one", b: "two", c: ["three"] }
 
-
-    it "extends a class with another one", (done) ->
+    it "extends a class with another one", ->
 
       receivingClass = ->
       receivingClass:: = { a: "original", d: 55 }
@@ -93,8 +81,6 @@ describe "util plugin", ->
       givingClass = ->
       givingClass:: = { a: "one", b: "two", c: ["three"] }
 
-      @run (sb) ->
-        sb.mixin receivingClass, givingClass
-        (expect receivingClass::).toEqual { a: "original", b: "two", c: ["three"], d: 55 }
-        (expect givingClass::).toEqual { a: "one", b: "two", c: ["three"] }
-        done()
+      @core.mixin receivingClass, givingClass
+      (expect receivingClass::).toEqual { a: "original", b: "two", c: ["three"], d: 55 }
+      (expect givingClass::).toEqual { a: "one", b: "two", c: ["three"] }
