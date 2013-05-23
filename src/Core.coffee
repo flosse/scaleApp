@@ -25,7 +25,6 @@ createInstance = (moduleId, instanceId=moduleId, opt, cb) ->
 
   sb = new @Sandbox @, instanceId, iOpts
   sb.moduleId ?= moduleId
-  @_mediator.installTo sb
 
   runSandboxPlugins.call @, 'init', sb, (err) =>
     instance               = new module.creator sb
@@ -51,7 +50,7 @@ class Core
 
     # define public variables
 
-    @Sandbox      = (@core, @instanceId, @options = {}) ->
+    @Sandbox      = Sandbox
     @Mediator     = Mediator
 
   # define dummy logger

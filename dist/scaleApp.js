@@ -1,13 +1,13 @@
 
 /*
-scaleapp - v0.4.0 - 2013-05-22
+scaleapp - v0.4.0 - 2013-05-23
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
 */
 
 
 (function() {
-  var Core, Mediator, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util, _ref,
+  var Core, Mediator, Sandbox, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util, _ref,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -382,6 +382,19 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
 
   })();
 
+  Sandbox = (function() {
+
+    function Sandbox(core, instanceId, options) {
+      this.core = core;
+      this.instanceId = instanceId;
+      this.options = options != null ? options : {};
+      this.core._mediator.installTo(this);
+    }
+
+    return Sandbox;
+
+  })();
+
   checkType = function(type, val, name) {
     if (typeof val !== type) {
       throw new TypeError("" + name + " has to be a " + type);
@@ -443,7 +456,6 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     if ((_ref1 = sb.moduleId) == null) {
       sb.moduleId = moduleId;
     }
-    this._mediator.installTo(sb);
     return runSandboxPlugins.call(this, 'init', sb, function(err) {
       var instance;
       instance = new module.creator(sb);
@@ -466,11 +478,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
       this._instances = {};
       this._sandboxes = {};
       this._mediator = new Mediator;
-      this.Sandbox = function(core, instanceId, options) {
-        this.core = core;
-        this.instanceId = instanceId;
-        this.options = options != null ? options : {};
-      };
+      this.Sandbox = Sandbox;
       this.Mediator = Mediator;
     }
 
