@@ -1,4 +1,4 @@
-require?("../nodeSetup")()
+require?("../../spec/nodeSetup")()
 
 describe "submodule plugin", ->
 

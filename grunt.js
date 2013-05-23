@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       compile: {
         files: {
           "dist/scaleApp.js":  'dist/scaleApp.coffee',
-          "dist/plugins/*.js": 'src/plugins/*.coffee',
+          "dist/plugins/*.js": 'plugins/src/*.coffee',
           "dist/modules/*.js": 'src/modules/*.coffee'
         },
       }

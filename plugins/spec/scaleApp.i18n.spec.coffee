@@ -1,4 +1,4 @@
-require?("../nodeSetup")()
+require?("../../spec/nodeSetup")()
 
 describe "i18n plugin", ->
 
