@@ -401,26 +401,83 @@ scaleApp.util.runWaterfall([task1, task2], function(err, result){
 
 ```
 
+# API
+
+## scaleApp
+
+- `scaleApp.VERSION` - the current version of scaleApp
+- `scaleApp.Mediator` - the Mediator class
+- `scaleApp.Sandbox` - the Sandbox class
+- `scaleApp.Core` - the Core class
+
+## Core
+
+```javascript
+// use default sandbox
+var core = new scaleApp.Core();
+
+// use your own sandbox
+var core = new scaleApp.Core(yourSandbox);
+```
+
+- `core.register(moduleName, module, options)` - register a module
+- `core.use(plugin, options)` - register a plugin
+- `core.boot(callback)` - initialize plugins
+   (will be executed automatically on ´start´)
+- `core.start(moduleId, options, callback)` - start a module
+- `core.stop(instanceId, callback)` - stop a module
+
+## Mediator
+
+```javascript
+// create a mediator
+var mediator = scaleApp.Mediator();
+
+// create a mediator with a custom context object
+var mediator = scaleApp.Mediator(context);
+```
+
+- `mediator.emit(channel, data, callback)`
+- `mediator.on(channel, callback, context)`
+- `mediator.off(channel, callback)`
+- `mediator.installTo(context)`
+
+```javascript
+// subscribe
+var subscription = mediator.on(channel, callback, context);
+```
+- `subscription.detach` - stop listening
+- `subscription.attach` - resume listening
+
+## Sandbox
+
+```javascript
+var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandbox
+```
+- `sandbox.emit` is `mediator.emit`
+- `sandbox.on` is `mediator.on`
+- `sandbox.off` is `mediator.off`
+
 # Changelog
 
 #### v0.4.0 (??-2013)
 
+- added a `Core` class that can be instantiated (`var core = new scaleApp.Core();`)
+- cleaner code
+- changed API
+- new plugin API (`scaleApp.plugins.register` moved to `core.use`)
 - the API is now chainable
+- support asynchronous plugins
+- added `boot` method to initialize asynchronous plugins
 - removed `setInstanceOptions`
 - removed `unregister` and `unregisterAll`
-- new plugin API
-- `scaleApp.plugins.register` moved to `core.use`
-- support asynchronous plugins
-- added `boot` method
 - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
 - `Mediator`: do not *clone* objects any more (do it manually instead)
 - drop `subscribe`, `unsubscribe`, `publish` from Mediator API
   (use `on`, `off` and `emit` instead)
-- added a `Core` class that can be instantiated
-- new submodule plugin
+- new `submodule` plugin
 - new `modulestate` plugin to emit events on module state changes
 - improved permission and i18n plugins
-- cleaner code
 
 #### v0.3.9 (12-2012)
 
