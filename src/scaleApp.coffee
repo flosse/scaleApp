@@ -9,6 +9,9 @@ api =
   # the mediator class
   Mediator: Mediator
 
+  # the sandbox class
+  Sandbox: Sandbox
+
   # the core class
   Core: Core
 

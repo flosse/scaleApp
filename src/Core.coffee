@@ -38,7 +38,7 @@ createInstance = (moduleId, instanceId=moduleId, opt, cb) ->
 
 class Core
 
-  constructor: ->
+  constructor: (sandbox=Sandbox)->
 
     # define private variables
 
@@ -50,7 +50,7 @@ class Core
 
     # define public variables
 
-    @Sandbox      = Sandbox
+    @Sandbox      = sandbox
     @Mediator     = Mediator
 
   # define dummy logger
