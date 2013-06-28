@@ -1,5 +1,5 @@
 {
   "name": "scaleapp",
   "version": "0.3.8",
-  "main": "./bundles/scaleApp.js"
+  "main": "./dist/scaleApp.js"
 }
