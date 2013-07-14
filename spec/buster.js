@@ -15,13 +15,3 @@ config["browser-core"] = {
   sources: ["dist/scaleApp.js"],
   extensions: [require("buster-coffee")]
 };
-
-config["browser-modules"] = {
-  environment: "browser",
-  rootPath: '../',
-  specs: ["spec/modules/*.spec.coffee"],
-  specHelpers: ["spec/browserSetup.coffee"],
-  sources: ["src/modules/*.coffee"],
-  libs: ["dist/scaleApp.min.js", "dist/plugins/scaleApp.dom.js"],
-  extensions: [require("buster-coffee")],
-};

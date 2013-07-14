@@ -1,5 +1,11 @@
 path   = require "path"
 
+renameCoffe2js = (dest, matchedSrcPath, opts) ->
+  path.join dest, path.basename(matchedSrcPath,'.coffee') + '.js'
+
+renameJs2min = (dest, matchedSrcPath, opts) ->
+  path.join dest, path.basename(matchedSrcPath,'.js') + '.min.js'
+
 banner =
   """
   /*!
@@ -44,25 +50,26 @@ module.exports = (grunt) ->
             "src/Mediator.coffee"
             "src/Sandbox.coffee"
             "src/scaleApp.coffee"
-            "src/plugins/*.coffee" ]
+            "plugins/src/*.coffee" ]
       plugins:
         expand: true
         flatten: true
         cwd: 'plugins/src'
         src: ['*.coffee']
         dest: 'dist/plugins/'
-        rename: (dest, matchedSrcPath, opts) ->
-          path.join dest, path.basename(matchedSrcPath,'.coffee') + '.js'
+        rename: renameCoffe2js
       modules:
         expand: true
-        cwd: 'src/modules/'
+        flatten: true
+        cwd: 'modules/'
         src: ['*.coffee']
         dest: 'dist/modules/'
+        rename: renameCoffe2js
 
     copy:
       modules:
         expand: true
-        cwd: 'src/modules/'
+        cwd: 'modules/'
         src: ['*.html']
         dest: 'dist/modules'
 
@@ -85,17 +92,25 @@ module.exports = (grunt) ->
           'dist/scaleApp.full.min.js': ["dist/scaleApp.full.js"]
       plugins:
         expand: true
+        flatten: true
         cwd: 'dist/plugins/'
         src: ["*.js"]
         dest: 'dist/plugins/'
-        ext: '.min.js'
+        rename: renameJs2min
+      modules:
+        expand: true
+        flatten: true
+        cwd: 'dist/modules/'
+        src: ["*.js"]
+        dest: 'dist/modules/'
+        rename: renameJs2min
 
     watch:
       src:
         files: ["src/*.coffee", "src/**/*.coffee"]
         tasks: ["coffee"]
       styles:
-        files: ["src/modules/*.styl"]
+        files: ["modules/*.styl"]
         tasks: ["stylus"]
 
     stylus:
@@ -104,7 +119,7 @@ module.exports = (grunt) ->
           compress: true
 
         expand: true
-        cwd: 'src/modules/'
+        cwd: 'modules/'
         src: ["*.styl"]
         dest: 'dist/modules/'
         ext: '.css'

@@ -10,3 +10,4 @@ spec/**/*.js
 /dist/*.full.*
 /dist/*.min.*
 *~
+npm-debug.log
