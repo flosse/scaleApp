@@ -1,17 +1,14 @@
-
-/*
-scaleapp - v0.4.0 - 2013-05-23
+/*!
+scaleapp - v0.4.0 - 2013-07-14
 This program is distributed under the terms of the MIT license.
-Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
-
-
 (function() {
-  var Core, Mediator, Sandbox, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util, _ref,
+  var Core, Mediator, Sandbox, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util,
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  if (!(String.prototype.trim != null)) {
+  if (String.prototype.trim == null) {
     String.prototype.trim = function() {
       return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
     };
@@ -23,7 +20,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
       fn = function() {};
     }
     args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
-    if (!(args != null) || (args.length < 2)) {
+    if ((args == null) || (args.length < 2)) {
       return [];
     }
     args = args[1];
@@ -56,7 +53,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     for (i = _i = 0, _len = tasks.length; _i < _len; i = ++_i) {
       t = tasks[i];
       _results.push((function(t, i) {
-        var next;
+        var e, next;
         next = function() {
           var e, err, res;
           err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -85,7 +82,8 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
         };
         try {
           return t(next);
-        } catch (e) {
+        } catch (_error) {
+          e = _error;
           if (force) {
             return next(e);
           }
@@ -137,7 +135,8 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
       } else {
         try {
           return tasks[i](next);
-        } catch (e) {
+        } catch (_error) {
+          e = _error;
           if (force) {
             return next(e);
           }
@@ -204,7 +203,6 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   Mediator = (function() {
-
     function Mediator(obj, cascadeChannels) {
       this.cascadeChannels = cascadeChannels != null ? cascadeChannels : false;
       this.channels = {};
@@ -214,11 +212,11 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     }
 
     Mediator.prototype.on = function(channel, fn, context) {
-      var id, k, subscription, that, v, _base, _i, _len, _ref, _results, _results1;
+      var id, k, subscription, that, v, _base, _i, _len, _results, _results1;
       if (context == null) {
         context = this;
       }
-      if ((_ref = (_base = this.channels)[channel]) == null) {
+      if ((_base = this.channels)[channel] == null) {
         _base[channel] = [];
       }
       that = this;
@@ -309,13 +307,15 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
           sub = subscribers[_i];
           _results.push((function(sub) {
             return function(next) {
+              var e;
               try {
                 if (util.hasArgument(sub.callback, 3)) {
                   return sub.callback.apply(sub.context, [data, channel, next]);
                 } else {
                   return next(null, sub.callback.apply(sub.context, [data, channel]));
                 }
-              } catch (e) {
+              } catch (_error) {
+                e = _error;
                 return next(e);
               }
             };
@@ -347,11 +347,11 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Mediator.prototype.installTo = function(obj) {
-      var k, v, _ref;
+      var k, v;
       if (typeof obj === "object") {
         for (k in this) {
           v = this[k];
-          if ((_ref = obj[k]) == null) {
+          if (obj[k] == null) {
             obj[k] = v;
           }
         }
@@ -383,7 +383,6 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
   })();
 
   Sandbox = (function() {
-
     function Sandbox(core, instanceId, options) {
       this.core = core;
       this.instanceId = instanceId;
@@ -432,7 +431,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   createInstance = function(moduleId, instanceId, opt, cb) {
-    var iOpts, key, module, o, sb, val, _i, _len, _ref, _ref1,
+    var iOpts, key, module, o, sb, val, _i, _len, _ref,
       _this = this;
     if (instanceId == null) {
       instanceId = moduleId;
@@ -453,7 +452,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
       }
     }
     sb = new this.Sandbox(this, instanceId, iOpts);
-    if ((_ref1 = sb.moduleId) == null) {
+    if (sb.moduleId == null) {
       sb.moduleId = moduleId;
     }
     return runSandboxPlugins.call(this, 'init', sb, function(err) {
@@ -471,14 +470,16 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   Core = (function() {
-
-    function Core() {
+    function Core(sandbox) {
+      if (sandbox == null) {
+        sandbox = Sandbox;
+      }
       this._modules = {};
       this._plugins = [];
       this._instances = {};
       this._sandboxes = {};
       this._mediator = new Mediator;
-      this.Sandbox = Sandbox;
+      this.Sandbox = sandbox;
       this.Mediator = Mediator;
     }
 
@@ -491,6 +492,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.register = function(moduleId, creator, opt) {
+      var e;
       if (opt == null) {
         opt = {};
       }
@@ -498,7 +500,8 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
         checkType("string", moduleId, "module ID");
         checkType("function", creator, "creator");
         checkType("object", opt, "option parameter");
-      } catch (e) {
+      } catch (_error) {
+        e = _error;
         this.log.error("could not register module '" + moduleId + "': " + e.message);
         return this;
       }
@@ -515,7 +518,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.start = function(moduleId, opt, done) {
-      var callback, cb, id, _ref,
+      var callback, cb, e, id, _ref,
         _this = this;
       if (opt == null) {
         opt = {};
@@ -564,7 +567,8 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
           });
         });
         return true;
-      } catch (e) {
+      } catch (_error) {
+        e = _error;
         this.log.error(e);
         cb(new Error("could not start module: " + e.message));
         return this;
@@ -640,7 +644,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
         }
         return typeof cb === "function" ? cb(e || invalidErr) : void 0;
       });
-      return !(invalidErr != null);
+      return invalidErr == null;
     };
 
     Core.prototype.stop = function(id, cb) {
@@ -750,6 +754,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
     VERSION: "0.4.0",
     util: util,
     Mediator: Mediator,
+    Sandbox: Sandbox,
     Core: Core,
     plugins: {},
     modules: {}
@@ -760,7 +765,7 @@ Copyright (c) 2011-2013  Markus Kohlhase <mail@markus-kohlhase.de>
       return api;
     });
   } else if (typeof window !== "undefined" && window !== null) {
-    if ((_ref = window.scaleApp) == null) {
+    if (window.scaleApp == null) {
       window.scaleApp = api;
     }
   } else if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
