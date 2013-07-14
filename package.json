@@ -17,6 +17,7 @@
     "coffee-script":        "~1.6.3",
     "uglify-js":            "~2.3.6",
     "grunt":                "~0.4.1",
+    "grunt-cli":            "~0.1.9",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-copy":   "~0.4.0",
     "grunt-contrib-stylus": "~0.4.0",
@@ -24,13 +25,11 @@
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-concat": "~0.3.0"
   },
-  "repositories":
-  [
-    {
-      "type": "git",
-      "path": "git://github.com/flosse/scaleApp.git"
-    }
-  ],
+  "repository":
+  {
+    "type": "git",
+    "path": "git://github.com/flosse/scaleApp.git"
+  },
   "maintainers":
   [
     {
@@ -39,5 +38,5 @@
       "web":    "http://github.com/flosse/"
     }
   ],
-  "scripts": { "test": "grunt && buster test --node" }
+  "scripts": { "test": "./node_modules/grunt-cli/bin/grunt && buster test --node" }
 }
