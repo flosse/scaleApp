@@ -94,14 +94,14 @@ module.exports = (grunt) ->
         expand: true
         flatten: true
         cwd: 'dist/plugins/'
-        src: ["*.js"]
+        src: ["*.js","!*.min.js"]
         dest: 'dist/plugins/'
         rename: renameJs2min
       modules:
         expand: true
         flatten: true
         cwd: 'dist/modules/'
-        src: ["*.js"]
+        src: ["*.js","!*.min.js"]
         dest: 'dist/modules/'
         rename: renameJs2min
 
