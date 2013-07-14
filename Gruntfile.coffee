@@ -1,3 +1,5 @@
+path   = require "path"
+
 banner =
   """
   /*!
@@ -48,7 +50,8 @@ module.exports = (grunt) ->
         cwd: 'src/plugins/'
         src: ['*.coffee']
         dest: 'dist/plugins/'
-        ext: '.js'
+        rename: (dest, matchedSrcPath, opts) ->
+          path.join dest, path.basename(matchedSrcPath,'.coffee') + '.js'
       modules:
         expand: true
         cwd: 'src/modules/'
