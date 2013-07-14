@@ -400,6 +400,112 @@ scaleApp.util.runWaterfall([task1, task2], function(err, result){
 });
 
 ```
+## Plugins
+
+There are some plugins available within the `plugins` folder.
+For more information look at the
+[plugin README](https://github.com/flosse/scaleApp/blob/master/plugins/README.md).
+
+### Write your own plugin
+
+It's easy:
+
+```javascript
+core.use(function(core){
+  core.helloWorld = function(){ alert("helloWorld"); };
+};
+```
+
+Here a more complex example:
+
+```javascript
+core.use(function(core, done){
+
+  // extend the core
+  core.myCoreFunction = function(){ alert("Hello core plugin") };
+  core.myBoringProperty = "boring";
+
+  // extend the sandbox class
+  core.Sandbox.prototype.myMethod = function( /*...*/);
+
+  // define a method that gets called when a module starts
+  var onModuleInit = function(instanceSandbox, options, done){
+
+    // e.g. define sandbox methods dynamically
+    if (options.mySwitch){
+      instanceSandbox.appendFoo = function(){
+       core.getContainer.append("foo");
+      };
+    }
+
+    // or load a something asynchronously
+    core.myAsyncMethod(function(data){
+
+      // do something...
+      // now tell scaleApp that you're done
+      done();
+    });
+  };
+
+  // define a method that gets called when a module stops
+  var onModuleDestroy = function(done){
+    myCleanUpMethod(function(){
+      done()
+    });
+  };
+
+  // don't forget to return your methods
+  return {
+    init: onModuleInit,
+    destroy: onModuleDestroy
+  };
+
+});
+```
+
+## Use your own Sandbox
+
+```javascript
+core.use(function(core){
+
+  core.Sandbox = function(core, instanceId, options){
+
+    var foo = function(){ /* ... */ };
+
+    var myEmit = function(channel, data){
+      core.emit(channel + '/' + instanceId, data);
+    };
+
+    // return your own public API
+    return {
+      foo: foo,
+      emit: myEmit
+    };
+
+  };
+});
+```
+
+Usage:
+
+```javascript
+core.myCoreFunction() // alerts "Hello core plugin"
+
+var MyModule = function(sandbox){
+  init: function(){ sandbox.appendFoo(); },  // appends "foo" to the container
+  destroy: function(){}
+};
+```
+
+# Build browser bundles
+
+If you want scaleApp bundled with special plugins type
+
+```shell
+grunt custom[:PLUGIN_NAME]
+```
+e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
+contains scaleApp itself the dom plugin and the mvc plugin.
 
 # API
 
