@@ -122,3 +122,37 @@ describe "submodule plugin", ->
     @core.register "parent", myModule
     @core.permission.add "parent", "on", "to parent"
     @core.start "parent"
+
+  it "provides an option for plugin inheritance", (done) ->
+
+    foobarPlugin = (core) ->
+      core.foobar = "baz"
+      core.Sandbox::baz = "foobar"
+
+    bazPlugin = (core) ->
+      core.onlySub = 42
+      core.Sandbox::only = "sub"
+
+    mySubModule = (sb) ->
+      init: ->
+        (expect typeof sb.sub).toBe "object"
+        (expect sb.baz).toBe "foobar"
+        (expect sb.core.foobar).toBe "baz"
+        (expect sb.only).toBe "sub"
+        (expect sb.core.onlySub).toBe 42
+        done()
+
+    myModule = (sb) ->
+      init: ->
+        (expect sb.baz).toBe "foobar"
+        (expect sb.core.onlySub).not.toBeDefined()
+        (expect sb.only).not.toBeDefined()
+        sb.sub.register "sub", mySubModule
+        sb.sub.start "sub"
+
+    core = new @scaleApp.Core
+    core
+      .use(@plugin, {inherit: true, use: bazPlugin})
+      .use(foobarPlugin)
+      .register("parent", myModule)
+      .start("parent")

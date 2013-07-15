@@ -10,6 +10,7 @@ plugin = (core, options={}) ->
         subCore[fn].apply subCore, arguments
         sb
 
+    #TODO: replace that with a more elegant solution
     if subCore.permission?
       sb.sub.permission =
         add:    subCore.permission.add
@@ -18,15 +19,25 @@ plugin = (core, options={}) ->
   init: (sb, opt, done) ->
 
     sb._subCore = subCore = new core.constructor
+
+    # make sure that plugins do not modify the original
+    # Sandbox class.
+    subCore.Sandbox = class SubSandbox extends core.Sandbox
+
+    plugins = []
+
+    if options.inherit
+      for p in core._plugins
+        plugins.push plugin: p.creator, options: p.options
+
     if options.use instanceof Array
-      subCore.use p for p in options.use
-      subCore.boot (err) ->
-        return done err if err
-        install sb, subCore
-        done()
-    else
-      if typeof options.use is "function"
-        subCore.use options.use
+      plugins.push p for p in options.use
+
+    else if typeof options.use is "function"
+      plugins.push options.use
+
+    subCore.use(plugins).boot (err) ->
+      return done err if err
       install sb, subCore
       done()
 

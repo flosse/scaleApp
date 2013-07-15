@@ -243,6 +243,12 @@ core.register("parent", function(sandbox){
 
 });
 
+// register the submodule plugin
+core.use(scaleApp.plugins.submodule, {
+  inherit: true,     // use all plugins from the parent's Core
+  use: [somePlugins] // use some additional plugins
+});
+
 core.start("parent");
 // the "parent" module starts a child within the init method
 
