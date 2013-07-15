@@ -1,8 +1,3 @@
-/*!
-scaleapp - v0.4.0 - 2013-07-14
-This program is distributed under the terms of the MIT license.
-Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
-*/
 (function() {
   var Core, Mediator, Sandbox, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util,
     __slice = [].slice,
@@ -686,13 +681,26 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.use = function(plugin, opt) {
-      if (typeof plugin !== "function") {
-        return this;
+      var p, _i, _len;
+      if (plugin instanceof Array) {
+        for (_i = 0, _len = plugin.length; _i < _len; _i++) {
+          p = plugin[_i];
+          if (typeof p === "function") {
+            this.use(p);
+          }
+          if (typeof p === "object") {
+            this.use(p.plugin, p.options);
+          }
+        }
+      } else {
+        if (typeof plugin !== "function") {
+          return this;
+        }
+        this._plugins.push({
+          creator: plugin,
+          options: opt
+        });
       }
-      this._plugins.push({
-        creator: plugin,
-        options: opt
-      });
       return this;
     };
 

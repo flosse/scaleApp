@@ -174,8 +174,13 @@ class Core
 
   # register a plugin
   use: (plugin, opt) ->
-    return @ unless typeof plugin is "function"
-    @_plugins.push creator:plugin, options:opt
+    if plugin instanceof Array
+      for p in plugin
+        if typeof p is "function" then @use p
+        if typeof p is "object"   then @use p.plugin, p.options
+    else
+      return @ unless typeof plugin is "function"
+      @_plugins.push creator:plugin, options:opt
     @
 
   # load plugins

@@ -77,11 +77,17 @@ sandbox.i18n.onChange(function(){
 Here is a sample use case for using the MVC plugin (in coffeescript).
 
 ```coffeescript
-class MyModel extends scaleApp.Model name: "Noname"
+core = new scaleApp.Core
+core.use scaleApp.plugins.mvc
+core.boot()
 ```
 
 ```coffeescript
-class MyView extends scaleApp.View
+class MyModel extends core.Model name: "Noname"
+```
+
+```coffeescript
+class MyView extends core.View
 
   constructor: (@model, @sandbox, @template) -> super @model
 
@@ -91,7 +97,7 @@ class MyView extends scaleApp.View
 ```
 
 ```coffeescript
-class MyController extends scaleApp.Controller
+class MyController extends core.Controller
 
   changeName: (name) -> @model.set "name", name
 ```

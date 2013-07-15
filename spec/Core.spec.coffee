@@ -482,6 +482,17 @@ describe "scaleApp core", ->
     it "registers a plugin if it's a function", ->
       (expect @core.use(->)._plugins.length).toBe 1
 
+    it "registers an array of plugins", ->
+      (expect @core.use([(->),(->)])._plugins.length).toBe 2
+
+    it "registers an array of plugins objects", ->
+      (expect @core.use([
+        {plugin: (->), options: {}}
+        {plugin: ->               }
+        {foo: ->                  }
+        (->)
+      ])._plugins.length).toBe 3
+
     it "installs a plugin", ->
       c = new @scaleApp.Core
       c.use (core) -> core.aKey = "txt"

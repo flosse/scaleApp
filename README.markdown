@@ -406,6 +406,23 @@ There are some plugins available within the `plugins` folder.
 For more information look at the
 [plugin README](https://github.com/flosse/scaleApp/blob/master/plugins/README.md).
 
+### Register plugins
+
+A single plugin can be registered with it option object in that way:
+
+```javascript
+core.use(plugin,options);
+```
+If you want to register multiple plugins at once:
+
+```javascript
+core.use([
+  plugin1,
+  plugin2,
+  { plugin: plugin3, options: options3 }
+]);
+```
+
 ### Write your own plugin
 
 It's easy:
@@ -528,6 +545,7 @@ var core = new scaleApp.Core(yourSandbox);
 
 - `core.register(moduleName, module, options)` - register a module
 - `core.use(plugin, options)` - register a plugin
+- `core.use(pluginArray)` - registers an array of plugins
 - `core.boot(callback)` - initialize plugins
    (will be executed automatically on ´start´)
 - `core.start(moduleId, options, callback)` - start a module
