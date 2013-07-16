@@ -27,8 +27,7 @@ describe "permission plugin", ->
         # start that moudle
         @core.start id, callback: cb
 
-  afterEach ->
-    @core.stopAll()
+  afterEach -> @core.stop()
 
   it "provides the method add", ->
     (expect typeof @core.permission.add).toEqual "function"

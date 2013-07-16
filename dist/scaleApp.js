@@ -1,3 +1,8 @@
+/*!
+scaleapp - v0.4.0 - 2013-07-16
+This program is distributed under the terms of the MIT license.
+Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
+*/
 (function() {
   var Core, Mediator, Sandbox, api, checkType, createInstance, doForAll, getArgumentNames, runParallel, runSandboxPlugins, runSeries, runWaterfall, util,
     __slice = [].slice,
@@ -521,6 +526,15 @@
       if (done == null) {
         done = function() {};
       }
+      if (arguments.length === 0) {
+        return this._startAll();
+      }
+      if (moduleId instanceof Array) {
+        return this._startAll(moduleId, opt);
+      }
+      if (typeof moduleId === "function") {
+        return this._startAll(moduleId);
+      }
       if (typeof opt === "function") {
         callback = opt;
         opt = {
@@ -561,7 +575,7 @@
             }
           });
         });
-        return true;
+        return this;
       } catch (_error) {
         e = _error;
         this.log.error(e);
@@ -570,7 +584,7 @@
       }
     };
 
-    Core.prototype.startAll = function(cb, opt) {
+    Core.prototype._startAll = function(cb, opt) {
       var id, invalid, invalidErr, mods, startAction, valid, _ref,
         _this = this;
       if (cb instanceof Array) {
@@ -602,7 +616,7 @@
         if (typeof cb === "function") {
           cb(null);
         }
-        return true;
+        return this;
       } else if (valid.length !== mods.length) {
         invalid = (function() {
           var _i, _len, _results;
@@ -639,13 +653,24 @@
         }
         return typeof cb === "function" ? cb(e || invalidErr) : void 0;
       });
-      return invalidErr == null;
+      return this;
     };
 
     Core.prototype.stop = function(id, cb) {
-      var instance,
+      var instance, x,
         _this = this;
-      if (instance = this._instances[id]) {
+      if (arguments.length === 0 || typeof id === "function") {
+        util.doForAll((function() {
+          var _results;
+          _results = [];
+          for (x in this._instances) {
+            _results.push(x);
+          }
+          return _results;
+        }).call(this), (function() {
+          return _this.stop.apply(_this, arguments);
+        }), id);
+      } else if (instance = this._instances[id]) {
         this._mediator.off(instance);
         runSandboxPlugins.call(this, 'destroy', this._sandboxes[id], function(err) {
           if (util.hasArgument(instance.destroy)) {
@@ -661,22 +686,6 @@
           return delete _this._instances[id];
         });
       }
-      return this;
-    };
-
-    Core.prototype.stopAll = function(cb) {
-      var id,
-        _this = this;
-      util.doForAll((function() {
-        var _results;
-        _results = [];
-        for (id in this._instances) {
-          _results.push(id);
-        }
-        return _results;
-      }).call(this), (function() {
-        return _this.stop.apply(_this, arguments);
-      }), cb);
       return this;
     };
 

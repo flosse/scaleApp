@@ -84,6 +84,15 @@ class Core
   # start a module
   start: (moduleId, opt={}, done=->) ->
 
+    if arguments.length is 0
+      return @_startAll()
+
+    if moduleId instanceof Array
+      return @_startAll moduleId, opt
+
+    if typeof moduleId is "function"
+      return @_startAll moduleId
+
     if typeof opt is "function"
       callback = opt
       opt = callback: callback
@@ -117,14 +126,14 @@ class Core
             instance.init instance.options
             cb null
             instance.running = true
-      true
+      @
 
     catch e
       @log.error e
       cb new Error "could not start module: #{e.message}"
       @
 
-  startAll: (cb, opt) ->
+  _startAll: (cb, opt) ->
 
     if cb instanceof Array
       mods = cb; cb = opt; opt = null
@@ -134,7 +143,7 @@ class Core
 
     if valid.length is mods.length is 0
       cb? null
-      return true
+      return @
     else if valid.length isnt mods.length
       invalid = ("'#{id}'" for id in mods when not (id in valid))
       invalidErr = new Error "these modules don't exist: #{invalid}"
@@ -145,11 +154,13 @@ class Core
       if err?.length > 0
         e = new Error "errors occoured in the following modules: #{("'#{valid[i]}'" for x,i in err when x?)}"
       cb? e or invalidErr
-
-    not invalidErr?
+    @
 
   stop: (id, cb) ->
-    if instance = @_instances[id]
+    if arguments.length is 0 or typeof id is "function"
+      util.doForAll (x for x of @_instances), (=> @stop.apply @, arguments), id
+
+    else if instance = @_instances[id]
 
       @_mediator.off instance
       runSandboxPlugins.call @, 'destroy', @_sandboxes[id], (err) =>
@@ -166,10 +177,6 @@ class Core
 
         # remove
         delete @_instances[id]
-    @
-
-  stopAll: (cb) ->
-    util.doForAll (id for id of @_instances), (=> @stop.apply @, arguments), cb
     @
 
   # register a plugin

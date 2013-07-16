@@ -42,29 +42,19 @@ describe "scaleApp core", ->
   describe "list methods", ->
 
     before ->
-      @core.stopAll()
+      @core.stop()
       @core.register "myModule", @validModule
 
   describe "start function", ->
 
     before ->
-      @core.stopAll()
+      @core.stop()
       @core.register "myId", @validModule
 
     it "is an accessible function", ->
       (expect typeof @core.start).toEqual "function"
 
     describe "start parameters", ->
-
-      it "returns an error if first parameter is not a string or an object", (done)->
-        res = @core.start 123, (err1)=>
-          (expect err1).toBeTruthy()
-          @core.start (->), (err2) =>
-            (expect err2).toBeTruthy()
-            @core.start [], (err3) =>
-              (expect err3).toBeTruthy()
-              done()
-        (expect res).toBe @core
 
       it "doesn't return an error if first parameter is a string", (done)->
         @core.start "myId", (err) =>
@@ -129,7 +119,7 @@ describe "scaleApp core", ->
         mod1 = (sb) ->
           init: (opt) ->
           destroy: ->
-        (expect @core.register "anId", mod1).toBeTruthy()
+        (expect @core.register "anId", mod1).toBe @core
         @core.start "anId", { callback: cb }
         (expect cb).toHaveBeenCalled()
 
@@ -140,7 +130,7 @@ describe "scaleApp core", ->
             initCB()
             thisWillProcuceAnError()
           destroy: ->
-        (expect @core.register "anId", mod1).toBeTruthy()
+        (expect @core.register "anId", mod1).toBe @core
         @core.start "anId",
           callback: (err)->
             (expect initCB).toHaveBeenCalled()
@@ -154,17 +144,14 @@ describe "scaleApp core", ->
           init: -> initCB()
           destroy: ->
 
-        (expect @core.register "separate", mod1).toBeTruthy()
+        (expect @core.register "separate", mod1).toBe @core
         @core.start "separate", { instanceId: "instance" }
         (expect initCB).toHaveBeenCalled()
 
-  describe "startAll function", ->
+  describe "start all", ->
 
     before ->
-      @core.stopAll()
-
-    it "is an accessible function", ->
-      (expect typeof @core.startAll).toEqual "function"
+      @core.stop()
 
     it "instantiates and starts all available modules", ->
 
@@ -179,13 +166,13 @@ describe "scaleApp core", ->
         init: -> cb2()
         destroy: ->
 
-      (expect @core.register "first", mod1 ).toBeTruthy()
-      (expect @core.register "second", mod2).toBeTruthy()
+      (expect @core.register "first", mod1 ).toBe @core
+      (expect @core.register "second", mod2).toBe @core
 
       (expect cb1).not.toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
 
-      (expect @core.startAll()).toBeTruthy()
+      (expect @core.start()).toBe @core
       (expect cb1).toHaveBeenCalled()
       (expect cb2).toHaveBeenCalled()
 
@@ -207,17 +194,17 @@ describe "scaleApp core", ->
         init: -> cb3()
         destroy: ->
 
-      @core.stopAll()
+      @core.stop()
 
-      (expect @core.register "first", mod1 ).toBeTruthy()
-      (expect @core.register "second",mod2 ).toBeTruthy()
-      (expect @core.register "third", mod3 ).toBeTruthy()
+      (expect @core.register "first", mod1 ).toBe @core
+      (expect @core.register "second",mod2 ).toBe @core
+      (expect @core.register "third", mod3 ).toBe @core
 
       (expect cb1).not.toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
       (expect cb3).not.toHaveBeenCalled()
 
-      (expect @core.startAll ["first","third"]).toBeTruthy()
+      (expect @core.start ["first","third"]).toBe @core
       (expect cb1).toHaveBeenCalled()
       (expect cb2).not.toHaveBeenCalled()
       (expect cb3).toHaveBeenCalled()
@@ -252,10 +239,10 @@ describe "scaleApp core", ->
       @core.register "second", async
       @core.register "third", pseudoAsync
 
-      (expect @core.startAll ->
+      (expect @core.start ->
         (expect cb1.callCount).toEqual 3
         done()
-      ).toBeTruthy()
+      ).toBe @core
 
     it "calls the callback after defined modules have started", (done) ->
 
@@ -279,12 +266,12 @@ describe "scaleApp core", ->
       @core.register "first", mod1, { callback: cb1 }
       @core.register "second", mod2, { callback: cb2 }
 
-      (expect @core.startAll ["first","second"], ->
+      (expect @core.start ["first","second"], ->
         finished()
         (expect cb1).toHaveBeenCalled()
         (expect cb2).toHaveBeenCalled()
         done()
-      ).toBeTruthy()
+      ).toBe @core
 
     it "calls the callback with an error if one or more modules couldn't start", (done) ->
       spy1 = sinon.spy()
@@ -297,7 +284,7 @@ describe "scaleApp core", ->
         destroy: ->
       @core.register "invalid", mod1
       @core.register "valid", mod2
-      @core.startAll ["invalid", "valid"], (err) ->
+      @core.start ["invalid", "valid"], (err) ->
         (expect spy1).toHaveBeenCalled()
         (expect spy2).toHaveBeenCalled()
         (expect err.message).toEqual "errors occoured in the following modules: 'invalid'"
@@ -316,7 +303,7 @@ describe "scaleApp core", ->
       finished = (err) ->
         (expect err.message).toEqual "these modules don't exist: 'invalid','y'"
         done()
-      (expect @core.startAll ["valid","invalid", "x", "y"], finished).toBeFalsy()
+      (expect @core.start ["valid","invalid", "x", "y"], finished).toBe @core
       (expect spy2).toHaveBeenCalled()
 
     it "calls the callback without an error if module array is empty", ->
@@ -324,21 +311,21 @@ describe "scaleApp core", ->
       finished = (err) ->
         (expect err).toEqual null
         spy()
-      (expect @core.startAll [], finished).toBeTruthy()
+      (expect @core.start [], finished).toBe @core
       (expect spy).toHaveBeenCalled()
 
   describe "stop function", ->
 
     beforeEach ->
-      @core.stopAll()
+      @core.stop()
 
     it "is an accessible function", ->
       (expect typeof @core.stop).toEqual "function"
 
     it "calls the callback afterwards", (done) ->
-      (expect @core.register "valid", @validModule).toBeTruthy()
-      (expect @core.start "valid").toBeTruthy()
-      (expect @core.stop "valid", done).toBeTruthy()
+      (expect @core.register "valid", @validModule).toBe @core
+      (expect @core.start "valid").toBe @core
+      (expect @core.stop "valid", done).toBe @core
 
     it "supports synchronous stopping", ->
       mod = (sb) ->
@@ -350,13 +337,10 @@ describe "scaleApp core", ->
       (expect @core.stop "mod", -> end = true).toBeTruthy()
       (expect end).toEqual true
 
-  describe "stopAll function", ->
+  describe "stop all function", ->
 
     beforeEach ->
-      @core.stopAll()
-
-    it "is an accessible function", ->
-      (expect typeof @core.stopAll).toEqual "function"
+      @core.stop()
 
     it "stops all running instances", ->
       cb1 = sinon.spy()
@@ -370,14 +354,17 @@ describe "scaleApp core", ->
       @core.start "mod", { instanceId: "a" }
       @core.start "mod", { instanceId: "b" }
 
-      (expect @core.stopAll()).toBeTruthy()
+      (expect @core.stop()).toBe @core
       (expect cb1.callCount).toEqual 2
 
     it "calls the callback afterwards", (done) ->
-      (expect @core.register "valid", @validModule).toBeTruthy()
-      (expect @core.start "valid").toBeTruthy()
-      (expect @core.start "valid", instanceId: "valid2").toBeTruthy()
-      (expect @core.stopAll done).toBeTruthy()
+      (expect @core.register "valid", @validModule).toBe @core
+      (expect @core.start "valid").toBe @core
+      (expect @core.start "valid", instanceId: "valid2").toBe @core
+      (expect @core.stop (err) ->
+        (expect err).toBeFalsy()
+        done()
+      ).toBe @core
 
     it "calls the callback if not destroyed in a asynchronous way", (done) ->
       cb1 = sinon.spy()
@@ -387,7 +374,7 @@ describe "scaleApp core", ->
       (expect @core.register "syncDestroy", mod).toBeTruthy()
       (expect @core.start "syncDestroy").toBeTruthy()
       (expect @core.start "syncDestroy", instanceId: "second").toBeTruthy()
-      (expect @core.stopAll done).toBeTruthy()
+      (expect @core.stop done).toBe @core
 
   describe "emit function", ->
     it "is an accessible function", ->

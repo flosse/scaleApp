@@ -4,13 +4,10 @@ plugin = (core) ->
     if override is true then rec[k]=v for k,v of giv
     else rec[k]=v for k,v of giv when not rec.hasOwnProperty k
 
-  uniqueId = (length=8) ->
+  core.uniqueId = (length=8) ->
     id = ""
     id += Math.random().toString(36).substr(2) while id.length < length
     id.substr 0, length
-
-  core.uniqueId = uniqueId
-  core.uniqueId = uniqueId
 
   core.clone = (data) ->
     if data instanceof Array

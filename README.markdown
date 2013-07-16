@@ -94,7 +94,7 @@ git clone git://github.com/flosse/scaleApp.git
 
 # Changes in 0.4.x
 
-There are some little API changes in version 0.4.x.
+There are some API changes in version 0.4.x.
 Therefore the Github docs (master branch) are not compatible to v0.3.9.
 
 # Quick Start
@@ -246,20 +246,20 @@ If all your modules just needs to be instanciated once, you can simply starting
 them all:
 
 ```javascript
-core.startAll();
+core.start();
 ```
 
 To start some special modules at once you can pass an array with the module
 names:
 
 ```javascript
-core.startAll(["moduleA","moduleB"]);
+core.start(["moduleA","moduleB"]);
 ```
 
 You can also pass a callback function:
 
 ```javascript
-core.startAll(function(){
+core.start(function(){
   // do something when all modules were initialized
 });
 ```
@@ -270,7 +270,7 @@ It's obvious:
 
 ```javascript
 core.stop("moduleB");
-core.stopAll();
+core.stop(); // stops all running instances
 ```
 
 ## Publish/Subscribe
@@ -587,21 +587,24 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandb
 #### v0.4.0 (??-2013)
 
 - added a `Core` class that can be instantiated (`var core = new scaleApp.Core();`)
-- cleaner code
-- changed API
 - new plugin API (`scaleApp.plugins.register` moved to `core.use`)
-- the API is now chainable
-- support asynchronous plugins
-- added `boot` method to initialize asynchronous plugins
-- removed `setInstanceOptions`
-- removed `unregister` and `unregisterAll`
-- the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
+    - support asynchronous plugins
+    - added `boot` method to initialize asynchronous plugins
+- changed API
+    - `startAll()` is now `start()`
+    - `stopAll()` is now `stop()`
+    - the API is now chainable (e.g. `core.use(X).register("foo",bar).start("foo")`)
+    - removed `setInstanceOptions`
+    - removed `unregister` and `unregisterAll`
+    - dropped `subscribe`, `unsubscribe` and `publish` from Mediator API
+      (use `on`, `off` and `emit` instead)
+    - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
+- plugins
+    - new `submodule` plugin
+    - improved `permission` and `i18n`
+    - new `modulestate` plugin to emit events on module state changes
+- cleaner code
 - `Mediator`: do not *clone* objects any more (do it manually instead)
-- drop `subscribe`, `unsubscribe`, `publish` from Mediator API
-  (use `on`, `off` and `emit` instead)
-- new `submodule` plugin
-- new `modulestate` plugin to emit events on module state changes
-- improved permission and i18n plugins
 
 #### v0.3.9 (12-2012)
 
