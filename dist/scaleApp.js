@@ -206,8 +206,10 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     function Mediator(obj, cascadeChannels) {
       this.cascadeChannels = cascadeChannels != null ? cascadeChannels : false;
       this.channels = {};
-      if (obj) {
+      if (obj instanceof Object) {
         this.installTo(obj);
+      } else if (obj === true) {
+        this.cascadeChannels = true;
       }
     }
 

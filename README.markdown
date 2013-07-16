@@ -70,6 +70,9 @@ are some plugins available:
 - `submodule` - cascade modules
 - `dom` - DOM manipulation
 - `strophe` - XMPP communication
+- `modulestate` - event emitter for `init` and `destroy`
+- `util` - helper methods like `mixin`, `uniqueId` etc.
+- `ls` - list modules, instances & plugins
 
 You can easily define your own plugin (see plugin section).
 
@@ -540,7 +543,7 @@ contains scaleApp itself the dom plugin and the mvc plugin.
 var core = new scaleApp.Core();
 
 // use your own sandbox
-var core = new scaleApp.Core(yourSandbox);
+var core = new scaleApp.Core(yourSandboxClass);
 ```
 
 - `core.register(moduleName, module, options)` - register a module
@@ -555,10 +558,13 @@ var core = new scaleApp.Core(yourSandbox);
 
 ```javascript
 // create a mediator
-var mediator = scaleApp.Mediator();
+var mediator = new scaleApp.Mediator();
 
 // create a mediator with a custom context object
-var mediator = scaleApp.Mediator(context);
+var mediator = new scaleApp.Mediator(context);
+
+// create a mediator with cascaded channels
+var mediator = new scaleApp.Mediator(null, true);
 ```
 
 - `mediator.emit(channel, data, callback)`

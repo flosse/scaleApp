@@ -39,12 +39,6 @@ describe "scaleApp core", ->
       (expect @core.register "myModuleWithWrongObj", @validModule, "I'm not an object" ).toBe @core
       (expect @core._modules["myModuleWithWrongObj"]).not.toBeDefined()
 
-  describe "list methods", ->
-
-    before ->
-      @core.stop()
-      @core.register "myModule", @validModule
-
   describe "start function", ->
 
     before ->
@@ -96,6 +90,15 @@ describe "scaleApp core", ->
             done()
         @core.register "foo", mod
         @core.start "foo", options: {foo: "bar"}
+
+      it "appends the moduleId and instanceId", (done) ->
+        mod = (sb) ->
+          init: (opt) ->
+            (expect sb.instanceId).toEqual "x"
+            (expect sb.moduleId).toEqual "foo"
+            done()
+        @core.register "foo", mod
+        @core.start "foo", instanceId: "x", options: {foo: "bar"}
 
       it "calls the callback function after the initialization", (done) ->
 

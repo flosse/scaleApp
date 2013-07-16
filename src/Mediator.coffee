@@ -2,7 +2,8 @@ class Mediator
 
   constructor: (obj, @cascadeChannels=false) ->
     @channels = {}
-    @installTo obj if obj
+    if obj instanceof Object then @installTo obj
+    else if obj is true then @cascadeChannels=true
 
   # ## Subscribe to a topic
   #

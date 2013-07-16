@@ -11,6 +11,7 @@ config["node-specs"] = {
     "plugins/spec/scaleApp.permission.spec.coffee",
     "plugins/spec/scaleApp.state.spec.coffee",
     "plugins/spec/scaleApp.submodule.spec.coffee",
+    "plugins/spec/scaleApp.modulestate.spec.coffee",
     "plugins/spec/scaleApp.ls.spec.coffee"
     ]
 };
@@ -51,4 +52,10 @@ config["browser-dom-plugin"] = {
   extends: "browser-core",
   specs: ["plugins/spec/scaleApp.dom.spec.coffee"],
   sources: ["dist/plugins/scaleApp.dom.js"]
+};
+
+config["browser-modulestate-plugin"] = {
+  extends: "browser-core",
+  specs: ["plugins/spec/scaleApp.modulestate.spec.coffee"],
+  sources: ["dist/plugins/scaleApp.modulestate.js"]
 };

@@ -256,7 +256,24 @@ core.stop("parent");
 // all children of "parent" were automatically stopped
 ```
 
-## util - some helper functions
+## Module State
+
+```javascript
+core.use(scaleApp.plugins.modulestate).boot()
+```
+
+```javascript
+core.state.on("init", function(ev){
+  ev.instanceId // holds the instance ID
+  ev.moduleId   // holds the module ID
+});
+
+core.state.on("init/myModule", function(ev){ /* */ });
+
+core.state.on("destroy/myModule/anInstance", function(ev){ /* */ });
+```
+
+## ls
 
 ### Show registered modules
 
@@ -274,6 +291,8 @@ core.lsInstances(); // returns an array of instance names
 ```javascript
 core.lsPlugins(); // returns an array of plugin names
 ```
+
+## util - some helper functions
 
 ### Helper methods
 
