@@ -94,7 +94,6 @@ describe "scaleApp core", ->
             (expect typeof opt).toEqual "object"
             (expect opt.foo).toEqual "bar"
             done()
-          destroy: ->
         @core.register "foo", mod
         @core.start "foo", options: {foo: "bar"}
 
@@ -107,7 +106,6 @@ describe "scaleApp core", ->
           init: (opt, fini) ->
             setTimeout (-> x = 2; fini()), 0
             x = 1
-          destroy: ->
 
         @core.start "anId", (err) =>
           @core.start "anId",
@@ -118,7 +116,6 @@ describe "scaleApp core", ->
         cb = sinon.spy()
         mod1 = (sb) ->
           init: (opt) ->
-          destroy: ->
         (expect @core.register "anId", mod1).toBe @core
         @core.start "anId", { callback: cb }
         (expect cb).toHaveBeenCalled()
@@ -129,7 +126,6 @@ describe "scaleApp core", ->
           init: ->
             initCB()
             thisWillProcuceAnError()
-          destroy: ->
         (expect @core.register "anId", mod1).toBe @core
         @core.start "anId",
           callback: (err)->
@@ -142,7 +138,6 @@ describe "scaleApp core", ->
         initCB = sinon.spy()
         mod1 = (sb) ->
           init: -> initCB()
-          destroy: ->
 
         (expect @core.register "separate", mod1).toBe @core
         @core.start "separate", { instanceId: "instance" }
@@ -160,11 +155,9 @@ describe "scaleApp core", ->
 
       mod1 = (sb) ->
         init: -> cb1()
-        destroy: ->
 
       mod2 = (sb) ->
         init: -> cb2()
-        destroy: ->
 
       (expect @core.register "first", mod1 ).toBe @core
       (expect @core.register "second", mod2).toBe @core
@@ -184,15 +177,12 @@ describe "scaleApp core", ->
 
       mod1 = (sb) ->
         init: -> cb1()
-        destroy: ->
 
       mod2 = (sb) ->
         init: -> cb2()
-        destroy: ->
 
       mod3 = (sb) ->
         init: -> cb3()
-        destroy: ->
 
       @core.stop()
 
@@ -217,14 +207,12 @@ describe "scaleApp core", ->
         init: (opt)->
           (expect cb1).not.toHaveBeenCalled()
           cb1()
-        destroy: ->
 
       pseudoAsync = (sb) ->
         init: (opt, done)->
           (expect cb1.callCount).toEqual 1
           cb1()
           done()
-        destroy: ->
 
       async = (sb) ->
         init: (opt, done)->
@@ -233,7 +221,6 @@ describe "scaleApp core", ->
             cb1()
             done()
           ), 0
-        destroy: ->
 
       @core.register "first", sync
       @core.register "second", async
@@ -255,13 +242,11 @@ describe "scaleApp core", ->
         init: (opt, done)->
           setTimeout (->done()), 0
           (expect finished).not.toHaveBeenCalled()
-        destroy: ->
 
       mod2 = (sb) ->
         init: (opt, done) ->
           setTimeout (-> done()), 0
           (expect finished).not.toHaveBeenCalled()
-        destroy: ->
 
       @core.register "first", mod1, { callback: cb1 }
       @core.register "second", mod2, { callback: cb2 }
@@ -278,10 +263,8 @@ describe "scaleApp core", ->
       spy2 = sinon.spy()
       mod1 = (sb) ->
         init: -> spy1(); thisIsAnInvalidMethod()
-        destroy: ->
       mod2 = (sb) ->
         init: -> spy2()
-        destroy: ->
       @core.register "invalid", mod1
       @core.register "valid", mod2
       @core.start ["invalid", "valid"], (err) ->
@@ -297,7 +280,6 @@ describe "scaleApp core", ->
         init: (opt, done)->
           spy2()
           setTimeout (-> done()), 0
-        destroy: ->
       @core.register "valid", @validModule
       @core.register "x", mod
       finished = (err) ->
@@ -330,7 +312,6 @@ describe "scaleApp core", ->
     it "supports synchronous stopping", ->
       mod = (sb) ->
         init: ->
-        destroy: ->
       end = false
       (expect @core.register "mod", mod).toBeTruthy()
       (expect @core.start "mod").toBeTruthy()
@@ -371,9 +352,9 @@ describe "scaleApp core", ->
       mod = (sb) ->
         init: ->
         destroy: -> cb1()
-      (expect @core.register "syncDestroy", mod).toBeTruthy()
-      (expect @core.start "syncDestroy").toBeTruthy()
-      (expect @core.start "syncDestroy", instanceId: "second").toBeTruthy()
+      (expect @core.register "syncDestroy", mod).toBe @core
+      (expect @core.start "syncDestroy").toBe @core
+      (expect @core.start "syncDestroy", instanceId: "second").toBe @core
       (expect @core.stop done).toBe @core
 
   describe "emit function", ->
@@ -420,8 +401,6 @@ describe "scaleApp core", ->
           sb.on "unregister", ->
             if sb.instanceId is "b"
               sb.off "X"
-
-        destroy: ->
 
       (expect @core.register "mod", mod).toBeTruthy()
       (expect @core.start "mod", instanceId: "a").toBeTruthy()
@@ -501,7 +480,6 @@ describe "scaleApp core", ->
         init: ->
           (expect sb.sync).toBe true
           done()
-        destroy: ->
       @core.register "anId", aModule
       @core.use @validPlugin
       @core.start "anId"
@@ -512,7 +490,6 @@ describe "scaleApp core", ->
           (expect sb.foo()).toEqual "anId"
           (expect sb.bar()).toEqual "foo"
           done()
-        destroy: ->
       @core.register "anId", aModule
       @core.use @validAsyncPlugin
       @core.start "anId"

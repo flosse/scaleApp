@@ -139,7 +139,8 @@ core.register( "myModuleId", function( sandbox ){
 ```
 
 As you can see the module is a function that takes the sandbox as a parameter
-and returns an object that has two functions `init` and `destroy`.
+and returns an object that has two functions `init` and `destroy` (the latter is
+optional).
 Of course your module can be any usual class with those two functions.
 
 ```javascript
@@ -510,7 +511,6 @@ core.myCoreFunction() // alerts "Hello core plugin"
 
 var MyModule = function(sandbox){
   init: function(){ sandbox.appendFoo(); },  // appends "foo" to the container
-  destroy: function(){}
 };
 ```
 
@@ -599,6 +599,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandb
     - dropped `subscribe`, `unsubscribe` and `publish` from Mediator API
       (use `on`, `off` and `emit` instead)
     - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
+    - the `destroy` method of a module is now optional
 - plugins
     - new `submodule` plugin
     - improved `permission` and `i18n`

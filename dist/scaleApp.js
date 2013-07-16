@@ -671,19 +671,23 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           return _this.stop.apply(_this, arguments);
         }), id);
       } else if (instance = this._instances[id]) {
+        delete this._instances[id];
         this._mediator.off(instance);
         runSandboxPlugins.call(this, 'destroy', this._sandboxes[id], function(err) {
+          if (instance.destroy == null) {
+            instance.destroy = function() {};
+          }
           if (util.hasArgument(instance.destroy)) {
-            instance.destroy(function(err) {
+            return instance.destroy(function(err) {
+              if (err) {
+                this._instances[id] = instance;
+              }
               return typeof cb === "function" ? cb(err) : void 0;
             });
           } else {
             instance.destroy();
-            if (typeof cb === "function") {
-              cb(null);
-            }
+            return typeof cb === "function" ? cb(null) : void 0;
           }
-          return delete _this._instances[id];
         });
       }
       return this;

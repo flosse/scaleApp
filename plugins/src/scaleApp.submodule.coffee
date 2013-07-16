@@ -41,8 +41,7 @@ plugin = (core, options={}) ->
       install sb, subCore
       done()
 
-  destroy: (sb) ->
-    sb._subCore.stopAll()
+  destroy: (sb) -> sb._subCore.stop()
 
 # AMD support
 if define?.amd?

@@ -158,25 +158,29 @@ class Core
 
   stop: (id, cb) ->
     if arguments.length is 0 or typeof id is "function"
-      util.doForAll (x for x of @_instances), (=> @stop.apply @, arguments), id
+      util.doForAll (x for x of @_instances), (=> @stop arguments...), id
 
     else if instance = @_instances[id]
+      # remove
+      delete @_instances[id]
 
       @_mediator.off instance
       runSandboxPlugins.call @, 'destroy', @_sandboxes[id], (err) =>
+
+        # the destroy method is optional
+        instance.destroy ?= ->
 
         # if the module wants destroy in an asynchronous way
         if util.hasArgument instance.destroy
           # then define a callback
           instance.destroy (err) ->
+            # rereference if something went wrong
+            @_instances[id] = instance if err
             cb? err
         else
           # else call the callback directly after stopping
           instance.destroy()
           cb? null
-
-        # remove
-        delete @_instances[id]
     @
 
   # register a plugin

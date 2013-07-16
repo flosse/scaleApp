@@ -21,8 +21,7 @@ describe "submodule plugin", ->
     x = sinon.spy()
 
     mySubModule = (sb) ->
-      init: ->
-        x()
+      init: -> x()
       destroy: -> done()
 
     myModule = (sb) ->
@@ -31,7 +30,6 @@ describe "submodule plugin", ->
         (expect typeof sb.sub.register).toBe "function"
         (expect sb.sub.register "sub", mySubModule).toBe sb
         (expect sb.sub.start "sub", {instanceId: "foo"}).toBe sb
-      destroy: ->
 
     @core.register "parent", myModule
     @core.start "parent"
