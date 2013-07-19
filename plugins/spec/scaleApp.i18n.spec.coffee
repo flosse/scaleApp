@@ -1,16 +1,18 @@
-require?("../nodeSetup")()
+require?("../../spec/nodeSetup")()
 
 describe "i18n plugin", ->
 
   before ->
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
-      @scaleApp.plugin.register require "../../dist/plugins/scaleApp.i18n"
+      @plugin    = require "../../dist/plugins/scaleApp.i18n"
 
     else if window?
       @scaleApp  = window.scaleApp
+      @plugin    = @scaleApp.plugins.i18n
 
     @core = new @scaleApp.Core
+    @core.use(@plugin).boot()
 
     @myLangObj =
       en:
@@ -42,7 +44,7 @@ describe "i18n plugin", ->
         @core.start "myId", callback: cb
 
   it "provides the method getBrowserLanguage", ->
-    (expect typeof @scaleApp.getBrowserLanguage ).toEqual "function"
+    (expect typeof @core.getBrowserLanguage ).toEqual "function"
 
   it "has a method for setting a language code", ->
     lang = "en-US"

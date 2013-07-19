@@ -51,7 +51,8 @@
   <script>
 
     var app = new scaleApp.Core();
-    app.register("clock", Clock);
+    app.use(scaleApp.plugins.dom);
+    app.register("clock", scaleApp.modules.Clock);
     app.start("clock");
 
     var startModule = document.getElementById("startModule");
@@ -112,8 +113,8 @@
     };
 
     runTimer.onclick = function(){
-      app.publish("clock/reverse");
-      app.publish("clock/resume");
+      app.emit("clock/reverse");
+      app.emit("clock/resume");
     };
 
   </script>

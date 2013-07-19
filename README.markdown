@@ -20,18 +20,37 @@ describes the basic ideas.
 
 ![scaleApp architecture](https://raw.github.com/flosse/scaleApp/master/architecture.png)
 
-Unlike Zakas recommendations to abstract DOM manipulations and separating the
-framework from the base library, scaleApp does not implement any DOM methods.
+### Module
 
-Instead scaleApp can be extended by plugins. So you can just use one of your
-favorite libs (e.g. jQuery) as base library or you are going to implement all
-your needed DOM methods into the DOM plugin (`scaleApp.dom.coffee`) for a more
-clean and scalable architecture.
+A module is a completely independent part of your application.
+It has absolutely no reference to another piece of the app.
+The only thing the module knows is the sandbox.
+The sandbox is used to communicate with other parts of the application.
+
+### Sandbox
+
+The main purpose of the sandbox is to use the
+[facade pattern](https://en.wikipedia.org/wiki/Facade_pattern).
+In that way you can hide the features provided by the core and only show
+a well defined (static) API to your modules.
+For each module a separate sandbox will be created.
+
+### Core
+
+The core is responsible for starting and stopping your modules.
+It also handles the messages by using the
+[Publish/Subscribe (Mediator) pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
+
+### Plugin
+
+Plugins can extend the core or the sandbox with additional features.
+For example you could extend the core with basic functionalities
+(like DOM manipulation) or just aliases the features of a base library (e.g. jQuery).
 
 ## Features
 
 + loose coupling of modules
-+ small (about 340 sloc / 10k min / 3.4k gz)
++ small (about 300 sloc / 9k min / 3.5k gz)
 + no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules
@@ -52,6 +71,9 @@ are some plugins available:
 - `submodule` - cascade modules
 - `dom` - DOM manipulation
 - `strophe` - XMPP communication
+- `modulestate` - event emitter for `init` and `destroy`
+- `util` - helper methods like `mixin`, `uniqueId` etc.
+- `ls` - list modules, instances & plugins
 
 You can easily define your own plugin (see plugin section).
 
@@ -76,7 +98,7 @@ git clone git://github.com/flosse/scaleApp.git
 
 # Changes in 0.4.x
 
-There are some little API changes in version 0.4.x.
+There are some API changes in version 0.4.x.
 Therefore the Github docs (master branch) are not compatible to v0.3.9.
 
 # Quick Start
@@ -90,7 +112,7 @@ Link `scaleApp.min.js` in your HTML file:
 If you're going to use it with node:
 
 ```shell
-npm install scaleapp
+npm install scaleapp --save
 ```
 
 ```javascript
@@ -121,7 +143,8 @@ core.register( "myModuleId", function( sandbox ){
 ```
 
 As you can see the module is a function that takes the sandbox as a parameter
-and returns an object that has two functions `init` and `destroy`.
+and returns an object that has two functions `init` and `destroy` (the latter is
+optional).
 Of course your module can be any usual class with those two functions.
 
 ```javascript
@@ -138,22 +161,6 @@ core.register("myGreatModule", MyGreatModule);
 The `init` function is called by the framework when the module is supposed to
 start. The `destroy` function is called when the module has to shut down.
 
-### Show registered modules
-
-```javascript
-core.lsModules(); // returns an array of module names
-```
-### Show running instances
-
-```javascript
-core.lsInstances(); // returns an array of instance names
-```
-
-### Show registered plugins
-
-```javascript
-scaleApp.lsPlugins(); // returns an array of plugin names
-```
 
 ## Asynchronous initialization
 
@@ -244,20 +251,20 @@ If all your modules just needs to be instanciated once, you can simply starting
 them all:
 
 ```javascript
-core.startAll();
+core.start();
 ```
 
 To start some special modules at once you can pass an array with the module
 names:
 
 ```javascript
-core.startAll(["moduleA","moduleB"]);
+core.start(["moduleA","moduleB"]);
 ```
 
 You can also pass a callback function:
 
 ```javascript
-core.startAll(function(){
+core.start(function(){
   // do something when all modules were initialized
 });
 ```
@@ -268,7 +275,7 @@ It's obvious:
 
 ```javascript
 core.stop("moduleB");
-core.stopAll();
+core.stop(); // stops all running instances
 ```
 
 ## Publish/Subscribe
@@ -398,289 +405,106 @@ scaleApp.util.runWaterfall([task1, task2], function(err, result){
 });
 
 ```
+## Plugins
 
+There are some plugins available within the `plugins` folder.
+For more information look at the
+[plugin README](https://github.com/flosse/scaleApp/blob/master/plugins/README.md).
 
-# Plugins
+### Register plugins
 
-## i18n - Multi language UIs
-
-Link `scaleApp.i18n.min.js` in your HTML file:
-
-```html
-<script src="scaleApp.min.js"></script>
-<script src="scaleApp.i18n.min.js"></script>
-```
-
-If your application has to support multiple languages, you can pass an objects
-containing the localized strings with the options object.
+A single plugin can be registered with it option object in that way:
 
 ```javascript
-var myLocalization =
-{
-  en: { welcome: "Welcome", ... },
-  de: { welcome: "Willkommen", ... },
-  ...
-}
-...
-core.register( "moduleId", myModule, { i18n: myLocalization } );
+core.use(plugin,options);
 ```
-
-Now you can access these strings easily trough the sandbox using the `_` method.
-Depending on which language is set globally it returns the corresponding
-localized string.
+If you want to register multiple plugins at once:
 
 ```javascript
-sandbox._("myStringId");
+core.use([
+  plugin1,
+  plugin2,
+  { plugin: plugin3, options: options3 }
+]);
 ```
 
-You can set the language globally by using the `setLanguage` method:
+### Write your own plugin
+
+It's easy:
 
 ```javascript
-core.i18n.setLanguage( "de" );
+core.use(function(core){
+  core.helloWorld = function(){ alert("helloWorld"); };
+};
 ```
 
-You can also set a global i18n object which can be used by all modules:
+Here a more complex example:
 
 ```javascript
-core.i18n.setGlobal( myGlobalObj );
-```
+core.use(function(core, done){
 
-Within your module you can define your local texts:
+  // extend the core
+  core.myCoreFunction = function(){ alert("Hello core plugin") };
+  core.myBoringProperty = "boring";
 
-```javascript
-function(sandbox){
-  init: function(){
-    sandbox.i18n.addLocal({
-      en: {hello: "Hello" },
-      de: {hello: "Hallo" }
+  // extend the sandbox class
+  core.Sandbox.prototype.myMethod = function( /*...*/);
+
+  // define a method that gets called when a module starts
+  var onModuleInit = function(instanceSandbox, options, done){
+
+    // e.g. define sandbox methods dynamically
+    if (options.mySwitch){
+      instanceSandbox.appendFoo = function(){
+       core.getContainer.append("foo");
+      };
+    }
+
+    // or load a something asynchronously
+    core.myAsyncMethod(function(data){
+
+      // do something...
+      // now tell scaleApp that you're done
+      done();
     });
-  },
-  destroy: function(){}
-}
-```
+  };
 
-Subscribe to change event:
-
-```javascript
-sandbox.i18n.onChange(function(){
-  // update ui
-});
-```
-
-## mvc - very simple MVC
-
-![scaleApp mvc](https://raw.github.com/flosse/scaleApp/master/mvc.png)
-
-Here is a sample use case for using the MVC plugin (in coffeescript).
-
-```coffeescript
-class MyModel extends scaleApp.Model name: "Noname"
-```
-
-```coffeescript
-class MyView extends scaleApp.View
-
-  constructor: (@model, @sandbox, @template) -> super @model
-
-  # The render method gets automatically called when the model changes
-  # The 'getContainer' method is provided by the dom plugin
-  render: -> @sandbox.getContainer.innerHTML = @template @model
-```
-
-```coffeescript
-class MyController extends scaleApp.Controller
-
-  changeName: (name) -> @model.set "name", name
-```
-
-```coffeescript
-core.registerModule "myModule", (@sandbox) ->
-
-  init: (opt) ->
-
-    # You can use any template engine you like. Here it's
-    # just a simple function
-    template = (model) -> "<h1>Hello #{model.name}</h1>"
-
-    @m = new MyModel
-    @v = new MyView @m, @sandbox, @template
-    @c = new MyController @m, @v
-
-    # listen to the "changeName" event
-    @sandbox.on "changeName", @c.changeName, @c
-
-  destroy: ->
-    delete @c
-    delete @v
-    delete @m
-    @sandbox.off @
-```
-
-```coffeescript
-core.emit "changeName", "Peter"
-```
-## state - Finite State Machine
-
-The state plugin is an approach to implement a
-[Finite State Machine](https://en.wikipedia.org/wiki/Finite_state_machine)
-that can be used to keep track of your applications state.
-
-![scaleApp fsm](https://raw.github.com/flosse/scaleApp/master/fsm.png)
-
-```javascript
-var s = new scaleApp.StateMachine({
-  start: "a",
-  states: {
-    a:      { enter: function(ev){ console.log("entering state " + ev.to  ); }},
-    b:      { leave: function(ev){ console.log("leaving state " + ev.from ); }},
-    c:      { enter: [cb1, cb2], leave: cb3                                   },
-    fatal:  { enter: function(){ console.error("something went wrong");      }}
-  },
-  transitions:{
-    x:    { from: "a"        to: "b"     },
-    y:    { from: ["b","c"]  to: "c"     },
-    uups: { from: "*"        to: "fatal" }
-  }
-});
-
-s.addState("d", { enter: function(){ /*..*/} });  // add an additional state
-s.addState({ y: {}, z: { enter: cb } });          // or add multiple states
-
-s.addTransition("t", { from: "b", to: "d" });     // add a transition
-s.can("t");   // false because 'a' is current state
-s.can("x");   // true
-
-s.onLeave("a", function(transition, eventName, next){
-  // ...
-  next()
-});
-
-s.onEnter("b",function(transitioin, eventName, next){
-  doSomething(function(err){next(err);});
-});
-
-s.fire("x");
-s.current     // b
-```
-
-## permission - controll all messages
-
-If you include the `permission` plugin, all `Mediator` methods will be rejected
-by default to enforce you to permit any message method explicitely.
-
-```javascript
-core.permission.add("instanceA", "on", "a");
-core.permission.add("instanceB", "emit", ["b", "c"]);
-core.permission.add("instanceC", "emit", '*');
-core.permission.add("instanceD", '*', 'd');
-```
-
-Now `instanceA` is allowed to subscribe to channel `a` but all others cannot
-subscribe to it.
-`InstanceB` can emit data on channels `a` and `c`.
-`InstanceC` can emit to all channels.
-`InstanceD` can perform all actions (`on`, `off`, `emit`)
-but only on channel `d`.
-
-Of course you can remove a permission at any time:
-
-```javascript
-core.permission.remove("moduleA", "emit", "x");
-```
-
-Or remove the subscribe permissions of all channels:
-
-```javascript
-core.permission.remove("moduleB", "on");
-```
-
-## strophe - XMPP plugin
-
-This is an adapter plugin for [Strophe.js](http://strophe.im/strophejs/) with
-some helpful features (e.g. automatically reconnect on page refresh).
-
-```javascript
-core.xmpp.login("myjid@server.tld", "myPassword");
-core.xmpp.logout();
-core.xmpp.jid       // the current JID
-```
-
-## submodule
-
-```javascript
-
-core.register("parent", function(sandbox){
-
-  var childModule = function(sandbox){
-    return({
-      init: function(){
-        sandbox.emit("x", "yeah!");
-      },
-      destroy: function(){}
+  // define a method that gets called when a module stops
+  var onModuleDestroy = function(done){
+    myCleanUpMethod(function(){
+      done()
     });
-  });
+  };
 
-  return({
-    init: function(){
-      sandbox.sub.register("child",childModule);
-      sandbox.permission.add("child", "emit", "x");
-      sandbox.sub.on("x",function(msg){
-        console.log("a child send this: " + msg);
-      });
-      sandbox.sub.start("child");
-    },
-    destroy: function(){}
-  });
+  // don't forget to return your methods
+  return {
+    init: onModuleInit,
+    destroy: onModuleDestroy
+  };
 
 });
-
-core.start("parent");
-// the "parent" module starts a child within the init method
-
-core.stop("parent");
-// all children of "parent" were automatically stopped
 ```
 
-## util - some helper functions
-
- - `sandbox.mixin(receivingClass, givingClass, override=false)`
- - `sandbox.countObjectKeys(object)`
-
-## Other plugins
-
-- dom - basic DOM manipulations (currently only used for `getContainer`)
-
-## Write your own plugin
+## Use your own Sandbox
 
 ```javascript
-scaleApp.registerPlugin({
+core.use(function(core){
 
-  // set the ID of your plugin
-  id: "myPlgin",
+  core.Sandbox = function(core, instanceId, options){
 
-  // define the core extensions
-  core: {
-    myCoreFunction: function(){ alert("Hello core plugin") },
-    myBoringProperty: "boring"
-  },
+    var foo = function(){ /* ... */ };
 
-  // define the sandbox extensions
-  sandbox: function(sandbox){
-    return {
-      appendFoo: function(){ sandbox.getContainer.append("foo"); }
+    var myEmit = function(channel, data){
+      core.emit(channel + '/' + instanceId, data);
     };
-  },
 
-  // define base extensions
-  base:{
-    globalHello: function(){ return "Hello"; }
-  },
+    // return your own public API
+    return {
+      foo: foo,
+      emit: myEmit
+    };
 
-  // define methods for module changes
-  on: {
-    instantiate: function(){/* ... */},
-    destroy:     function(){/* ... */}
-  }
+  };
 });
 ```
 
@@ -691,13 +515,8 @@ core.myCoreFunction() // alerts "Hello core plugin"
 
 var MyModule = function(sandbox){
   init: function(){ sandbox.appendFoo(); },  // appends "foo" to the container
-  destroy: function(){}
 };
 ```
-
-# Existing modules
-
-You can find some example modules in `src/modules/`.
 
 # Build browser bundles
 
@@ -709,17 +528,91 @@ grunt custom[:PLUGIN_NAME]
 e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
+# API
+
+## scaleApp
+
+- `scaleApp.VERSION` - the current version of scaleApp
+- `scaleApp.Mediator` - the Mediator class
+- `scaleApp.Sandbox` - the Sandbox class
+- `scaleApp.Core` - the Core class
+
+## Core
+
+```javascript
+// use default sandbox
+var core = new scaleApp.Core();
+
+// use your own sandbox
+var core = new scaleApp.Core(yourSandboxClass);
+```
+
+- `core.register(moduleName, module, options)` - register a module
+- `core.use(plugin, options)` - register a plugin
+- `core.use(pluginArray)` - registers an array of plugins
+- `core.boot(callback)` - initialize plugins
+   (will be executed automatically on ´start´)
+- `core.start(moduleId, options, callback)` - start a module
+- `core.stop(instanceId, callback)` - stop a module
+
+## Mediator
+
+```javascript
+// create a mediator
+var mediator = new scaleApp.Mediator();
+
+// create a mediator with a custom context object
+var mediator = new scaleApp.Mediator(context);
+
+// create a mediator with cascaded channels
+var mediator = new scaleApp.Mediator(null, true);
+```
+
+- `mediator.emit(channel, data, callback)`
+- `mediator.on(channel, callback, context)`
+- `mediator.off(channel, callback)`
+- `mediator.installTo(context)`
+
+```javascript
+// subscribe
+var subscription = mediator.on(channel, callback, context);
+```
+- `subscription.detach` - stop listening
+- `subscription.attach` - resume listening
+
+## Sandbox
+
+```javascript
+var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandbox
+```
+- `sandbox.emit` is `mediator.emit`
+- `sandbox.on` is `mediator.on`
+- `sandbox.off` is `mediator.off`
+
 # Changelog
 
 #### v0.4.0 (??-2013)
 
+- added a `Core` class that can be instantiated (`var core = new scaleApp.Core();`)
+- new plugin API (`scaleApp.plugins.register` moved to `core.use`)
+    - support asynchronous plugins
+    - added `boot` method to initialize asynchronous plugins
+- changed API
+    - `startAll()` is now `start()`
+    - `stopAll()` is now `stop()`
+    - the API is now chainable (e.g. `core.use(X).register("foo",bar).start("foo")`)
+    - removed `setInstanceOptions`
+    - removed `unregister` and `unregisterAll`
+    - dropped `subscribe`, `unsubscribe` and `publish` from Mediator API
+      (use `on`, `off` and `emit` instead)
+    - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
+    - the `destroy` method of a module is now optional
+- plugins
+    - new `submodule` plugin
+    - improved `permission` and `i18n`
+    - new `modulestate` plugin to emit events on module state changes
+- cleaner code
 - `Mediator`: do not *clone* objects any more (do it manually instead)
-- drop `subscribe`, `unsubscribe`, `publish` from Mediator API
-  (use `on`, `off` and `emit` instead)
-- added a `Core` class that can be instantiated
-- new submodule plugin
-- emit events on module state changes
-- improved permission and i18n plugins
 
 #### v0.3.9 (12-2012)
 

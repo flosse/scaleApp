@@ -6,4 +6,8 @@ spec/**/*.js
 /lib/
 /dist/modules
 /dist/plugins
+/dist/*.coffee
+/dist/*.full.*
+/dist/*.min.*
 *~
+npm-debug.log

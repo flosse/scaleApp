@@ -1,4 +1,4 @@
-require?("../nodeSetup")()
+require?("../../spec/nodeSetup")()
 
 describe "permission plugin", ->
 
@@ -6,10 +6,12 @@ describe "permission plugin", ->
     if typeof(require) is "function"
       @scaleApp  = getScaleApp()
       @plugin    = require "../../dist/plugins/scaleApp.permission"
-      @scaleApp.plugin.register @plugin
     else if window?
       @scaleApp  = window.scaleApp
+      @plugin    = @scaleApp.plugins.permission
+
     @core = new @scaleApp.Core
+    @core.use(@plugin).boot()
 
     # helper method
     @run = (fn, id="id", cb=->) =>
@@ -25,9 +27,7 @@ describe "permission plugin", ->
         # start that moudle
         @core.start id, callback: cb
 
-  afterEach ->
-    @core.stopAll()
-    @core.unregisterAll()
+  afterEach -> @core.stop()
 
   it "provides the method add", ->
     (expect typeof @core.permission.add).toEqual "function"

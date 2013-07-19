@@ -1,9 +1,9 @@
-createPlugin = (scaleApp) ->
+plugin = (core) ->
 
   leaveChannel = (state) -> "#{state}/leave"
   enterChannel = (state) -> "#{state}/enter"
 
-  class StateMachine extends scaleApp.Mediator
+  class StateMachine extends core.Mediator
 
     constructor: (opts={}) ->
       super()
@@ -81,20 +81,16 @@ createPlugin = (scaleApp) ->
       @current in t.from or
       t.from is "*"
 
-  plugin =
-    id: "state"
-    base:
-      StateMachine: StateMachine
+  core.StateMachine = StateMachine
 
 # AMD support
 if define?.amd?
-  define ['scaleApp'], (sa) -> createPlugin sa
+  define -> plugin
 
 # Browser support
 else if window?.scaleApp?
-  sa = window.scaleApp
-  sa.plugin.register createPlugin sa
+  window.scaleApp.plugins.state ?= plugin
 
 # Node.js support
 else if module?.exports?
-  module.exports = createPlugin require "../scaleApp"
+  module.exports = plugin
