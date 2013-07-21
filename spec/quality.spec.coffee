@@ -13,9 +13,9 @@ describe "The codebase", ->
   it "has few lines of code", ->
 
     maxSLOC =
-      "src/Core.coffee":      200
-      "src/Mediator.coffee":  100
-      "src/Util.coffee":      100
+      "src/Core.coffee":      160
+      "src/Util.coffee":      80
+      "src/Mediator.coffee":  70
       "src/Sandbox.coffee":   50
       "src/scaleApp.coffee":  20
 
@@ -27,7 +27,7 @@ describe "The codebase", ->
       (expect x <= count).toBe true
 
     console.log sum
-    (expect sum <= 350).toBe true
+    (expect sum <= 320).toBe true
 
   it "is small", (done) ->
     stat = fs.statSync "dist/scaleApp.js"
@@ -37,5 +37,5 @@ describe "The codebase", ->
     min = fs.readFileSync "dist/scaleApp.min.js"
     b = new buffer.Buffer min
     zlib.gzip b, (err, compressed)->
-      (expect compressed.length <= 3500).toBe true
+      (expect compressed.length <= 3400).toBe true
       done()

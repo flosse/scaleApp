@@ -182,7 +182,7 @@ var MyAsyncModule = function(sandbox){
 };
 
 core.register("myGreatModule", MyGreatModule);
-core.start("myGreatModule", { callback:function(){
+core.start("myGreatModule", { done:function(){
   alert("now the initialization is done");
 }});
 ```
@@ -200,8 +200,11 @@ core.unregister("myGreatModule");
 After your modules are registered, start your modules:
 
 ```javascript
-core.start( "myModuleId" );
-core.start( "anOtherModule" );
+core
+  .start( "myModuleId" )
+  .start( "anOtherModule", function(err){
+    // 'anOtherModule' is running now
+  });
 ```
 
 ### Start options
@@ -211,21 +214,6 @@ You may also want to start several instances of a module:
 ```javascript
 core.start( "myModuleId", {instanceId: "myInstanceId" } );
 core.start( "myModuleId", {instanceId: "anOtherInstanceId" });
-```
-
-If you pass a callback function it will be called after the module started:
-
-```javascript
-core.start( "myModuleId", {
-  callback:   function(){ /*...*/ },
-  instanceId: "foo"
-);
-```
-
-or if the callback is your only parameter:
-
-```javascript
-core.start( "myModuleId",function(){ /*...*/ });
 ```
 
 All you attach to `options` is accessible within your module:
@@ -607,6 +595,8 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandb
       (use `on`, `off` and `emit` instead)
     - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
     - the `destroy` method of a module is now optional
+    - the `callback` property of the start option object was removed.
+      Use the `modulestate` plugin instead
 - plugins
     - new `submodule` plugin
     - improved `permission` and `i18n`

@@ -123,6 +123,18 @@ describe "Util", ->
           (expect err?).toBe false
           done()
 
+    it "stops on errors", (done) ->
+      cb1 = (next) -> next null, "one", 2
+      cb2 = (next) -> thisMethodDoesNotExist()
+      cb3 = (next) -> next null, "three"
+      fini = (err, res) ->
+        (expect err?).toEqual true
+        (expect res[0]).toEqual ["one", 2]
+        (expect res[1]).not.toBeDefined()
+        (expect res[2]).not.toBeDefined()
+        done()
+      @util.runSeries [cb1, cb2, cb3], fini
+
     it "doesn't stop on errors if the 'force' option is 'true'", (done) ->
       cb1 = (next) -> next null, "one", 2
       cb2 = (next) -> thisMethodDoesNotExist()

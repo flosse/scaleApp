@@ -1,44 +1,9 @@
 checkType = (type, val, name) ->
-  throw new TypeError "#{name} has to be a #{type}" unless typeof val is type
-
-runSandboxPlugins = (ev, sb, cb) ->
-  tasks = for p in @_plugins when typeof p.plugin?[ev] is "function" then do (p) ->
-    x = p.plugin[ev]
-    if util.hasArgument x, 3
-      (next) ->
-        x sb, p.options, next
-    else
-      (next) ->
-        x sb, p.options
-        next()
-  util.runSeries tasks, cb, true
-
-createInstance = (moduleId, instanceId=moduleId, opt, cb) ->
-
-  module = @_modules[moduleId]
-
-  return cb @_instances[instanceId] if @_instances[instanceId]?
-
-  iOpts = {}
-  for o in [module.options, opt] when o
-    iOpts[key] = val for key, val of o
-
-  sb = new @Sandbox @, instanceId, iOpts
-  sb.moduleId ?= moduleId
-
-  runSandboxPlugins.call @, 'init', sb, (err) =>
-    instance               = new module.creator sb
-    unless typeof instance.init is "function"
-      return cb new Error "module has no 'init' method"
-    instance.options       = iOpts
-    instance.id            = instanceId
-    @_instances[instanceId] = instance
-    @_sandboxes[instanceId] = sb
-    cb null, instance
+  "#{name} has to be a #{type}" unless typeof val is type
 
 class Core
 
-  constructor: (sandbox=Sandbox)->
+  constructor: (sandbox=Sandbox) ->
 
     # define private variables
 
@@ -55,20 +20,20 @@ class Core
 
   # define dummy logger
   log:
-     error: ->
-     log:   ->
-     info:  ->
-     warn:  ->
-     enable: ->
+    error: ->
+    log:   ->
+    info:  ->
+    warn:  ->
+    enable:->
 
   # register a module
   register: (moduleId, creator, opt = {}) ->
-    try
-      checkType "string",   moduleId, "module ID"
-      checkType "function", creator,  "creator"
-      checkType "object",   opt,      "option parameter"
-    catch e
-      @log.error "could not register module '#{moduleId}': #{e.message}"
+    err =
+      checkType("string",   moduleId, "module ID")  or
+      checkType("function", creator,  "creator")    or
+      checkType("object",   opt,      "option parameter")
+    if err
+      @log.error "could not register module '#{moduleId}': #{err}"
       return @
 
     if @_modules[moduleId]?
@@ -82,7 +47,7 @@ class Core
     @
 
   # start a module
-  start: (moduleId, opt={}, done=->) ->
+  start: (moduleId, opt={}, cb=->) ->
 
     if arguments.length is 0
       return @_startAll()
@@ -91,81 +56,107 @@ class Core
       return @_startAll moduleId, opt
 
     if typeof moduleId is "function"
-      return @_startAll moduleId
+      return @_startAll null, moduleId
 
     if typeof opt is "function"
-      callback = opt
-      opt = callback: callback
+      cb = opt; opt = {}
 
-    cb = (err) ->
-      opt.callback? err
-      done err
-
-    try
-      checkType "string", moduleId, "module ID"
-      checkType "object", opt, "second parameter"
-      throw new Error "module doesn't exist" unless @_modules[moduleId]?
-
-      id = opt.instanceId or moduleId
-      throw new Error "module was already started" if @_instances[id]?.running is true
-
-      @boot =>
-        createInstance.call @, moduleId, opt.instanceId, opt.options, (err, instance) =>
-          if err
-            @log.error err
-            return cb err
-
-          if util.hasArgument instance.init, 2
-            # the module wants to init in an asynchronous way
-            # therefore define a callback
-            instance.init instance.options, (err) ->
-              instance.running = true
-              cb err
-          else
-            # call the callback directly after initialisation
-            instance.init instance.options
-            cb null
-            instance.running = true
-      @
-
-    catch e
+    fail = (e) =>
       @log.error e
       cb new Error "could not start module: #{e.message}"
       @
 
-  _startAll: (cb, opt) ->
+    e =
+      checkType("string", moduleId, "module ID")    or
+      checkType("object", opt, "second parameter")  or
+      ("module doesn't exist" unless @_modules[moduleId]?)
 
-    if cb instanceof Array
-      mods = cb; cb = opt; opt = null
-      valid = (id for id in mods when @_modules[id]?)
-    else
-      mods = valid = (id for id of @_modules)
+    return fail e if e
 
-    if valid.length is mods.length is 0
-      cb? null
-      return @
-    else if valid.length isnt mods.length
-      invalid = ("'#{id}'" for id in mods when not (id in valid))
-      invalidErr = new Error "these modules don't exist: #{invalid}"
+    id = opt.instanceId or moduleId
 
-    startAction = (m, next) => @start m, @_modules[m].options, (err) -> next err
+    if @_instances[id]?.running is true
+      return fail new Error "module was already started"
 
-    util.doForAll valid, startAction, (err) ->
+    initInst = (err, instance) =>
+      if err
+        @log.error err
+        return cb err
+
+      try
+        if util.hasArgument instance.init, 2
+          # the module wants to init in an asynchronous way
+          # therefore define a callback
+          instance.init instance.options, (err) ->
+            instance.running = true unless err
+            cb err
+        else
+          # call the callback directly after initialisation
+          instance.init instance.options
+          instance.running = true
+          cb null
+      catch e
+        fail e if e
+
+    @boot => @_createInstance moduleId, opt.instanceId, opt.options, initInst
+
+  _createInstance: (moduleId, instanceId=moduleId, opt, cb) ->
+
+    module = @_modules[moduleId]
+
+    return cb @_instances[instanceId] if @_instances[instanceId]?
+
+    iOpts = {}
+    for o in [module.options, opt] when o
+      iOpts[key] ?= val for key,val of o
+
+    sb = new @Sandbox @, instanceId, iOpts
+    sb.moduleId = moduleId
+
+    @_runSandboxPlugins 'init', sb, (err) =>
+      instance = new module.creator sb
+      unless typeof instance.init is "function"
+        return cb new Error "module has no 'init' method"
+      instance.options        = iOpts
+      instance.id             = instanceId
+      @_instances[instanceId] = instance
+      @_sandboxes[instanceId] = sb
+      cb null, instance
+
+  _runSandboxPlugins: (ev, sb, cb) ->
+    tasks =
+      for p in @_plugins when typeof p.plugin?[ev] is "function" then do (p) ->
+        fn = p.plugin[ev]
+        (next) ->
+          if util.hasArgument fn, 3
+            fn sb, p.options, next
+          else
+            fn sb, p.options
+            next()
+    util.runSeries tasks, cb, true
+
+  _startAll: (mods=(m for m of @_modules), cb) ->
+
+    startAction = (m, next) => @start m, @_modules[m].options, next
+
+    done = (err) ->
       if err?.length > 0
-        e = new Error "errors occoured in the following modules: #{("'#{valid[i]}'" for x,i in err when x?)}"
-      cb? e or invalidErr
+        mdls = ("'#{mods[i]}'" for x,i in err when x?)
+        e = new Error "errors occoured in the following modules: #{mdls}"
+      cb? e
+    util.doForAll mods, startAction, done, true
     @
 
   stop: (id, cb) ->
     if arguments.length is 0 or typeof id is "function"
-      util.doForAll (x for x of @_instances), (=> @stop arguments...), id
+      util.doForAll (x for x of @_instances), (=> @stop arguments...), id, true
 
     else if instance = @_instances[id]
       # remove
       delete @_instances[id]
 
       @_mediator.off instance
-      runSandboxPlugins.call @, 'destroy', @_sandboxes[id], (err) =>
+      @_runSandboxPlugins 'destroy', @_sandboxes[id], (err) =>
 
         # the destroy method is optional
         instance.destroy ?= ->
@@ -213,6 +204,6 @@ class Core
     util.runSeries tasks, cb, true
     @
 
-  on:                 -> @_mediator.on.apply   @_mediator, arguments
-  off:                -> @_mediator.off.apply  @_mediator, arguments
-  emit:               -> @_mediator.emit.apply @_mediator, arguments
+  on:   -> @_mediator.on.apply   @_mediator, arguments
+  off:  -> @_mediator.off.apply  @_mediator, arguments
+  emit: -> @_mediator.emit.apply @_mediator, arguments

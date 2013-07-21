@@ -125,13 +125,20 @@ module.exports = (grunt) ->
         dest: 'dist/modules/'
         ext: '.css'
 
+    coffeelint:
+      core: ["src/*.coffee"]
+      options:
+        no_trailing_whitespace:
+          level: "warn"
+
   grunt.loadNpmTasks "grunt-contrib-coffee"
   grunt.loadNpmTasks "grunt-contrib-copy"
   grunt.loadNpmTasks "grunt-contrib-stylus"
   grunt.loadNpmTasks "grunt-contrib-watch"
   grunt.loadNpmTasks "grunt-contrib-uglify"
   grunt.loadNpmTasks "grunt-contrib-concat"
-  grunt.registerTask "default", ["coffee", "concat", "uglify", "stylus", "copy"]
+  grunt.loadNpmTasks "grunt-coffeelint"
+  grunt.registerTask "default", ["coffeelint", "coffee", "concat", "uglify", "stylus", "copy"]
 
   # Quick and dirty task to build a custom bundle
   # Does s.o. know how to do that properly?

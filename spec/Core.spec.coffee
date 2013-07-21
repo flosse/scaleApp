@@ -56,8 +56,7 @@ describe "scaleApp core", ->
           done()
 
       it "doesn't return an error if second parameter is a an object", (done)->
-        @core.start "myId",
-          callback: (err) ->
+        @core.start "myId", (err) ->
             (expect err).not.toBeDefined()
             done()
 
@@ -111,16 +110,14 @@ describe "scaleApp core", ->
             x = 1
 
         @core.start "anId", (err) =>
-          @core.start "anId",
-            instanceId: "foo"
-            callback: cb
+          @core.start "anId", { instanceId: "foo" }, cb
 
       it "calls the callback immediately if no callback was defined", ->
         cb = sinon.spy()
         mod1 = (sb) ->
           init: (opt) ->
         (expect @core.register "anId", mod1).toBe @core
-        @core.start "anId", { callback: cb }
+        @core.start "anId", cb
         (expect cb).toHaveBeenCalled()
 
       it "calls the callback function with an error if an error occours", (done) ->
@@ -130,8 +127,7 @@ describe "scaleApp core", ->
             initCB()
             thisWillProcuceAnError()
         (expect @core.register "anId", mod1).toBe @core
-        @core.start "anId",
-          callback: (err)->
+        @core.start "anId", (err)->
             (expect initCB).toHaveBeenCalled()
             (expect err.message).toEqual "could not start module: thisWillProcuceAnError is not defined"
             done()
@@ -234,33 +230,6 @@ describe "scaleApp core", ->
         done()
       ).toBe @core
 
-    it "calls the callback after defined modules have started", (done) ->
-
-      finished = sinon.spy()
-
-      cb1 = sinon.spy()
-      cb2 = sinon.spy()
-
-      mod1 = (sb) ->
-        init: (opt, done)->
-          setTimeout (->done()), 0
-          (expect finished).not.toHaveBeenCalled()
-
-      mod2 = (sb) ->
-        init: (opt, done) ->
-          setTimeout (-> done()), 0
-          (expect finished).not.toHaveBeenCalled()
-
-      @core.register "first", mod1, { callback: cb1 }
-      @core.register "second", mod2, { callback: cb2 }
-
-      (expect @core.start ["first","second"], ->
-        finished()
-        (expect cb1).toHaveBeenCalled()
-        (expect cb2).toHaveBeenCalled()
-        done()
-      ).toBe @core
-
     it "calls the callback with an error if one or more modules couldn't start", (done) ->
       spy1 = sinon.spy()
       spy2 = sinon.spy()
@@ -286,7 +255,7 @@ describe "scaleApp core", ->
       @core.register "valid", @validModule
       @core.register "x", mod
       finished = (err) ->
-        (expect err.message).toEqual "these modules don't exist: 'invalid','y'"
+        (expect err.message).toEqual "errors occoured in the following modules: 'invalid','y'"
         done()
       (expect @core.start ["valid","invalid", "x", "y"], finished).toBe @core
       (expect spy2).toHaveBeenCalled()
@@ -294,7 +263,7 @@ describe "scaleApp core", ->
     it "calls the callback without an error if module array is empty", ->
       spy = sinon.spy()
       finished = (err) ->
-        (expect err).toEqual null
+        (expect err).toBeFalsy()
         spy()
       (expect @core.start [], finished).toBe @core
       (expect spy).toHaveBeenCalled()

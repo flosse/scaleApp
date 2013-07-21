@@ -26,8 +26,9 @@ runParallel = (tasks=[], cb=(->), force) ->
 
   for t,i in tasks then do (t,i) ->
     next = (err, res...) ->
-      if err?
+      if err
         errors[i] = err
+        return cb errors, results unless force
       else
         results[i] = if res.length < 2 then res[0] else res
       if --count is 0
@@ -38,7 +39,7 @@ runParallel = (tasks=[], cb=(->), force) ->
     try
       t next
     catch e
-      next e if force
+      next e
 
 # run asynchronous tasks one after another
 runSeries = (tasks=[], cb=(->), force) ->
@@ -49,8 +50,9 @@ runSeries = (tasks=[], cb=(->), force) ->
 
   errors  = []
   next = (err, res...) ->
-    if err?
+    if err
       errors[i] = err
+      return cb errors, results unless force
     else
       results[i] = if res.length < 2 then res[0] else res
     if ++i is count
@@ -62,7 +64,7 @@ runSeries = (tasks=[], cb=(->), force) ->
       try
         tasks[i] next
       catch e
-        next e if force
+        next e
   next()
 
 # run asynchronous tasks one after another
@@ -79,9 +81,9 @@ runWaterfall = (tasks, cb) ->
       tasks[i] res..., next
   next()
 
-doForAll = (args=[], fn, cb)->
+doForAll = (args=[], fn, cb, force)->
   tasks = for a in args then do (a) -> (next) -> fn a, next
-  util.runParallel tasks, cb
+  util.runParallel tasks, cb, force
 
 util =
   doForAll: doForAll
