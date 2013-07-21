@@ -187,14 +187,6 @@ core.start("myGreatModule", { done:function(){
 }});
 ```
 
-## Unregister modules
-
-It's simple:
-
-```javascript
-core.unregister("myGreatModule");
-```
-
 ## Start modules
 
 After your modules are registered, start your modules:
