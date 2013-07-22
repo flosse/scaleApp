@@ -1,0 +1,5 @@
+[
+  { "name": "HelloWorld", "label": "Hello world module"   },
+  { "name": "Log",        "label": "Log module"           },
+  { "name": "Control",    "label": "Control panel module" }
+]
