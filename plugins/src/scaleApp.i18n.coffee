@@ -35,7 +35,7 @@ plugin = (core) ->
   onChange = -> mediator.on channelName, arguments...
 
   setLanguage = (code) ->
-    if typeof code is "string"
+    if typeof(code) is "string"
       lang = code
       mediator.emit channelName, lang
 

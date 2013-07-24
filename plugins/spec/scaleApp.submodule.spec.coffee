@@ -2,13 +2,15 @@ require?("../../spec/nodeSetup")()
 
 describe "submodule plugin", ->
 
-  before ->
+  beforeEach ->
     if typeof require is "function"
       @scaleApp  = getScaleApp()
       @plugin    = require "../../dist/plugins/scaleApp.submodule"
       @permissionPlugin = require "../../dist/plugins/scaleApp.permission"
     else if window?
       @scaleApp  = window.scaleApp
+      @plugin =  @scaleApp.plugins.submodule
+      @permissionPlugin =  @scaleApp.plugins.permission
 
     @core = new @scaleApp.Core
     @core
@@ -26,14 +28,14 @@ describe "submodule plugin", ->
 
     myModule = (sb) ->
       init: ->
-        (expect typeof sb.sub).toBe "object"
-        (expect typeof sb.sub.register).toBe "function"
-        (expect sb.sub.register "sub", mySubModule).toBe sb
-        (expect sb.sub.start "sub", {instanceId: "foo"}).toBe sb
+        (expect sb.sub).to.be.an "object"
+        (expect sb.sub.register).to.be.a "function"
+        (expect sb.sub.register "sub", mySubModule).to.equal sb
+        (expect sb.sub.start "sub", {instanceId: "foo"}).to.equal sb
 
     @core.register "parent", myModule
     @core.start "parent"
-    (expect x).toHaveBeenCalled()
+    (expect x).to.have.been.called
     @core.stop "parent"
 
   it "can stop a submodule", ->
@@ -53,7 +55,7 @@ describe "submodule plugin", ->
 
     @core.register "parent", myModule
     @core.start "parent"
-    (expect x).toBe true
+    (expect x).to.be.true
 
   it "has methods to add/remove permissons if the permission plugin is registered", (done) ->
 
@@ -69,9 +71,9 @@ describe "submodule plugin", ->
     myModule = (sb) ->
       init: ->
         sb.sub.register "sub", mySubModule
-        (expect typeof sb.sub.permission).toBe "object"
-        (expect typeof sb.sub.permission.add).toBe "function"
-        (expect typeof sb.sub.permission.remove).toBe "function"
+        (expect sb.sub.permission).to.be.an "object"
+        (expect sb.sub.permission.add).to.be.a "function"
+        (expect sb.sub.permission.remove).to.be.a "function"
         sb.sub.permission.add "foo", "emit", "b"
         sb.sub.on "a", spyA
         sb.sub.on "b", spyB
@@ -79,8 +81,8 @@ describe "submodule plugin", ->
       destroy: ->
     @core.register "parent", myModule
     @core.start "parent"
-    (expect spyA).not.toHaveBeenCalled()
-    (expect spyB).toHaveBeenCalled()
+    (expect spyA).not.to.have.been.called
+    (expect spyB).to.have.been.called
     done()
 
 
@@ -105,12 +107,12 @@ describe "submodule plugin", ->
         sb.on "to parent", cb1
         sb.sub.on "to parent", cb2
         sb.sub.on "done", ->
-          (expect cb1).not.toHaveBeenCalled()
-          (expect cb2).toHaveBeenCalled()
+          (expect cb1).not.to.have.been.called
+          (expect cb2).to.have.been.called
           done()
         sb.sub.register "sub", mySubModule
-        (expect typeof sb.sub.on).toBe "function"
-        (expect typeof sb.sub.off).toBe "function"
+        (expect sb.sub.on).to.be.a "function"
+        (expect sb.sub.off).to.be.a "function"
         sb.sub.permission.add "foo", "on", "a channel"
         sb.sub.permission.add "foo", "emit", ["to parent", "done"]
         sb.sub.permission.add "bar", "emit", "a channel"
@@ -133,18 +135,18 @@ describe "submodule plugin", ->
 
     mySubModule = (sb) ->
       init: ->
-        (expect typeof sb.sub).toBe "object"
-        (expect sb.baz).toBe "foobar"
-        (expect sb.core.foobar).toBe "baz"
-        (expect sb.only).toBe "sub"
-        (expect sb.core.onlySub).toBe 42
+        (expect sb.sub).to.be.an "object"
+        (expect sb.baz).to.equal "foobar"
+        (expect sb.core.foobar).to.equal "baz"
+        (expect sb.only).to.equal "sub"
+        (expect sb.core.onlySub).to.equal 42
         done()
 
     myModule = (sb) ->
       init: ->
-        (expect sb.baz).toBe "foobar"
-        (expect sb.core.onlySub).not.toBeDefined()
-        (expect sb.only).not.toBeDefined()
+        (expect sb.baz).to.equal "foobar"
+        (expect sb.core.onlySub).not.to.exist
+        (expect sb.only).not.to.exist
         sb.sub.register "sub", mySubModule
         sb.sub.start "sub"
 

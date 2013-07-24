@@ -2,7 +2,7 @@ require?("../../spec/nodeSetup")()
 
 describe "stateMachine plugin", ->
 
-  before ->
+  beforeEach ->
 
     if typeof(require) is "function"
       @scaleApp = require "../../dist/scaleApp"
@@ -10,12 +10,13 @@ describe "stateMachine plugin", ->
 
     else if window?
       @scaleApp = window.scaleApp
+      @plugin   = @scaleApp.plugins.state
 
     @core    = (new @scaleApp.Core).use(@plugin).boot()
     @machine = new @core.StateMachine
 
   it "installs it to the core", ->
-    (expect typeof @core.StateMachine).toEqual "function"
+    (expect @core.StateMachine).to.be.a "function"
 
   describe "constructor", ->
     it "takes a transitions object with multiple transitions", ->
@@ -24,13 +25,13 @@ describe "stateMachine plugin", ->
         transitions:
           x: {from: "a", to: "b"}
           y: {from: "b", to: "c"}
-      (expect machine.transitions.x).toEqual {from: "a", to: "b"}
-      (expect machine.transitions.y).toEqual {from: "b", to: "c"}
+      (expect machine.transitions.x).to.eql {from: "a", to: "b"}
+      (expect machine.transitions.y).to.eql {from: "b", to: "c"}
 
     it "emits onEnter for start state", (done) ->
       onEnter = (t, channel) ->
-        (expect channel).toBe 'a/enter'
-        (expect t).toBe undefined
+        (expect channel).to.equal 'a/enter'
+        (expect t).to.be.undefined
         done()
       machine = new @core.StateMachine
         start: 'a'
@@ -39,8 +40,8 @@ describe "stateMachine plugin", ->
 
     it "registers onLeave for start state", (done) ->
       onLeave = (t, channel) ->
-        (expect channel).toBe 'a/leave'
-        (expect t).toEqual {from: "a", to: "b"}
+        (expect channel).to.equal 'a/leave'
+        (expect t).to.eql {from: "a", to: "b"}
         done()
       machine = new @core.StateMachine
         start: 'a'
@@ -54,67 +55,67 @@ describe "stateMachine plugin", ->
   describe "addState method", ->
 
     it "takes a state id", ->
-      (expect typeof @machine.addState).toEqual "function"
-      (expect @machine.addState "state").toBe true
+      (expect @machine.addState).to.be.a "function"
+      (expect @machine.addState "state").to.be.true
 
     it "returns false if the state is not a string", ->
-      (expect @machine.addState 5).toBe false
+      (expect @machine.addState 5).to.be.false
 
     it "returns false if the state already exists", ->
-      (expect @machine.addState "state").toBe true
-      (expect @machine.addState "state").toBe false
+      (expect @machine.addState "state").to.be.true
+      (expect @machine.addState "state").to.be.false
 
     it "takes an second parameter that holds callback functions", ->
-      (expect @machine.addState "state1", {leave: (->), enter: 52  }).toBe false
-      (expect @machine.addState "state2", {leave: 43,   enter: (->)}).toBe false
-      (expect @machine.addState "state3", {leave: 43,   enter: 44  }).toBe false
-      (expect @machine.addState "state4", {leave: (->), enter: (->)}).toBe true
+      (expect @machine.addState "state1", {leave: (->), enter: 52  }).to.be.false
+      (expect @machine.addState "state2", {leave: 43,   enter: (->)}).to.be.false
+      (expect @machine.addState "state3", {leave: 43,   enter: 44  }).to.be.false
+      (expect @machine.addState "state4", {leave: (->), enter: (->)}).to.be.true
       (expect @machine.addState
         state5: {leave: (->), enter: (->)}
         sate6: {leave: (->), enter: (->)}
-      ).toBe true
+      ).to.be.true
       (expect @machine.addState
         state5: {leave: (->), enter: (->)}
         sate6: {leave: 4, enter: (->)}
-      ).toBe false
+      ).to.be.false
 
   describe "addTransition method", ->
 
     it "takes a transition id and an edge definition", ->
       @machine.addState "fromState"
       @machine.addState "toState"
-      (expect @machine.addTransition "t", from: "fromState", to: "toState").toBe true
+      (expect @machine.addTransition "t", from: "fromState", to: "toState").to.be.true
 
     it "returns false if one of the arguments is neither string, nor array", ->
-      (expect @machine.addTransition 0,   from: "fromState", to: "toState").toBe false
-      (expect @machine.addTransition "x", from: 1,           to: "toState").toBe false
-      (expect @machine.addTransition "x", from: "y",         to:  2).toBe false
+      (expect @machine.addTransition 0,   from: "fromState", to: "toState").to.be.false
+      (expect @machine.addTransition "x", from: 1,           to: "toState").to.be.false
+      (expect @machine.addTransition "x", from: "y",         to:  2).to.be.false
 
     it "returns false if the transition already exists", ->
       @machine.addState ["a", "b", "c", "d"]
-      (expect @machine.addTransition "x", from: "a", to: "b").toBe true
-      (expect @machine.addTransition "x", from: "c", to: "d").toBe false
+      (expect @machine.addTransition "x", from: "a", to: "b").to.be.true
+      (expect @machine.addTransition "x", from: "c", to: "d").to.be.false
 
     it "returns false if one of the transition states don't exist", ->
       @machine.addState ["a","b"]
-      (expect @machine.addTransition "x", from: "a", to: "b").toBe true
-      (expect @machine.addTransition "y", from: "c", to: "d").toBe false
+      (expect @machine.addTransition "x", from: "a", to: "b").to.be.true
+      (expect @machine.addTransition "y", from: "c", to: "d").to.be.false
 
     it "can take multiple from states", ->
       @machine.addState ["a", "b", "c", "d"]
       @machine.current = "a"
-      (expect @machine.addTransition "x", from: ["a", "c", "d"], to: "b").toBe true
+      (expect @machine.addTransition "x", from: ["a", "c", "d"], to: "b").to.be.true
 
     it "returns false if one of the multiple from states doesn't exist", ->
       @machine.addState ["a", "b"]
       @machine.current = "a"
-      (expect @machine.addTransition "x", from: ["a", "b", "c"], to: "b").toBe false
+      (expect @machine.addTransition "x", from: ["a", "b", "c"], to: "b").to.be.false
 
     it "can take '*' as a from state wildcard", ->
       @machine.addState ["a", "b"]
       @machine.current = "z"
-      (expect @machine.addTransition "x", from: "*", to: "a").toBe true
-      (expect @machine.can "x").toBe true
+      (expect @machine.addTransition "x", from: "*", to: "a").to.be.true
+      (expect @machine.can "x").to.be.true
 
   describe "onEnter method", ->
 
@@ -123,10 +124,10 @@ describe "stateMachine plugin", ->
       @machine.current = "a"
       @machine.addState ["a", "b"]
       @machine.addTransition "x", { from: "a", to: "b" }
-      (expect typeof @machine.onEnter).toEqual "function"
-      (expect @machine.onEnter "b", cb).not.toBe false
+      (expect @machine.onEnter).to.be.a "function"
+      (expect @machine.onEnter "b", cb).not.to.be.false
       @machine.fire "x", (err) ->
-        (expect cb).toHaveBeenCalled()
+        (expect cb).to.have.been.called
         done()
 
   describe "onLeave method", ->
@@ -138,9 +139,9 @@ describe "stateMachine plugin", ->
       @machine.addTransition "x", { from: "a", to: "b" }
       expect @machine.onEnter "b", cb
       expect @machine.onLeave "a", ->
-        (expect cb).not.toHaveBeenCalled()
+        (expect cb).not.to.have.been.called
       @machine.fire "x", ->
-        (expect cb).toHaveBeenCalled()
+        (expect cb).to.have.been.called
         done()
 
   describe "fire method", ->
@@ -149,13 +150,13 @@ describe "stateMachine plugin", ->
       @machine.current = "a"
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
-      (expect @machine.fire "x").toEqual true
-      (expect @machine.current).toEqual "b"
+      (expect @machine.fire "x").to.be.true
+      (expect @machine.current).to.equal "b"
 
     it "returns false if transition is not defined for current state", ->
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
-      (expect @machine.fire "x").toEqual false
+      (expect @machine.fire "x").to.be.false
 
 
     it "calls the callback", (done) ->
@@ -163,8 +164,8 @@ describe "stateMachine plugin", ->
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
       @machine.fire "x", (err) =>
-        (expect err).not.toBe false
-        (expect @machine.current).toBe "b"
+        (expect err).not.to.be.false
+        (expect @machine.current).to.equal "b"
         done()
 
     it "does not change the state if something went wrong", (done) ->
@@ -175,9 +176,9 @@ describe "stateMachine plugin", ->
       @machine.onEnter "b", cb
       @machine.onLeave "a", (data, channel, x) -> x new Error "uups"
       @machine.fire "x", (err) =>
-        (expect cb.callCount).toEqual 0
-        (expect err?).toEqual true
-        (expect @machine.current).toEqual "a"
+        (expect cb.callCount).to.equal 0
+        (expect err).to.exist
+        (expect @machine.current).to.equal "a"
         done()
 
     it "emits 'leaveChannel' for current state", (done) ->
@@ -186,17 +187,17 @@ describe "stateMachine plugin", ->
       @machine.addTransition "x", from: ["a", "b"], to: "c"
       @machine.onLeave "a", ->
         done()
-      (expect @machine.fire "x").toEqual true
+      (expect @machine.fire "x").to.be.true
 
   describe "can method", ->
     it "returns true if transition can be fired", ->
       @machine.addState ["a", "b"]
       @machine.addTransition "x", from: "a", to: "b"
       @machine.current = "a"
-      (expect @machine.can "x").toEqual true
+      (expect @machine.can "x").to.be.true
 
     it "returns true if current state is in transition.from", ->
       @machine.addState ["a", "b", "c"]
       @machine.addTransition "x", from: ["a", "b"], to: "c"
       @machine.current = "a"
-      (expect @machine.can "x").toEqual true
+      (expect @machine.can "x").to.be.true

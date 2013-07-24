@@ -1,8 +1,11 @@
-require?("./nodeSetup")()
+if module?.exports?
+  require?("./nodeSetup")()
+else if window?
+  window.expect = window.chai.expect
 
 describe "Mediator", ->
 
-  before ->
+  beforeEach ->
     if typeof(require) is "function"
       @Mediator = require("../dist/scaleApp").Mediator
     else if window?
@@ -12,7 +15,7 @@ describe "Mediator", ->
   describe "on function", ->
 
     it "is an accessible function", ->
-      (expect typeof @paul.on).toEqual "function"
+      (expect @paul.on).to.be.a "function"
 
     it "returns a subscription object", ->
 
@@ -24,16 +27,16 @@ describe "Mediator", ->
       sub = @paul.on ch, cb1
       sub2 = @paul.on ch, cb1, obj
 
-      (expect typeof sub).toEqual "object"
-      (expect typeof sub.attach).toEqual "function"
-      (expect typeof sub.detach).toEqual "function"
-      (expect sub).not.toEqual sub2
+      (expect sub).to.be.an "object"
+      (expect sub.attach).to.be.a "function"
+      (expect sub.detach).to.be.a "function"
+      (expect sub).not.to.equal sub2
 
     it "returns false if callback is not a function", ->
-      (expect @paul.on "a", 345).toEqual false
+      (expect @paul.on "a", 345).to.equal false
 
     it "has an alias method named 'on'", ->
-      (expect @paul.on).toEqual @paul.on
+      (expect @paul.on).to.equal @paul.on
 
     it "subscribes a function to several channels", ->
 
@@ -41,10 +44,10 @@ describe "Mediator", ->
       @paul.on ["a","b"], cb1
 
       @paul.emit "a", "foo"
-      (expect cb1.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 1
 
       @paul.emit "b", "bar"
-      (expect cb1.callCount).toEqual 2
+      (expect cb1.callCount).to.equal 2
 
     it "subscribes several functions to several channels", ->
 
@@ -53,12 +56,12 @@ describe "Mediator", ->
       @paul.on "a":cb1,"b":cb2
 
       @paul.emit "a", "foo"
-      (expect cb1.callCount).toEqual 1
-      (expect cb2.callCount).toEqual 0
+      (expect cb1.callCount).to.equal 1
+      (expect cb2.callCount).to.equal 0
 
       @paul.emit "b", "bar"
-      (expect cb1.callCount).toEqual 1
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 1
+      (expect cb2.callCount).to.equal 1
 
   describe "subscription object", ->
 
@@ -73,14 +76,14 @@ describe "Mediator", ->
       sub2 = @paul.on ch, cb2, obj
       sub2.detach()
       @paul.emit ch, "foo"
-      (expect cb1.callCount).toEqual 1
-      (expect cb2.callCount).toEqual 0
+      (expect cb1.callCount).to.equal 1
+      (expect cb2.callCount).to.equal 0
 
       sub2.attach()
       sub.detach()
       @paul.emit ch, "bar"
-      (expect cb1.callCount).toEqual 1
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 1
+      (expect cb2.callCount).to.equal 1
 
   describe "off function", ->
 
@@ -96,8 +99,8 @@ describe "Mediator", ->
       @paul.emit ch, "hello"
       @paul.off ch, cb1
       @paul.emit ch, "hello2"
-      (expect cb1.callCount).toEqual 1
-      (expect cb2.callCount).toEqual 2
+      (expect cb1.callCount).to.equal 1
+      (expect cb2.callCount).to.equal 2
 
     it "removes a callbackfunction from all channels", ->
 
@@ -115,8 +118,8 @@ describe "Mediator", ->
       @paul.emit ch1, "hello"
       @paul.emit ch2, "hello"
 
-      (expect cb1).not.toHaveBeenCalled()
-      (expect cb2.callCount).toEqual 1
+      (expect cb1).not.to.have.been.called
+      (expect cb2.callCount).to.equal 1
 
     it "removes all subscriptions of a context", ->
 
@@ -136,16 +139,16 @@ describe "Mediator", ->
       obj.emit ch1, "world"
       obj.emit ch2, "foo"
 
-      (expect cb1.callCount).toEqual 4
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 4
+      (expect cb2.callCount).to.equal 1
 
       obj.off()
       mediator.emit ch1, "hello"
       obj.emit ch1, "world"
       obj.emit ch2, "foo"
 
-      (expect cb1.callCount).toEqual 6
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 6
+      (expect cb2.callCount).to.equal 1
 
     it "removes all subscriptions from a channel", ->
 
@@ -165,43 +168,43 @@ describe "Mediator", ->
       obj.emit ch1, "world"
       obj.emit ch2, "foo"
 
-      (expect cb1.callCount).toEqual 4
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 4
+      (expect cb2.callCount).to.equal 1
 
       obj.off ch2
       mediator.emit ch1, "hello"
       obj.emit ch1, "world"
       obj.emit ch2, "foo"
 
-      (expect cb1.callCount).toEqual 8
-      (expect cb2.callCount).toEqual 1
+      (expect cb1.callCount).to.equal 8
+      (expect cb2.callCount).to.equal 1
 
   describe "publish function", ->
 
     it "is an accessible function", ->
-      (expect typeof @paul.emit).toEqual "function"
+      (expect @paul.emit).to.be.a "function"
 
     it "has an alias method named 'emit'", ->
-      (expect @paul.emit).toEqual @paul.emit
+      (expect @paul.emit).to.equal @paul.emit
 
     it "returns the current context", ->
-      (expect @paul.emit "my channel", {}).toEqual @paul
-      (expect (new @Mediator).on "my channel", ->).not.toEqual @paul
+      (expect @paul.emit "my channel", {}).to.equal @paul
+      (expect (new @Mediator).on "my channel", ->).not.to.equal @paul
 
     it "calls the callback if it is defined", (done) ->
       cb = sinon.spy()
       @paul.on "event", cb
       @paul.emit "event", {}, (err) ->
-        (expect cb.callCount).toEqual 1
+        (expect cb.callCount).to.equal 1
         done()
 
     it "calls the callback even if there are not subsribers", (done) ->
       m1 = new @Mediator
       m2 = new @Mediator
       m1.emit "x", (err)->
-        (expect err?).toBe false
+        (expect err?).to.be.false
         m2.emit "x", "foo", (err)->
-          (expect err?).toBe false
+          (expect err?).to.be.false
           done()
 
     it "passes an error if a callback returned false", (done) ->
@@ -210,7 +213,7 @@ describe "Mediator", ->
         cb()
         false
       @paul.emit "event", {}, (err) ->
-        (expect err).not.toBe null
+        (expect err).not.to.be.null
         done()
 
 
@@ -222,9 +225,9 @@ describe "Mediator", ->
       @paul.on "event", (data, channel, x) ->
         setTimeout (-> cb2(); x null), 2
       @paul.emit "event", {}, (err) ->
-        (expect cb.callCount).toEqual 1
-        (expect cb2.callCount).toEqual 1
-        (expect err?).toBe false
+        (expect cb.callCount).to.equal 1
+        (expect cb2.callCount).to.equal 1
+        (expect err?).to.be.false
         done()
 
     it "calls the callback asynchrounously and looks for errors", (done) ->
@@ -236,13 +239,13 @@ describe "Mediator", ->
       @paul.on "event", (data, channel, x) ->
         x new Error "fake2"
       @paul.emit "event", {}, (err) ->
-        (expect err.message).toEqual "fake1; fake2"
+        (expect err.message).to.equal "fake1; fake2"
         done()
 
   describe "installTo function", ->
 
     it "is an accessible function", ->
-      (expect typeof @paul.installTo).toEqual "function"
+      (expect @paul.installTo).to.be.a "function"
 
     it "installs the mediator functions", ->
 
@@ -252,12 +255,12 @@ describe "Mediator", ->
       myObj = {}
       mediator.installTo myObj
 
-      (expect typeof myObj.on).toEqual "function"
-      (expect typeof myObj.on).toEqual "function"
-      (expect typeof myObj.emit).toEqual "function"
-      (expect typeof myObj.emit).toEqual "function"
-      (expect typeof myObj.off).toEqual "function"
-      (expect typeof myObj.channels).toEqual "object"
+      (expect myObj.on).to.be.a "function"
+      (expect myObj.on).to.be.a "function"
+      (expect myObj.emit).to.be.a "function"
+      (expect myObj.emit).to.be.a "function"
+      (expect myObj.off).to.be.a "function"
+      (expect myObj.channels).to.be.an "object"
 
       myObj.on "ch", cb
       mediator.on "ch", cb2
@@ -267,8 +270,8 @@ describe "Mediator", ->
       mediator.emit "ch", "bar"
       mediator.emit "ch2", "blub"
 
-      (expect cb.callCount).toEqual 2
-      (expect cb2.callCount).toEqual 3
+      (expect cb.callCount).to.equal 2
+      (expect cb2.callCount).to.equal 3
 
     it "takes care of the context", (done) ->
       mediator = new @Mediator
@@ -276,9 +279,9 @@ describe "Mediator", ->
       empty = {}
       mediator.installTo myObj
 
-      myObj.on "ch", -> (expect @).toEqual myObj
-      mediator.on "ch", -> (expect @).toEqual mediator
-      mediator.on "ch", (-> (expect @).toEqual empty), empty
+      myObj.on "ch", -> (expect @).to.equal myObj
+      mediator.on "ch", -> (expect @).to.equal mediator
+      mediator.on "ch", (-> (expect @).to.equal empty), empty
 
       myObj.emit "ch", "foo"
       mediator.emit "ch", "bar"
@@ -288,14 +291,14 @@ describe "Mediator", ->
 
       myObj = {}
       new @Mediator myObj
-      (expect typeof myObj.on).toEqual "function"
-      (expect typeof myObj.emit).toEqual "function"
-      (expect typeof myObj.off).toEqual "function"
-      (expect typeof myObj.channels).toEqual "object"
+      (expect myObj.on).to.be.a "function"
+      (expect myObj.emit).to.be.a "function"
+      (expect myObj.off).to.be.a "function"
+      (expect myObj.channels).to.be.an "object"
 
     it "returns the current context", ->
-      (expect @paul.installTo {}).toEqual @paul
-      (expect (new @Mediator).installTo {}).not.toBe @paul
+      (expect @paul.installTo {}).to.equal @paul
+      (expect (new @Mediator).installTo {}).not.to.equal @paul
 
   describe "Pub/Sub", ->
 
@@ -316,8 +319,8 @@ describe "Mediator", ->
       @peter.on "a channel", @cb2
       @paul.emit "a channel", @data
       @paul.emit "doees not exist", @data
-      (expect @cb.callCount).toEqual 2
-      (expect @cb2).not.toHaveBeenCalled()
+      (expect @cb.callCount).to.equal 2
+      (expect @cb2).not.to.have.been.called
 
     it "publishes data to all subscribers even if an error occours", ->
       cb = sinon.spy()
@@ -325,15 +328,15 @@ describe "Mediator", ->
       @paul.on "channel", -> (throw new Error "err"); cb()
       @paul.on "channel", -> cb()
       @paul.emit "channel"
-      (expect cb.callCount).toEqual 2
+      (expect cb.callCount).to.equal 2
 
     it "publishes the reference of data objects by default", (done) ->
 
       obj = {a:true,b:"x",c:{ y:0 }}
 
       @paul.on "obj", (data) ->
-        (expect data).toBe obj
-        (expect data is obj).toBe true
+        (expect data).to.equal obj
+        (expect data is obj).to.be.true
         done()
 
       @paul.emit "obj", obj
@@ -342,7 +345,7 @@ describe "Mediator", ->
 
       @paul.on "a channel", @cb
       @paul.emit "another channel", @data
-      (expect @cb).not.toHaveBeenCalled()
+      (expect @cb).not.to.have.been.called
 
     it "can request data by publishing an event", (done) ->
 
@@ -368,8 +371,8 @@ describe "Mediator", ->
       @dbAccess.emit "read",
         query: { role: "admin" }
         receive: (err, data) ->
-          (expect data.length).toEqual 1
-          (expect data[0]).toEqual { name: "markus", role: "admin" }
+          (expect data.length).to.equal 1
+          (expect data[0]).to.eql { name: "markus", role: "admin" }
           done()
 
     describe "auto subscription", ->
@@ -383,7 +386,7 @@ describe "Mediator", ->
         @paul.on "parentTopic/otherSubTopic", @cb3
 
         @paul.emit "parentTopic/subTopic/subsub", @data
-        (expect @cb).toHaveBeenCalled()
-        (expect @cb1).toHaveBeenCalled()
-        (expect @cb2).toHaveBeenCalled()
-        (expect @cb3).not.toHaveBeenCalled()
+        (expect @cb).to.have.been.called
+        (expect @cb1).to.have.been.called
+        (expect @cb2).to.have.been.called
+        (expect @cb3).not.to.have.been.called

@@ -24,18 +24,18 @@ describe "The codebase", ->
     for file, count of maxSLOC
       x = getSlocOfFile file
       sum += x
-      (expect x <= count).toBe true
+      (expect x <= count).to.be.true
 
     console.log sum
-    (expect sum <= 320).toBe true
+    (expect sum <= 320).to.be.true
 
   it "is small", (done) ->
     stat = fs.statSync "dist/scaleApp.js"
-    (expect stat.size <= 25000).toBe true
+    (expect stat.size <= 25000).to.be.true
     stat = fs.statSync "dist/scaleApp.min.js"
-    (expect stat.size <= 10000).toBe true
+    (expect stat.size <= 10000).to.be.true
     min = fs.readFileSync "dist/scaleApp.min.js"
     b = new buffer.Buffer min
     zlib.gzip b, (err, compressed)->
-      (expect compressed.length <= 3400).toBe true
+      (expect compressed.length <= 3400).to.be.true
       done()

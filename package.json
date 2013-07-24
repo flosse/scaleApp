@@ -11,9 +11,12 @@
   "engine":       "node",
   "devDependencies":
   {
-    "buster":               "~0.6.12",
-    "buster-coffee":        "~0.1.4",
+    "chai":                 "~1.7.2",
+    "mocha":                "~1.12.0",
+    "phantomjs":            "~1.9.1",
+    "karma":                "~0.8.7",
     "sinon":                "~1.7.3",
+    "sinon-chai":           "~2.4.0",
     "coffee-script":        "~1.6.3",
     "uglify-js":            "~2.3.6",
     "grunt":                "~0.4.1",
@@ -40,5 +43,5 @@
       "web":    "http://github.com/flosse/"
     }
   ],
-  "scripts": { "test": "./node_modules/grunt-cli/bin/grunt && buster test --node" }
+  "scripts": { "test": "./node_modules/grunt-cli/bin/grunt && ./node_modules/mocha/bin/mocha && ./node_modules/karma/bin/karma start" }
 }

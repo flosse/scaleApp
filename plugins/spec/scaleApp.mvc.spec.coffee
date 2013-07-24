@@ -20,15 +20,15 @@ describe "mvc plugin", ->
 
     it "takes an object as constructor parameter", ->
       @m = new @core.Model { key: "value" }
-      (expect @m.key).toEqual "value"
+      (expect @m.key).to.equal "value"
 
     it "does not override existing keys", ->
       @m = new @core.Model { set: "value" }
-      (expect @m.set).not.toEqual "value"
-      (expect typeof @m.set).toEqual "function"
+      (expect @m.set).not.to.equal "value"
+      (expect @m.set).to.be.a "function"
 
     it "provides a on function", ->
-      (expect typeof @m.on).toEqual "function"
+      (expect @m.on).to.be.a "function"
 
     it "modifies a new value", ->
       @m = new @core.Model { key: "value" }
@@ -38,34 +38,34 @@ describe "mvc plugin", ->
       (@m.set "foo", "foo")
         .set( "bar", "bar")
         .set("a","b")
-      (expect @m.key).toEqual 123
-      (expect @m.get "key").toEqual 123
-      (expect @m.foo).toEqual "foo"
-      (expect @m.bar).toEqual "bar"
-      (expect @m.a).toEqual "b"
-      (expect @m.set).not.toEqual 123
+      (expect @m.key).to.equal 123
+      (expect @m.get "key").to.equal 123
+      (expect @m.foo).to.equal "foo"
+      (expect @m.bar).to.equal "bar"
+      (expect @m.a).to.equal "b"
+      (expect @m.set).not.to.equal 123
 
     it "modifies multiple values", ->
       @m = new @core.Model { key: "value" }
       @m.set { key:123, foo:"bar", num: 321 }
-      (expect @m.key).toEqual 123
-      (expect @m.get "key").toEqual 123
-      (expect @m.foo).toEqual "bar"
-      (expect @m.num).toEqual 321
+      (expect @m.key).to.equal 123
+      (expect @m.get "key").to.equal 123
+      (expect @m.foo).to.equal "bar"
+      (expect @m.num).to.equal 321
 
     it "publishes a 'changed' event", ->
       cb = sinon.spy()
       @m = new @core.Model { key: "value" }
       @m.on "changed", cb
       @m.set "key", 123
-      (expect cb).toHaveBeenCalled()
+      (expect cb).to.have.been.called
 
     it "does not publishes a 'changed' event if the value is the same", ->
       cb = sinon.spy()
       @m = new @core.Model { key: "value" }
       @m.on "changed", cb
       @m.set "key", "value"
-      (expect cb).not.toHaveBeenCalled()
+      (expect cb).not.to.have.been.called
 
     it "can serialized to JSON", ->
 
@@ -76,9 +76,9 @@ describe "mvc plugin", ->
 
       @m = new M
       j = @m.toJSON()
-      (expect j.key).toEqual "value"
-      (expect j.foo).not.toBeDefined()
-      (expect j.bar).not.toBeDefined()
+      (expect j.key).to.equal "value"
+      (expect j.foo).not.to.exist
+      (expect j.bar).not.to.exist
 
   describe "View", ->
 
@@ -88,9 +88,9 @@ describe "mvc plugin", ->
 
     it "can take a model as constructor parameter", ->
       v = new @core.View @m
-      (expect v.model).toEqual @m
+      (expect v.model).to.equal @m
       v = new @core.View
-      (expect v.model).not.toBeDefined()
+      (expect v.model).not.to.exist
 
     it "renders the view when the model state changed and the model exists", ->
 
@@ -104,12 +104,12 @@ describe "mvc plugin", ->
       viewWithoutModel.render = cb2
 
       @m.set "key", "new value"
-      (expect cb1).toHaveBeenCalled()
-      (expect cb2).not.toHaveBeenCalled()
+      (expect cb1).to.have.been.called
+      (expect cb2).not.to.have.been.called
 
       viewWithoutModel.setModel @m
       @m.set "key", "an other val"
-      (expect cb2).toHaveBeenCalled()
+      (expect cb2).to.have.been.called
 
 
   describe "Controller", ->
@@ -120,5 +120,5 @@ describe "mvc plugin", ->
 
     it "holds a reference to the model and the view", ->
       c = new @core.Controller @m, @v
-      (expect c.model).toEqual @m
-      (expect c.view).toEqual @v
+      (expect c.model).to.equal @m
+      (expect c.view).to.equal @v

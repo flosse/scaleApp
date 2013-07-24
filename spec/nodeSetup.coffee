@@ -1,7 +1,9 @@
 module.exports = ->
-  global.buster = require "buster"
   global.sinon  = require "sinon"
-  buster.spec.expose()
+  global.chai   = require "chai"
+  global.expect = global.chai.expect
+
+  global.chai.use require "sinon-chai"
 
   # workaround to solve cache problems
   get = global._require = (name) ->

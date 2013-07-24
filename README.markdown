@@ -597,6 +597,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandb
     - new `modulestate` plugin to emit events on module state changes
 - cleaner code
 - `Mediator`: do not *clone* objects any more (do it manually instead)
+- test with mocha, chai, sinon, karma and PhantomJS instead of buster.js
 
 #### v0.3.9 (12-2012)
 

@@ -2,7 +2,7 @@ require?("../../spec/nodeSetup")()
 
 describe "i18n plugin", ->
 
-  before ->
+  beforeEach ->
     if typeof(require) is "function"
       @scaleApp  = require "../../dist/scaleApp"
       @plugin    = require "../../dist/plugins/scaleApp.i18n"
@@ -41,19 +41,19 @@ describe "i18n plugin", ->
         @core.register "myId", mod, {i18n: @myLangObj }
 
         # start that module
-        @core.start "myId", callback: cb
+        @core.start "myId", cb
 
   it "provides the method getBrowserLanguage", ->
-    (expect typeof @core.getBrowserLanguage ).toEqual "function"
+    (expect @core.getBrowserLanguage ).to.be.a "function"
 
   it "has a method for setting a language code", ->
     lang = "en-US"
     @core.i18n.setLanguage lang
-    (expect lang).toEqual @core.i18n.getLanguage()
+    (expect lang).to.equal @core.i18n.getLanguage()
 
   it "has a method for setting a global object", ->
-    (expect typeof @core.i18n.setGlobal).toEqual "function"
-    (expect @core.i18n.setGlobal @core).toEqual true
+    (expect @core.i18n.setGlobal).to.be.a "function"
+    (expect @core.i18n.setGlobal @core).to.equal true
 
   it "fires an event when the languages was changed", (done) ->
 
@@ -67,8 +67,8 @@ describe "i18n plugin", ->
       @core.i18n.setLanguage "de-CH"
 
     @run test, ->
-      (expect cb).toHaveBeenCalled()
-      (expect scb).toHaveBeenCalled()
+      (expect cb).to.have.been.called
+      (expect scb).to.have.been.called
       done()
 
   describe "get text function", ->
@@ -80,9 +80,9 @@ describe "i18n plugin", ->
 
       test = (sb) =>
         # yes is only defined globally
-        (expect sb._ "yes" ).toEqual "ja"
+        (expect sb._ "yes" ).to.equal "ja"
         # helloWorld is only defined locally
-        (expect sb._ "helloWorld" ).toEqual "Hallo Welt"
+        (expect sb._ "helloWorld" ).to.equal "Hallo Welt"
         done()
 
       @run test
@@ -90,15 +90,15 @@ describe "i18n plugin", ->
     it "returns english string if current language is not supported", (done) ->
       test = (sb) =>
         @core.i18n.setLanguage( "es" )
-        (expect sb._ "helloWorld" ).toEqual "Hello world"
-        (expect sb.i18n.getLanguage()).toEqual "es"
+        (expect sb._ "helloWorld" ).to.equal "Hello world"
+        (expect sb.i18n.getLanguage()).to.equal "es"
         done()
       @run test
 
     it "returns base language string if current language is not supported", (done) ->
       test = (sb) =>
         @core.i18n.setLanguage "de-CH"
-        (expect sb._ "helloWorld" ).toEqual "Hallo Welt"
+        (expect sb._ "helloWorld" ).to.equal "Hallo Welt"
         done()
       @run test
 
@@ -106,27 +106,27 @@ describe "i18n plugin", ->
       @timeout = 1000
       @core.i18n.setGlobal "de": { hey: "Tach!" }
       test = (sb) =>
-        (expect typeof sb.i18n.addLocal).toEqual "function"
+        (expect typeof sb.i18n.addLocal).to.equal "function"
         sb.i18n.addLocal {en: { time: "Time"}, de: {time: "Zeit"} }
         @core.i18n.setLanguage "de"
-        (expect sb._ "time" ).toEqual "Zeit"
-        (expect sb._ "hey" ).toEqual "Tach!"
+        (expect sb._ "time" ).to.equal "Zeit"
+        (expect sb._ "hey" ).to.equal "Tach!"
         @core.i18n.setLanguage "en"
-        (expect sb._ "time" ).toEqual "Time"
+        (expect sb._ "time" ).to.equal "Time"
         done()
       @run test
 
     it "returns not the base language string if current language is supported", (done) ->
       test = (sb) =>
         @core.i18n.setLanguage "de-CH"
-        (expect sb._ "hello" ).toEqual "Grüezi!"
+        (expect sb._ "hello" ).to.equal "Grüezi!"
         done()
       @run test
 
     it "returns the key itself if nothing was found", (done) ->
       @core.register "mod", (sb) ->
         init: =>
-          (expect sb._ "nothing").toEqual "nothing"
+          (expect sb._ "nothing").to.equal "nothing"
           done()
         destroy: ->
       @core.start "mod"

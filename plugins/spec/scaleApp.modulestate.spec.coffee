@@ -33,21 +33,21 @@ describe "modulestate plugin", ->
     @core.state.on "init/mod", modCB
     @core.state.on "init/mod/x", instCB
     @core.start "mod", instanceId: "x"
-    (expect initCB.callCount).toBe 1
-    (expect modCB.callCount).toBe 1
-    (expect instCB.callCount).toBe 1
+    (expect initCB.callCount).to.equal 1
+    (expect modCB.callCount).to.equal 1
+    (expect instCB.callCount).to.equal 1
     @core.start "mod", instanceId: "y"
-    (expect initCB.callCount).toBe 2
-    (expect modCB.callCount).toBe 2
-    (expect instCB.callCount).toBe 1
+    (expect initCB.callCount).to.equal 2
+    (expect modCB.callCount).to.equal 2
+    (expect instCB.callCount).to.equal 1
     @core.register("12345",m).start "12345"
-    (expect initCB.callCount).toBe 3
-    (expect modCB.callCount).toBe 2
-    (expect instCB.callCount).toBe 1
+    (expect initCB.callCount).to.equal 3
+    (expect modCB.callCount).to.equal 2
+    (expect instCB.callCount).to.equal 1
 
   it "calls a registered method on destruction", (done) ->
     fn = (data, channel) ->
-      (expect channel).toEqual "destroy/mod"
+      (expect channel).to.equal "destroy/mod"
       done()
     @core.state.on "destroy/mod", fn
     @core.start "mod"
@@ -55,8 +55,8 @@ describe "modulestate plugin", ->
 
   it "passes the moduleId and instanceId", (done) ->
     fn = (ev, channel) ->
-      (expect channel).toEqual "init"
-      (expect ev).toEqual {moduleId: "mod", instanceId: "33"}
+      (expect channel).to.equal "init"
+      (expect ev).to.eql {moduleId: "mod", instanceId: "33"}
       done()
     @core.state.on "init", fn, "mod"
     @core.start "mod", instanceId: "33"

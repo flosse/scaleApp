@@ -1,6 +1,6 @@
 describe "dom plugin", ->
 
-  before ->
+  beforeEach ->
     @scaleApp = window.scaleApp
     @plugin   = @scaleApp.plugins.dom
     @core     = new @scaleApp.Core
@@ -25,12 +25,12 @@ describe "dom plugin", ->
   it "installs itself to the sandbox", (done) ->
 
     @run (sb) ->
-      (expect typeof sb.getContainer).toEqual "function"
+      (expect sb.getContainer).to.be.a "function"
       done()
 
   it "returns the object that was defined in the option object", (done) ->
     test = (sb) =>
-      (expect sb.getContainer()).toBe @dummy
+      (expect sb.getContainer()).to.equal @dummy
       done()
     @run test, container: @dummy
 
@@ -41,7 +41,7 @@ describe "dom plugin", ->
     window.document.body.appendChild div
 
     test = (sb) ->
-      (expect sb.getContainer()).toBe div
+      (expect sb.getContainer()).to.equal div
       done()
 
     @run test, container: "dummy"

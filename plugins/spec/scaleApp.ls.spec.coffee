@@ -10,30 +10,30 @@ describe "ls plugin", ->
     scaleApp  = window.scaleApp
     plugin    = scaleApp.plugins.ls
 
-  before ->
+  beforeEach ->
 
     @core = new scaleApp.Core
     @core.use(plugin).boot()
 
   it "has an lsModules method", ->
-    (expect typeof @core.lsModules).toEqual "function"
+    (expect @core.lsModules).to.be.a "function"
     @core.register "myModule", ->
-    (expect @core.lsModules()).toEqual ["myModule"]
+    (expect @core.lsModules()).to.eql ["myModule"]
 
   it "has an lsInstances method", ->
-    (expect typeof @core.lsInstances).toEqual "function"
-    (expect @core.lsInstances()).toEqual []
+    (expect @core.lsInstances).to.be.a "function"
+    (expect @core.lsInstances()).to.eql []
     @core.register "myModule", -> init: (->), destroy: (->)
     @core.start "myModule"
-    (expect @core.lsInstances()).toEqual ["myModule"]
+    (expect @core.lsInstances()).to.eql ["myModule"]
     @core.start "myModule", instanceId: "test"
-    (expect @core.lsInstances()).toEqual ["myModule", "test"]
+    (expect @core.lsInstances()).to.eql ["myModule", "test"]
     @core.stop "myModule"
-    (expect @core.lsInstances()).toEqual ["test"]
+    (expect @core.lsInstances()).to.eql ["test"]
 
   it "has an lsPlugins method", ->
-    (expect typeof @core.lsPlugins).toEqual "function"
+    (expect @core.lsPlugins).to.be.a "function"
     if not window? # because the scaleApp object is loaded only once
-      (expect @core.lsPlugins()).toEqual []
+      (expect @core.lsPlugins()).to.eql []
       @core.use -> { id: "dummy" }
-      (expect @core.boot().lsPlugins()).toEqual ["dummy"]
+      (expect @core.boot().lsPlugins()).to.eql ["dummy"]

@@ -1,4 +1,7 @@
-require?("./nodeSetup")()
+if module?.exports?
+  require?("./nodeSetup")()
+else if window?
+  window.expect = window.chai.expect
 
 describe "scaleApp", ->
 
@@ -10,10 +13,10 @@ describe "scaleApp", ->
       @scaleApp = window.scaleApp
 
   it "provides the global and accessible namespace scaleApp", ->
-    (expect typeof @scaleApp).toEqual "object"
+    (expect @scaleApp).to.be.an "object"
 
   it "has a VERSION property", ->
-    (expect typeof @scaleApp.VERSION).toEqual "string"
+    (expect @scaleApp.VERSION).to.be.a "string"
 
   it "has a reference to the Mediator class", ->
-    (expect typeof @scaleApp.Mediator).toEqual "function"
+    (expect @scaleApp.Mediator).to.be.a "function"
