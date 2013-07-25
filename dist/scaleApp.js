@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-07-21
+scaleapp - v0.4.0 - 2013-07-25
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */

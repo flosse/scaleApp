@@ -60,6 +60,7 @@ For example you could extend the core with basic functionalities
 + browser and [Node.js](http://nodejs.org/) support
 + flow control
 + [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) & [CommonJS](http://www.commonjs.org/) support
++ framework-agnostic
 
 ### Extendable
 
@@ -83,12 +84,18 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- not available yet
+- [scaleApp 0.4.0.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.0)
+- [scaleApp 0.4.0.zip](https://github.com/flosse/scaleApp/zipball/v0.4.0)
 
-## Latest stable 0.3.x version
+## Old stable 0.3.x version
 
 - [scaleApp 0.3.9.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.9)
 - [scaleApp 0.3.9.zip](https://github.com/flosse/scaleApp/zipball/v0.3.9)
+
+### Note
+
+There are some API changes in version 0.4.x (see Changelog).
+Docs for v0.3.9 can be found within the tar/zip file.
 
 ## Unstable version
 
@@ -97,11 +104,6 @@ You can easily define your own plugin (see plugin section).
 ```shell
 git clone git://github.com/flosse/scaleApp.git
 ```
-
-# Changes in 0.4.x
-
-There are some API changes in version 0.4.x.
-Therefore the Github docs (master branch) are not compatible to v0.3.9.
 
 # Quick Start
 
@@ -573,7 +575,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandb
 
 # Changelog
 
-#### v0.4.0 (??-2013)
+#### v0.4.0 (07-2013)
 
 - added a `Core` class that can be instantiated (`var core = new scaleApp.Core();`)
 - new plugin API (`scaleApp.plugins.register` moved to `core.use`)
