@@ -87,6 +87,12 @@ You can easily define your own plugin (see plugin section).
 - [scaleApp 0.4.0.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.0)
 - [scaleApp 0.4.0.zip](https://github.com/flosse/scaleApp/zipball/v0.4.0)
 
+or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
+
+```html
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.0/scaleapp.min.js" ></script>
+```
+
 ## Old stable 0.3.x version
 
 - [scaleApp 0.3.9.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.3.9)
@@ -111,6 +117,12 @@ Link `scaleApp.min.js` in your HTML file:
 
 ```html
 <script src="scaleApp.min.js"></script>
+```
+
+or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
+
+```html
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.0/scaleapp.min.js" ></script>
 ```
 
 If you're going to use it with node:
