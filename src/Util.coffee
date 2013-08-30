@@ -1,7 +1,3 @@
-# support older browsers
-if not String::trim?
-  String::trim = -> @replace(/^\s\s*/, '').replace(/\s\s*$/, '')
-
 getArgumentNames = (fn=->) ->
   args = fn.toString().match ///
     function    # start with 'function'

@@ -1,17 +1,11 @@
 /*!
-scaleapp - v0.4.0 - 2013-07-25
+scaleapp - v0.4.0 - 2013-08-30
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
 (function() {
   var Core, Mediator, Sandbox, api, checkType, doForAll, getArgumentNames, runParallel, runSeries, runWaterfall, util,
     __slice = [].slice;
-
-  if (String.prototype.trim == null) {
-    String.prototype.trim = function() {
-      return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-    };
-  }
 
   getArgumentNames = function(fn) {
     var a, args, _i, _len, _results;
