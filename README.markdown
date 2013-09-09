@@ -5,7 +5,7 @@ scaleApp is a tiny JavaScript framework for scalable
 The framework allows you to easily create complex web applications.
 
 [![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
-[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png)](https://gemnasium.com/flosse/scaleApp.png)
+[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png)](https://gemnasium.com/flosse/scaleApp)
 [![NPM version](https://badge.fury.io/js/scaleapp.png)](http://badge.fury.io/js/scaleapp)
 
 You can dynamically start and stop/destroy modules that acts as small parts of
