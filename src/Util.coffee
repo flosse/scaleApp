@@ -27,7 +27,7 @@ runParallel = (tasks=[], cb=(->), force) ->
         return cb errors, results unless force
       else
         results[i] = if res.length < 2 then res[0] else res
-      if --count is 0
+      if --count <= 0
         if (e for e in errors when e?).length > 0
           cb errors, results
         else
@@ -51,7 +51,7 @@ runSeries = (tasks=[], cb=(->), force) ->
       return cb errors, results unless force
     else
       results[i] = if res.length < 2 then res[0] else res
-    if ++i is count
+    if ++i >= count
       if (e for e in errors when e?).length > 0
         cb errors, results
       else
@@ -71,7 +71,7 @@ runWaterfall = (tasks, cb) ->
 
   next = (err, res...) ->
     return cb err if err?
-    if ++i is tasks.length
+    if ++i >= tasks.length
       cb null, res...
     else
       tasks[i] res..., next

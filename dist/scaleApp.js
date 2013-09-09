@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-08-30
+scaleapp - v0.4.0 - 2013-09-09
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -58,7 +58,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           } else {
             results[i] = res.length < 2 ? res[0] : res;
           }
-          if (--count === 0) {
+          if (--count <= 0) {
             if (((function() {
               var _j, _len1, _results1;
               _results1 = [];
@@ -113,7 +113,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       } else {
         results[i] = res.length < 2 ? res[0] : res;
       }
-      if (++i === count) {
+      if (++i >= count) {
         if (((function() {
           var _i, _len, _results;
           _results = [];
@@ -153,7 +153,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       if (err != null) {
         return cb(err);
       }
-      if (++i === tasks.length) {
+      if (++i >= tasks.length) {
         return cb.apply(null, [null].concat(__slice.call(res)));
       } else {
         return tasks[i].apply(tasks, __slice.call(res).concat([next]));
