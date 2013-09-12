@@ -1,54 +1,59 @@
-basePath = '';
+module.exports = function(cfg){
+cfg.set({
 
-files = [
-  MOCHA,
-  MOCHA_ADAPTER,
-  'dist/scaleApp.js',
-  'dist/plugins/scaleApp.*.js',
-  'node_modules/chai/chai.js',
-  'node_modules/sinon/pkg/sinon.js',
-  'node_modules/sinon-chai/lib/sinon-chai.js',
-  'spec/*.spec.coffee',
-  'plugins/spec/scaleApp.*.spec.coffee',
-];
+  basePath: '',
 
-exclude = [
-  'spec/quality.spec.coffee',
-  'dist/plugins/scaleApp.*.min.js',
-];
+  files: [
+    'dist/scaleApp.js',
+    'dist/plugins/scaleApp.*.js',
+    'node_modules/chai/chai.js',
+    'node_modules/sinon/pkg/sinon.js',
+    'node_modules/sinon-chai/lib/sinon-chai.js',
+    'spec/*.spec.coffee',
+    'plugins/spec/scaleApp.*.spec.coffee',
+  ],
 
-// possible values: 'dots', 'progress', 'junit'
-reporters = ['progress'];
+  frameworks: ["mocha"],
 
-// web server port
-port = 9876;
+  exclude: [
+    'spec/quality.spec.coffee',
+    'dist/plugins/scaleApp.*.min.js',
+  ],
 
-// cli runner port
-runnerPort = 9100;
+  // possible values: 'dots', 'progress', 'junit'
+  reporters: ['progress'],
 
-// enable / disable colors in the output (reporters and logs)
-colors = true;
+  // web server port
+  port: 9876,
 
-// level of logging
-// possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-logLevel = LOG_INFO;
+  // cli runner port
+  runnerPort: 9100,
 
-// enable / disable watching file and executing tests whenever any file changes
-autoWatch = false;
+  // enable / disable colors in the output (reporters and logs)
+  colors: true,
 
-// Start these browsers, currently available:
-// - Chrome
-// - ChromeCanary
-// - Firefox
-// - Opera
-// - Safari (only Mac)
-// - PhantomJS
-// - IE (only Windows)
-browsers = ['PhantomJS'];
+  // level of logging
+  // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
+  logLevel: cfg.LOG_INFO,
 
-// If browser does not capture in given timeout [ms], kill it
-captureTimeout = 60000;
+  // enable / disable watching file and executing tests whenever any file changes
+  autoWatch: false,
 
-// Continuous Integration mode
-// if true, it capture browsers, run tests and exit
-singleRun = true;
+  // Start these browsers, currently available:
+  // - Chrome
+  // - ChromeCanary
+  // - Firefox
+  // - Opera
+  // - Safari (only Mac)
+  // - PhantomJS
+  // - IE (only Windows)
+  browsers: ['PhantomJS'],
+
+  // If browser does not capture in given timeout [ms], kill it
+  captureTimeout: 60000,
+
+  // Continuous Integration mode
+  // if true, it capture browsers, run tests and exit
+  singleRun: true,
+
+});};
