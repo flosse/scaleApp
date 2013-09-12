@@ -367,17 +367,67 @@ sandbox.off("channelName");
 ## Flow control
 
 ### Series
+
 ```javascript
 var task1 = function(next){
-  setTimeout(function(){next(null, "one");},0);
+  setTimeout(function(){
+    console.log("task1");
+    next(null, "one");
+  },0);
 };
 
 var task2 = function(next){
+  console.log("task2");
   next(null, "two");
 };
 
-scaleApp.util.runSeries([task1, task2], function(err, results){
+scaleApp.util.runSeries([task1, task2], function(err, result){
   // result is ["one", "two"]
+});
+
+// console output is:
+// "task1"
+// "task2"
+```
+
+### Parallel
+
+```javascript
+var task1 = function(next){
+  setTimeout(function(){
+    console.log("task1");
+    next(null, "a");
+  },0);
+};
+
+var task2 = function(next){
+  console.log("task2");
+  next(null, "b");
+};
+
+scaleApp.util.runParallel([task1, task2],function(err,result){
+  // result is ["a", "b"]
+});
+
+// console output is:
+// "task2"
+// "task1"
+```
+
+There is also a little helper tool to run the same async task
+again and again in parallel for different values:
+
+```javascript
+var vals = ["a","b", "c"];
+var worker = function(val, next){
+  console.log(val);
+  doSomeAsyncValueProcessing(vals,function(err,result){
+    next(err, result);
+  });
+};
+
+scaleApp.util.doForAll(args, worker, function(err, res){
+  // fini
 });
 ```
 
@@ -399,8 +449,8 @@ var task2 = function(res1, res2, next){
 scaleApp.util.runWaterfall([task1, task2], function(err, result){
   // result is "yeah!"
 });
-
 ```
+
 ## Plugins
 
 There are some plugins available within the `plugins` folder.
