@@ -114,6 +114,7 @@ describe "Util", ->
       (expect @util.runSeries).to.be.a "function"
       @util.runSeries [cb1, cb2, cb3], (err, res) ->
         (expect err).not.to.exist
+        (expect res.hasOwnProperty '-1').to.equal false
         (expect res[0]).to.eql ["one", false]
         (expect res[1]).to.equal "two"
         (expect res[2]).to.equal "three"

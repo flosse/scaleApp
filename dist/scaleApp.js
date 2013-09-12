@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-09-09
+scaleapp - v0.4.0 - 2013-09-12
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -111,7 +111,9 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           return cb(errors, results);
         }
       } else {
-        results[i] = res.length < 2 ? res[0] : res;
+        if (i > -1) {
+          results[i] = res.length < 2 ? res[0] : res;
+        }
       }
       if (++i >= count) {
         if (((function() {

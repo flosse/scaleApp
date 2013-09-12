@@ -50,7 +50,8 @@ runSeries = (tasks=[], cb=(->), force) ->
       errors[i] = err
       return cb errors, results unless force
     else
-      results[i] = if res.length < 2 then res[0] else res
+      if i > -1 # first run
+        results[i] = if res.length < 2 then res[0] else res
     if ++i >= count
       if (e for e in errors when e?).length > 0
         cb errors, results
