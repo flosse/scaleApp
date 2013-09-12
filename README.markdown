@@ -421,7 +421,7 @@ again and again in parallel for different values:
 var vals = ["a","b", "c"];
 var worker = function(val, next){
   console.log(val);
-  doSomeAsyncValueProcessing(vals,function(err,result){
+  doSomeAsyncValueProcessing(val,function(err,result){
     next(err, result);
   });
 };
