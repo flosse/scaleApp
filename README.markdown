@@ -487,14 +487,14 @@ core.use(function(core){
 Here a more complex example:
 
 ```javascript
-core.use(function(core, done){
+core.use(function(core, options, done){
 
   // extend the core
   core.myCoreFunction = function(){ alert("Hello core plugin") };
   core.myBoringProperty = "boring";
 
   // extend the sandbox class
-  core.Sandbox.prototype.myMethod = function( /*...*/);
+  core.Sandbox.prototype.myMethod = function(){/*...*/};
 
   // define a method that gets called when a module starts
   var onModuleInit = function(instanceSandbox, options, done){
