@@ -61,28 +61,20 @@ class Core
     if typeof opt is "function"
       cb = opt; opt = {}
 
-    fail = (e) =>
-      @log.error e
-      cb new Error "could not start module: #{e.message}"
-      @
-
     e =
       checkType("string", moduleId, "module ID")    or
       checkType("object", opt, "second parameter")  or
-      ("module doesn't exist" unless @_modules[moduleId]?)
+      ("module doesn't exist" unless @_modules[moduleId])
 
-    return fail e if e
+    return @_startFail e, cb if e
 
     id = opt.instanceId or moduleId
 
     if @_instances[id]?.running is true
-      return fail new Error "module was already started"
+      return @_startFail (new Error "module was already started"), cb
 
     initInst = (err, instance) =>
-      if err
-        @log.error err
-        return cb err
-
+      return @_startFail err, cb if err
       try
         if util.hasArgument instance.init, 2
           # the module wants to init in an asynchronous way
@@ -94,17 +86,24 @@ class Core
           # call the callback directly after initialisation
           instance.init instance.options
           instance.running = true
-          cb null
+          cb()
       catch e
-        fail e if e
+        @_startFail e,cb
 
-    @boot => @_createInstance moduleId, opt.instanceId, opt.options, initInst
+    @boot (err) =>
+      return @_startFail err, cb if err
+      @_createInstance moduleId, opt.instanceId, opt.options, initInst
+
+  _startFail: (e, cb) ->
+    @log.error e
+    cb new Error "could not start module: #{e.message}"
+    @
 
   _createInstance: (moduleId, instanceId=moduleId, opt, cb) ->
 
     module = @_modules[moduleId]
 
-    return cb @_instances[instanceId] if @_instances[instanceId]?
+    return cb @_instances[instanceId] if @_instances[instanceId]
 
     iOpts = {}
     for o in [module.options, opt] when o
@@ -147,19 +146,16 @@ class Core
     util.doForAll mods, startAction, done, true
     @
 
-  stop: (id, cb) ->
+  stop: (id, cb=->) ->
     if arguments.length is 0 or typeof id is "function"
       util.doForAll (x for x of @_instances), (=> @stop arguments...), id, true
 
     else if instance = @_instances[id]
-      # remove
+
       delete @_instances[id]
 
       @_mediator.off instance
       @_runSandboxPlugins 'destroy', @_sandboxes[id], (err) =>
-
-        # the destroy method is optional
-        instance.destroy ?= ->
 
         # if the module wants destroy in an asynchronous way
         if util.hasArgument instance.destroy
@@ -167,19 +163,20 @@ class Core
           instance.destroy (err) ->
             # rereference if something went wrong
             @_instances[id] = instance if err
-            cb? err
+            cb err
         else
           # else call the callback directly after stopping
-          instance.destroy()
-          cb? null
+          instance.destroy?()
+          cb()
     @
 
   # register a plugin
   use: (plugin, opt) ->
     if plugin instanceof Array
       for p in plugin
-        if typeof p is "function" then @use p
-        if typeof p is "object"   then @use p.plugin, p.options
+        switch typeof p
+          when "function" then @use p
+          when "object"   then @use p.plugin, p.options
     else
       return @ unless typeof plugin is "function"
       @_plugins.push creator:plugin, options:opt

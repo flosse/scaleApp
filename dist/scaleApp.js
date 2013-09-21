@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-09-12
+scaleapp - v0.4.0 - 2013-09-22
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -444,7 +444,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.start = function(moduleId, opt, cb) {
-      var e, fail, id, initInst, _ref,
+      var e, id, initInst, _ref,
         _this = this;
       if (opt == null) {
         opt = {};
@@ -465,23 +465,17 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         cb = opt;
         opt = {};
       }
-      fail = function(e) {
-        _this.log.error(e);
-        cb(new Error("could not start module: " + e.message));
-        return _this;
-      };
-      e = checkType("string", moduleId, "module ID") || checkType("object", opt, "second parameter") || (this._modules[moduleId] == null ? "module doesn't exist" : void 0);
+      e = checkType("string", moduleId, "module ID") || checkType("object", opt, "second parameter") || (!this._modules[moduleId] ? "module doesn't exist" : void 0);
       if (e) {
-        return fail(e);
+        return this._startFail(e, cb);
       }
       id = opt.instanceId || moduleId;
       if (((_ref = this._instances[id]) != null ? _ref.running : void 0) === true) {
-        return fail(new Error("module was already started"));
+        return this._startFail(new Error("module was already started"), cb);
       }
       initInst = function(err, instance) {
         if (err) {
-          _this.log.error(err);
-          return cb(err);
+          return _this._startFail(err, cb);
         }
         try {
           if (util.hasArgument(instance.init, 2)) {
@@ -494,18 +488,25 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           } else {
             instance.init(instance.options);
             instance.running = true;
-            return cb(null);
+            return cb();
           }
         } catch (_error) {
           e = _error;
-          if (e) {
-            return fail(e);
-          }
+          return _this._startFail(e, cb);
         }
       };
-      return this.boot(function() {
+      return this.boot(function(err) {
+        if (err) {
+          return _this._startFail(err, cb);
+        }
         return _this._createInstance(moduleId, opt.instanceId, opt.options, initInst);
       });
+    };
+
+    Core.prototype._startFail = function(e, cb) {
+      this.log.error(e);
+      cb(new Error("could not start module: " + e.message));
+      return this;
     };
 
     Core.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
@@ -515,7 +516,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         instanceId = moduleId;
       }
       module = this._modules[moduleId];
-      if (this._instances[instanceId] != null) {
+      if (this._instances[instanceId]) {
         return cb(this._instances[instanceId]);
       }
       iOpts = {};
@@ -616,6 +617,9 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     Core.prototype.stop = function(id, cb) {
       var instance, x,
         _this = this;
+      if (cb == null) {
+        cb = function() {};
+      }
       if (arguments.length === 0 || typeof id === "function") {
         util.doForAll((function() {
           var _results;
@@ -631,19 +635,18 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         delete this._instances[id];
         this._mediator.off(instance);
         this._runSandboxPlugins('destroy', this._sandboxes[id], function(err) {
-          if (instance.destroy == null) {
-            instance.destroy = function() {};
-          }
           if (util.hasArgument(instance.destroy)) {
             return instance.destroy(function(err) {
               if (err) {
                 this._instances[id] = instance;
               }
-              return typeof cb === "function" ? cb(err) : void 0;
+              return cb(err);
             });
           } else {
-            instance.destroy();
-            return typeof cb === "function" ? cb(null) : void 0;
+            if (typeof instance.destroy === "function") {
+              instance.destroy();
+            }
+            return cb();
           }
         });
       }
@@ -655,11 +658,12 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       if (plugin instanceof Array) {
         for (_i = 0, _len = plugin.length; _i < _len; _i++) {
           p = plugin[_i];
-          if (typeof p === "function") {
-            this.use(p);
-          }
-          if (typeof p === "object") {
-            this.use(p.plugin, p.options);
+          switch (typeof p) {
+            case "function":
+              this.use(p);
+              break;
+            case "object":
+              this.use(p.plugin, p.options);
           }
         }
       } else {
