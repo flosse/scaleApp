@@ -57,20 +57,6 @@ module.exports = (grunt) ->
         src: ['*.coffee']
         dest: 'dist/plugins/'
         rename: renameCoffe2js
-      modules:
-        expand: true
-        flatten: true
-        cwd: 'modules/'
-        src: ['*.coffee']
-        dest: 'dist/modules/'
-        rename: renameCoffe2js
-
-    copy:
-      modules:
-        expand: true
-        cwd: 'modules/'
-        src: ['*.html']
-        dest: 'dist/modules'
 
     uglify:
       options:
@@ -96,32 +82,11 @@ module.exports = (grunt) ->
         src: ["*.js","!*.min.js"]
         dest: 'dist/plugins/'
         rename: renameJs2min
-      modules:
-        expand: true
-        flatten: true
-        cwd: 'dist/modules/'
-        src: ["*.js","!*.min.js"]
-        dest: 'dist/modules/'
-        rename: renameJs2min
 
     watch:
       src:
         files: ["src/*.coffee", "src/**/*.coffee"]
         tasks: ["coffee"]
-      styles:
-        files: ["modules/*.styl"]
-        tasks: ["stylus"]
-
-    stylus:
-      modules:
-        options:
-          compress: true
-
-        expand: true
-        cwd: 'modules/'
-        src: ["*.styl"]
-        dest: 'dist/modules/'
-        ext: '.css'
 
     coffeelint:
       core: ["src/*.coffee"]
@@ -130,13 +95,10 @@ module.exports = (grunt) ->
           level: "warn"
 
   grunt.loadNpmTasks "grunt-contrib-coffee"
-  grunt.loadNpmTasks "grunt-contrib-copy"
-  grunt.loadNpmTasks "grunt-contrib-stylus"
   grunt.loadNpmTasks "grunt-contrib-watch"
-  grunt.loadNpmTasks "grunt-contrib-uglify"
   grunt.loadNpmTasks "grunt-contrib-concat"
   grunt.loadNpmTasks "grunt-coffeelint"
-  grunt.registerTask "default", ["coffeelint", "coffee", "concat", "uglify", "stylus", "copy"]
+  grunt.registerTask "default", ["coffeelint", "coffee", "concat", "uglify" ]
 
   # Quick and dirty task to build a custom bundle
   # Does s.o. know how to do that properly?

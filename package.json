@@ -11,8 +11,8 @@
   "engine":       "node",
   "devDependencies":
   {
-    "chai":                 "~1.7.2",
-    "mocha":                "~1.12.1",
+    "chai":                 "~1.8.0",
+    "mocha":                "~1.13.0",
     "phantomjs":            "~1.9.2",
     "karma":                "~0.10.2",
     "karma-mocha":          "~0.1.0",
@@ -22,8 +22,6 @@
     "grunt":                "~0.4.1",
     "grunt-cli":            "~0.1.9",
     "grunt-contrib-coffee": "~0.7.0",
-    "grunt-contrib-copy":   "~0.4.1",
-    "grunt-contrib-stylus": "~0.8.0",
     "grunt-contrib-watch":  "~0.5.3",
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-concat": "~0.3.0",
