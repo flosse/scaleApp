@@ -1,6 +1,6 @@
 # What is scaleApp?
 
-scaleApp is a tiny JavaScript framework for scalable
+scaleApp is a tiny JavaScript framework for scalable and maintainable
 [One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
 The framework allows you to easily create complex web applications.
 
@@ -26,7 +26,7 @@ describes the basic ideas.
 
 A module is a completely independent part of your application.
 It has absolutely no reference to another piece of the app.
-The only thing the module knows is the sandbox.
+The only thing the module knows is your sandbox.
 The sandbox is used to communicate with other parts of the application.
 
 ### Sandbox
@@ -34,7 +34,10 @@ The sandbox is used to communicate with other parts of the application.
 The main purpose of the sandbox is to use the
 [facade pattern](https://en.wikipedia.org/wiki/Facade_pattern).
 In that way you can hide the features provided by the core and only show
-a well defined (static) API to your modules.
+a well defined custom static long term API to your modules.
+This is actually one of the most important concept for creating
+mainainable apps. Change plugins, implementations etc.
+but keep your API stable for your modules.
 For each module a separate sandbox will be created.
 
 ### Core
@@ -139,12 +142,42 @@ or use [bower](http://twitter.github.com/bower/):
 
     bower install scaleapp
 
-## Create a core
+## Create your own Sandbox
 
-First of all create a new core instance:
+First of all create your own sandbox.
+By doing that you're able to guarantee a
+stable maintainable API for your modules.
 
 ```javascript
-var core = new scaleApp.Core();
+var MySandbox = function(core, instanceId, options, moduleId) {
+
+  // define your API
+  this.myFooProperty = "bar";
+
+  // e.g. provide the Mediator methods 'on', 'emit', etc.
+  core._mediator.installTo(this);
+
+  // ... or define your custom communication methods
+  this.myEmit = function(channel, data){
+    core.emit(channel + '/' + instanceId, data);
+  };
+
+  // maybe you'd like to expose the instance ID
+  this.id = instanceId;
+
+  return this;
+};
+
+// ... and of course you can define shared methods etc.
+MySandbox.prototype.foo = function() { /*...*/ };
+```
+
+## Create a core
+
+Now create a new core instance with your sandbox:
+
+```javascript
+var core = new scaleApp.Core(MySandbox);
 ```
 
 ## Register modules
@@ -230,7 +263,6 @@ All you attach to `options` is accessible within your module:
 core.register( "mod", function(sandbox){
   return {
     init: function(opt){
-      (opt === sandbox.options)            // true
       (opt.myProperty === "myValue")  // true
     },
     destroy: function(){ /*...*/ }
@@ -286,13 +318,12 @@ The `emit` function takes three parameters whereas the last one is optional:
 - `data`  : the data itself
 - `cb`    : callback method
 
-The emit function is accessible through the sandbox:
+The emit function is accessible through the sandbox
+(as long as you exposed the Mediator methods of course):
 
 ```javascript
 sandbox.emit( "myEventTopic", myData );
 ```
-
-You can also use the shorter method alias `emit`.
 
 ### on
 
@@ -531,29 +562,6 @@ core.use(function(core, options, done){
 });
 ```
 
-## Use your own Sandbox
-
-```javascript
-core.use(function(core){
-
-  core.Sandbox = function(core, instanceId, options){
-
-    var foo = function(){ /* ... */ };
-
-    var myEmit = function(channel, data){
-      core.emit(channel + '/' + instanceId, data);
-    };
-
-    // return your own public API
-    return {
-      foo: foo,
-      emit: myEmit
-    };
-
-  };
-});
-```
-
 Usage:
 
 ```javascript
@@ -628,14 +636,27 @@ var subscription = mediator.on(channel, callback, context);
 
 ## Sandbox
 
+This is the default sandbox of scaleApp.
+It's a better idea to use your own one.
+
 ```javascript
-var sandbox =  new scaleApp.Sandbox(core, instanceId, options)` - create a Sandbox
+var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - create a Sandbox
 ```
 - `sandbox.emit` is `mediator.emit`
 - `sandbox.on` is `mediator.on`
 - `sandbox.off` is `mediator.off`
 
 # Changelog
+
+#### v0.4.1 (??-2013)
+
+- no more sandbox manipulation
+- removed modules directory
+  (building modules is your own business;
+  above all they should depend on YOUR sandbox)
+- available at [cdnjs.com](http://cdnjs.com/)
+- improved README
+- bugfixes
 
 #### v0.4.0 (07-2013)
 
