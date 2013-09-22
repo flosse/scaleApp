@@ -11,6 +11,7 @@ class Core
     @_plugins      = []
     @_instances    = {}
     @_sandboxes    = {}
+    @_running      = {}
     @_mediator     = new Mediator
 
     # define public variables
@@ -72,22 +73,22 @@ class Core
 
     id = opt.instanceId or moduleId
 
-    if @_instances[id]?.running is true
+    if @_running[id] is true
       return @_startFail (new Error "module was already started"), cb
 
-    initInst = (err, instance) =>
+    initInst = (err, instance, opt) =>
       return @_startFail err, cb if err
       try
         if util.hasArgument instance.init, 2
           # the module wants to init in an asynchronous way
           # therefore define a callback
-          instance.init instance.options, (err) ->
-            instance.running = true unless err
+          instance.init opt, (err) =>
+            @_running[id] = true unless err
             cb err
         else
           # call the callback directly after initialisation
-          instance.init instance.options
-          instance.running = true
+          instance.init opt
+          @_running[id] = true
           cb()
       catch e
         @_startFail e,cb
@@ -118,11 +119,9 @@ class Core
       instance = new module.creator sb
       unless typeof instance.init is "function"
         return cb new Error "module has no 'init' method"
-      instance.options        = iOpts
-      instance.id             = instanceId
       @_instances[instanceId] = instance
       @_sandboxes[instanceId] = sb
-      cb null, instance
+      cb null, instance, iOpts
 
   _runSandboxPlugins: (ev, sb, cb) ->
     tasks =

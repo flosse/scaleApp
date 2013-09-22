@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-09-22
+scaleapp - v0.4.0 - 2013-09-23
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -394,6 +394,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       this._plugins = [];
       this._instances = {};
       this._sandboxes = {};
+      this._running = {};
       this._mediator = new Mediator;
       this.Mediator = Mediator;
       if (this.Sandbox == null) {
@@ -437,7 +438,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.start = function(moduleId, opt, cb) {
-      var e, id, initInst, _ref,
+      var e, id, initInst,
         _this = this;
       if (opt == null) {
         opt = {};
@@ -463,24 +464,24 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         return this._startFail(e, cb);
       }
       id = opt.instanceId || moduleId;
-      if (((_ref = this._instances[id]) != null ? _ref.running : void 0) === true) {
+      if (this._running[id] === true) {
         return this._startFail(new Error("module was already started"), cb);
       }
-      initInst = function(err, instance) {
+      initInst = function(err, instance, opt) {
         if (err) {
           return _this._startFail(err, cb);
         }
         try {
           if (util.hasArgument(instance.init, 2)) {
-            return instance.init(instance.options, function(err) {
+            return instance.init(opt, function(err) {
               if (!err) {
-                instance.running = true;
+                _this._running[id] = true;
               }
               return cb(err);
             });
           } else {
-            instance.init(instance.options);
-            instance.running = true;
+            instance.init(opt);
+            _this._running[id] = true;
             return cb();
           }
         } catch (_error) {
@@ -533,11 +534,9 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         if (typeof instance.init !== "function") {
           return cb(new Error("module has no 'init' method"));
         }
-        instance.options = iOpts;
-        instance.id = instanceId;
         _this._instances[instanceId] = instance;
         _this._sandboxes[instanceId] = sb;
-        return cb(null, instance);
+        return cb(null, instance, iOpts);
       });
     };
 
