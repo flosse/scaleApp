@@ -4,7 +4,7 @@ This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
 (function() {
-  var Core, Mediator, Sandbox, api, checkType, doForAll, getArgumentNames, runParallel, runSeries, runWaterfall, util,
+  var Core, Mediator, api, checkType, doForAll, getArgumentNames, runParallel, runSeries, runWaterfall, util,
     __slice = [].slice;
 
   getArgumentNames = function(fn) {
@@ -381,18 +381,6 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 
   })();
 
-  Sandbox = (function() {
-    function Sandbox(core, instanceId, options) {
-      this.core = core;
-      this.instanceId = instanceId;
-      this.options = options != null ? options : {};
-      this.core._mediator.installTo(this);
-    }
-
-    return Sandbox;
-
-  })();
-
   checkType = function(type, val, name) {
     if (typeof val !== type) {
       return "" + name + " has to be a " + type;
@@ -400,17 +388,22 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   Core = (function() {
-    function Core(sandbox) {
-      if (sandbox == null) {
-        sandbox = Sandbox;
-      }
+    function Core(Sandbox) {
+      this.Sandbox = Sandbox;
       this._modules = {};
       this._plugins = [];
       this._instances = {};
       this._sandboxes = {};
       this._mediator = new Mediator;
-      this.Sandbox = sandbox;
       this.Mediator = Mediator;
+      if (this.Sandbox == null) {
+        this.Sandbox = function(core, instanceId, options) {
+          this.instanceId = instanceId;
+          this.options = options != null ? options : {};
+          core._mediator.installTo(this);
+          return this;
+        };
+      }
     }
 
     Core.prototype.log = {
@@ -736,7 +729,6 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     VERSION: "0.4.0",
     util: util,
     Mediator: Mediator,
-    Sandbox: Sandbox,
     Core: Core,
     plugins: {},
     modules: {}

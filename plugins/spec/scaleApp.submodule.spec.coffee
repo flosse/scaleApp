@@ -137,15 +137,17 @@ describe "submodule plugin", ->
       init: ->
         (expect sb.sub).to.be.an "object"
         (expect sb.baz).to.equal "foobar"
-        (expect sb.core.foobar).to.equal "baz"
+        (expect sb._subCore.foobar).to.equal "baz"
+        (expect core.foobar).to.equal "baz"
         (expect sb.only).to.equal "sub"
-        (expect sb.core.onlySub).to.equal 42
+        (expect sb._subCore.onlySub).to.equal 42
+        (expect core.onlySub).not.to.exist
         done()
 
     myModule = (sb) ->
       init: ->
         (expect sb.baz).to.equal "foobar"
-        (expect sb.core.onlySub).not.to.exist
+        (expect core.onlySub).not.to.exist
         (expect sb.only).not.to.exist
         sb.sub.register "sub", mySubModule
         sb.sub.start "sub"

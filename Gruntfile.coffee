@@ -38,7 +38,6 @@ module.exports = (grunt) ->
           "dist/scaleApp.js": [
             "src/Util.coffee"
             "src/Mediator.coffee"
-            "src/Sandbox.coffee"
             "src/Core.coffee"
             "src/scaleApp.coffee" ]
       full:
@@ -48,7 +47,6 @@ module.exports = (grunt) ->
           "dist/scaleApp.full.js": [
             "src/Util.coffee",
             "src/Mediator.coffee"
-            "src/Sandbox.coffee"
             "src/Core.coffee"
             "src/scaleApp.coffee"
             "plugins/src/*.coffee" ]

@@ -16,7 +16,6 @@ describe "The codebase", ->
       "src/Core.coffee":      160
       "src/Util.coffee":      80
       "src/Mediator.coffee":  70
-      "src/Sandbox.coffee":   50
       "src/scaleApp.coffee":  20
 
     sum = 0

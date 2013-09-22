@@ -3,7 +3,7 @@ checkType = (type, val, name) ->
 
 class Core
 
-  constructor: (sandbox=Sandbox) ->
+  constructor: (@Sandbox) ->
 
     # define private variables
 
@@ -15,8 +15,10 @@ class Core
 
     # define public variables
 
-    @Sandbox      = sandbox
     @Mediator     = Mediator
+    @Sandbox      ?= (core, @instanceId, @options = {}) ->
+      core._mediator.installTo @
+      @
 
   # define dummy logger
   log:
