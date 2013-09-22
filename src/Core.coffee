@@ -17,7 +17,7 @@ class Core
     # define public variables
 
     @Mediator     = Mediator
-    @Sandbox      ?= (core, @instanceId, @options = {}) ->
+    @Sandbox      ?= (core, @instanceId, @options = {}, @moduleId) ->
       core._mediator.installTo @
       @
 
@@ -112,8 +112,7 @@ class Core
     for o in [module.options, opt] when o
       iOpts[key] ?= val for key,val of o
 
-    sb = new @Sandbox @, instanceId, iOpts
-    sb.moduleId = moduleId
+    sb = new @Sandbox @, instanceId, iOpts, moduleId
 
     @_runSandboxPlugins 'init', sb, (err) =>
       instance = new module.creator sb

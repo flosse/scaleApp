@@ -398,9 +398,10 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       this._mediator = new Mediator;
       this.Mediator = Mediator;
       if (this.Sandbox == null) {
-        this.Sandbox = function(core, instanceId, options) {
+        this.Sandbox = function(core, instanceId, options, moduleId) {
           this.instanceId = instanceId;
           this.options = options != null ? options : {};
+          this.moduleId = moduleId;
           core._mediator.installTo(this);
           return this;
         };
@@ -526,8 +527,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           }
         }
       }
-      sb = new this.Sandbox(this, instanceId, iOpts);
-      sb.moduleId = moduleId;
+      sb = new this.Sandbox(this, instanceId, iOpts, moduleId);
       return this._runSandboxPlugins('init', sb, function(err) {
         var instance;
         instance = new module.creator(sb);
