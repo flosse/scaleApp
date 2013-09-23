@@ -15,3 +15,4 @@ buster.js
 *.svg
 *.min.js
 *.full*.js
+.directory

@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.0 - 2013-09-23
+scaleapp - v0.4.1 - 2013-09-23
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -725,7 +725,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
   })();
 
   api = {
-    VERSION: "0.4.0",
+    VERSION: "0.4.1",
     util: util,
     Mediator: Mediator,
     Core: Core,

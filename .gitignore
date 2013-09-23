@@ -11,3 +11,4 @@ spec/**/*.js
 /dist/*.min.*
 *~
 npm-debug.log
+.directory
