@@ -102,6 +102,16 @@ describe "scaleApp core", ->
         @core.register "foo", mod
         @core.start "foo", instanceId: "x", options: {foo: "bar"}
 
+      it "takes a custom sandbox", (done) ->
+        myTempSandbox = ->
+
+        mod = (sb) ->
+          init: (opt) ->
+            (expect sb instanceof myTempSandbox).to.be.true
+            done()
+        @core.register "baz", mod
+        @core.start "baz", sandbox: myTempSandbox
+
       it "calls the callback function after the initialization", (done) ->
 
         x     = 0

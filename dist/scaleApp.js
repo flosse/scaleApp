@@ -494,7 +494,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         if (err) {
           return _this._startFail(err, cb);
         }
-        return _this._createInstance(moduleId, opt.instanceId, opt.options, initInst);
+        return _this._createInstance(moduleId, opt, initInst);
       });
     };
 
@@ -504,38 +504,38 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return this;
     };
 
-    Core.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
-      var iOpts, key, module, o, sb, val, _i, _len, _ref,
+    Core.prototype._createInstance = function(moduleId, o, cb) {
+      var Sandbox, iOpts, id, key, module, obj, opt, sb, val, _i, _len, _ref,
         _this = this;
-      if (instanceId == null) {
-        instanceId = moduleId;
-      }
+      id = o.instanceId || moduleId;
+      opt = o.options;
       module = this._modules[moduleId];
-      if (this._instances[instanceId]) {
-        return cb(this._instances[instanceId]);
+      if (this._instances[id]) {
+        return cb(this._instances[id]);
       }
       iOpts = {};
       _ref = [module.options, opt];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        o = _ref[_i];
-        if (o) {
-          for (key in o) {
-            val = o[key];
+        obj = _ref[_i];
+        if (obj) {
+          for (key in obj) {
+            val = obj[key];
             if (iOpts[key] == null) {
               iOpts[key] = val;
             }
           }
         }
       }
-      sb = new this.Sandbox(this, instanceId, iOpts, moduleId);
+      Sandbox = typeof o.sandbox === 'function' ? o.sandbox : this.Sandbox;
+      sb = new Sandbox(this, id, iOpts, moduleId);
       return this._runSandboxPlugins('init', sb, function(err) {
         var instance;
         instance = new module.creator(sb);
         if (typeof instance.init !== "function") {
           return cb(new Error("module has no 'init' method"));
         }
-        _this._instances[instanceId] = instance;
-        _this._sandboxes[instanceId] = sb;
+        _this._instances[id] = instance;
+        _this._sandboxes[id] = sb;
         return cb(null, instance, iOpts);
       });
     };

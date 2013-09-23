@@ -95,31 +95,38 @@ class Core
 
     @boot (err) =>
       return @_startFail err, cb if err
-      @_createInstance moduleId, opt.instanceId, opt.options, initInst
+      @_createInstance moduleId, opt, initInst
 
   _startFail: (e, cb) ->
     @log.error e
     cb new Error "could not start module: #{e.message}"
     @
 
-  _createInstance: (moduleId, instanceId=moduleId, opt, cb) ->
+  _createInstance: (moduleId, o, cb) ->
+
+    id = o.instanceId or moduleId
+    opt = o.options
 
     module = @_modules[moduleId]
 
-    return cb @_instances[instanceId] if @_instances[instanceId]
+    return cb @_instances[id] if @_instances[id]
 
     iOpts = {}
-    for o in [module.options, opt] when o
-      iOpts[key] ?= val for key,val of o
+    for obj in [module.options, opt] when obj
+      iOpts[key] ?= val for key,val of obj
 
-    sb = new @Sandbox @, instanceId, iOpts, moduleId
+    Sandbox =
+      if typeof o.sandbox is 'function' then o.sandbox
+      else @Sandbox
+
+    sb = new Sandbox @, id, iOpts, moduleId
 
     @_runSandboxPlugins 'init', sb, (err) =>
       instance = new module.creator sb
       unless typeof instance.init is "function"
         return cb new Error "module has no 'init' method"
-      @_instances[instanceId] = instance
-      @_sandboxes[instanceId] = sb
+      @_instances[id] = instance
+      @_sandboxes[id] = sb
       cb null, instance, iOpts
 
   _runSandboxPlugins: (ev, sb, cb) ->

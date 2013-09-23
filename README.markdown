@@ -297,6 +297,13 @@ core.start(function(){
 });
 ```
 
+Moreover you can use a separate sandbox for each instance:
+
+```javascript
+var MySandbox = function(){/*...*/};
+core.start("module", { sandbox: MySandbox });
+```
+
 ## Stopping
 
 It's obvious:
@@ -651,6 +658,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 #### v0.4.1 (??-2013)
 
 - no more sandbox manipulation
+- added start option to use a separate sandbox
 - removed modules directory
   (building modules is your own business;
   above all they should depend on YOUR sandbox)
