@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.1 - 2013-09-23
+scaleapp - v0.4.1 - 2013-09-25
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -234,15 +234,12 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         }
         return _results1;
       } else {
-        if (typeof fn !== "function") {
-          return false;
-        }
         if (typeof channel !== "string") {
           return false;
         }
         subscription = {
           context: context,
-          callback: fn
+          callback: fn || function() {}
         };
         return {
           attach: function() {
@@ -251,6 +248,10 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           },
           detach: function() {
             Mediator._rm(that, channel, subscription.callback);
+            return this;
+          },
+          pipe: function() {
+            that.pipe.apply(that, [channel].concat(__slice.call(arguments)));
             return this;
           }
         }.attach();
@@ -355,6 +356,23 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           }
         }
       }
+      return this;
+    };
+
+    Mediator.prototype.pipe = function(src, target, mediator) {
+      if (target instanceof Mediator) {
+        mediator = target;
+        target = src;
+      }
+      if (mediator == null) {
+        return this.pipe(src, target, this);
+      }
+      if (mediator === this && src === target) {
+        return this;
+      }
+      this.on(src, function() {
+        return mediator.emit.apply(mediator, [target].concat(__slice.call(arguments)));
+      });
       return this;
     };
 

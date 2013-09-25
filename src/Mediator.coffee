@@ -23,12 +23,12 @@ class Mediator
     else if typeof channel is "object"
       @on k,v,fn for k,v of channel
     else
-      return false unless typeof fn      is "function"
       return false unless typeof channel is "string"
-      subscription = { context: context, callback: fn }
+      subscription = { context: context, callback: fn or -> }
       (
         attach: -> that.channels[channel].push subscription; @
         detach: -> Mediator._rm that, channel, subscription.callback; @
+        pipe:   -> that.pipe.apply that, [channel, arguments...]; @
       ).attach()
 
   # ## Unsubscribe from a topic
@@ -85,6 +85,20 @@ class Mediator
   installTo: (obj) ->
     if typeof obj is "object"
       obj[k] ?= v for k,v of @
+    @
+
+  pipe: (src, target, mediator) ->
+
+    if target instanceof Mediator
+      mediator = target; target = src
+
+    return @pipe src, target, @ unless mediator?
+
+    # prevent cycles
+    return @ if mediator is @ and src is target
+
+    @on src, -> mediator.emit.apply mediator, [target, arguments...]
+
     @
 
   @_rm: (o, ch, cb, ctxt) ->

@@ -15,7 +15,7 @@ describe "The codebase", ->
     maxSLOC =
       "src/Core.coffee":      160
       "src/Util.coffee":      80
-      "src/Mediator.coffee":  70
+      "src/Mediator.coffee":  80
       "src/scaleApp.coffee":  20
 
     sum = 0

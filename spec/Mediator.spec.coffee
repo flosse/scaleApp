@@ -32,8 +32,8 @@ describe "Mediator", ->
       (expect sub.detach).to.be.a "function"
       (expect sub).not.to.equal sub2
 
-    it "returns false if callback is not a function", ->
-      (expect @paul.on "a", 345).to.equal false
+    it "returns the subscription even if the callback isn't a function", ->
+      (expect @paul.on "a", 345).to.be.an "object"
 
     it "has an alias method named 'on'", ->
       (expect @paul.on).to.equal @paul.on
@@ -390,3 +390,63 @@ describe "Mediator", ->
         (expect @cb1).to.have.been.called
         (expect @cb2).to.have.been.called
         (expect @cb3).not.to.have.been.called
+
+    describe "pipe", ->
+
+      beforeEach ->
+        @a = new @Mediator
+        @b = new @Mediator
+
+      it "is a method", ->
+        @x = new @Mediator
+        (expect @x.pipe).to.be.a.function
+
+      it "is a subscription method", ->
+        @x = new @Mediator
+        sub =  @x.on "foo", ->
+        (expect sub.pipe).to.be.a.function
+        (expect sub.pipe()).to.eql sub
+
+      it "forwards messages of subscription to another mediator", (done) ->
+        @a.on("foo").pipe(@b)
+        @b.on "foo", (ev) ->
+          (expect ev).to.eql 33
+          done()
+
+        @a.emit "foo", 33
+
+      it "forwards messages of a channel to another one", (done) ->
+        @a.pipe("foo", "bar")
+        @a.on "bar", (ev) ->
+          (expect ev).to.eql "data"
+          done()
+
+        @a.emit "foo", "data"
+
+      it "forwards messages of a channel to another mediator", (done) ->
+        @a.pipe("foo",@b)
+        @b.on "foo", (ev) ->
+          (expect ev).to.eql 77
+          done()
+
+        @a.emit "foo", 77
+
+      it "ignores method calls with no argument", ->
+        (expect @a.pipe()).to.eql @a
+        sub = @a.on "baz"
+        (expect sub).to.eql sub.pipe()
+
+      it "forwards messages of a channel to another channel of another mediator", (done) ->
+        @a.on("bar").pipe("baz",@b)
+        @b.on "baz", (d) ->
+          (expect d).to.eql -3
+          done()
+        @a.emit "bar", -3
+
+      it "forwards messages of a subscription to another channel", (done) ->
+        @a.on("x").pipe("y")
+        @a.on "y", (ev) ->
+          (expect ev).to.eql "yeah!"
+          done()
+
+        @a.emit "x", "yeah!"
