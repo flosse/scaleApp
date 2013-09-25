@@ -655,7 +655,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
-#### v0.4.1 (??-2013)
+#### v0.4.1 (09-2013)
 
 - no more sandbox manipulation
 - added start option to use a separate sandbox

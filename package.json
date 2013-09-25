@@ -2,7 +2,7 @@
   "name":         "scaleapp",
   "version":      "0.4.1",
   "main":         "./dist/scaleApp",
-  "description":  "scaleApp is a JavaScript framework for scalable One-Page-Applications",
+  "description":  "scaleApp is a JavaScript framework for scalable and maintainable One-Page-Applications",
   "author":       "Markus Kohlhase <mail@markus-kohlhase.de>",
   "homepage":     "http://www.scaleapp.org",
   "bugs":         "http://github.com/flosse/scaleApp/issues",
@@ -26,6 +26,7 @@
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-coffeelint":     "~0.0.7",
+    "beautiful-docs":       "~1.0.3",
     "sloc":                 "~0.0.4"
   },
   "repository":
@@ -41,5 +42,8 @@
       "web":    "http://github.com/flosse/"
     }
   ],
-  "scripts": { "test": "./node_modules/grunt-cli/bin/grunt && ./node_modules/mocha/bin/mocha && ./node_modules/karma/bin/karma start" }
+  "scripts": {
+    "test":   "./node_modules/grunt-cli/bin/grunt && ./node_modules/mocha/bin/mocha && ./node_modules/karma/bin/karma start",
+    "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs"
+  }
 }
