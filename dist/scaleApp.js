@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.1 - 2013-09-23
+scaleapp - v0.4.1 - 2013-10-03
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -29,7 +29,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   runParallel = function(tasks, cb, force) {
-    var count, errors, i, results, t, _i, _len, _results;
+    var count, errors, hasErr, i, results, t, _i, _len, _results;
     if (tasks == null) {
       tasks = [];
     }
@@ -42,16 +42,18 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return cb(null, results);
     }
     errors = [];
+    hasErr = false;
     _results = [];
     for (i = _i = 0, _len = tasks.length; _i < _len; i = ++_i) {
       t = tasks[i];
       _results.push((function(t, i) {
         var e, next;
         next = function() {
-          var e, err, res;
+          var err, res;
           err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           if (err) {
             errors[i] = err;
+            hasErr = true;
             if (!force) {
               return cb(errors, results);
             }
@@ -59,17 +61,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
             results[i] = res.length < 2 ? res[0] : res;
           }
           if (--count <= 0) {
-            if (((function() {
-              var _j, _len1, _results1;
-              _results1 = [];
-              for (_j = 0, _len1 = errors.length; _j < _len1; _j++) {
-                e = errors[_j];
-                if (e != null) {
-                  _results1.push(e);
-                }
-              }
-              return _results1;
-            })()).length > 0) {
+            if (hasErr) {
               return cb(errors, results);
             } else {
               return cb(null, results);
@@ -88,7 +80,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   runSeries = function(tasks, cb, force) {
-    var count, errors, i, next, results;
+    var count, errors, hasErr, i, next, results;
     if (tasks == null) {
       tasks = [];
     }
@@ -102,11 +94,13 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return cb(null, results);
     }
     errors = [];
+    hasErr = false;
     next = function() {
       var e, err, res;
       err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (err) {
         errors[i] = err;
+        hasErr = true;
         if (!force) {
           return cb(errors, results);
         }
@@ -116,17 +110,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         }
       }
       if (++i >= count) {
-        if (((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = errors.length; _i < _len; _i++) {
-            e = errors[_i];
-            if (e != null) {
-              _results.push(e);
-            }
-          }
-          return _results;
-        })()).length > 0) {
+        if (hasErr) {
           return cb(errors, results);
         } else {
           return cb(null, results);
