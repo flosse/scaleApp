@@ -21,7 +21,7 @@ cfg.set({
   ],
 
   // possible values: 'dots', 'progress', 'junit'
-  reporters: ['progress'],
+  reporters: ['progress', 'coverage'],
 
   // web server port
   port: 9876,
@@ -55,5 +55,11 @@ cfg.set({
   // Continuous Integration mode
   // if true, it capture browsers, run tests and exit
   singleRun: true,
+
+  preprocessors: {
+    'dist/scaleApp.js': ['coverage'],
+    'spec/**/*.coffee':  ['coffee'],
+    'plugins/**/*.coffee':  ['coffee']
+  }
 
 });};

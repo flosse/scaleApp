@@ -16,6 +16,7 @@
     "phantomjs":            "~1.9.2",
     "karma":                "~0.10.2",
     "karma-mocha":          "~0.1.0",
+    "karma-coverage":       "~0.1.0",
     "sinon":                "~1.7.3",
     "sinon-chai":           "~2.4.0",
     "coffee-script":        "~1.6.3",
