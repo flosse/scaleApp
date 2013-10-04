@@ -28,6 +28,8 @@
     "grunt-contrib-concat": "~0.3.0",
     "grunt-coffeelint":     "~0.0.7",
     "beautiful-docs":       "~1.0.3",
+    "tape":                 "~1.1.1",
+    "coffeeify":            "~0.5.1",
     "sloc":                 "~0.0.4"
   },
   "repository":
@@ -46,5 +48,19 @@
   "scripts": {
     "test":   "./node_modules/grunt-cli/bin/grunt && ./node_modules/mocha/bin/mocha && ./node_modules/karma/bin/karma start",
     "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs"
+  },
+ "browserify": {
+    "transform": [ "coffeeify" ]
+  },
+  "testling": {
+    "files":[
+      "src/*.coffee",
+      "spec/*.coffee"
+    ],
+    "harness": "mocha",
+    "browsers": {
+      "firefox": ["24"],
+      "chrome":  ["20"]
+    }
   }
 }
