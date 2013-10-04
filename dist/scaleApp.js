@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.1 - 2013-10-03
+scaleapp - v0.4.1 - 2013-10-04
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -379,7 +379,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       this._instances = {};
       this._sandboxes = {};
       this._running = {};
-      this._mediator = new Mediator;
+      this._mediator = new Mediator(this);
       this.Mediator = Mediator;
       if (this.Sandbox == null) {
         this.Sandbox = function(core, instanceId, options, moduleId) {
@@ -690,18 +690,6 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       }).call(this);
       util.runSeries(tasks, cb, true);
       return this;
-    };
-
-    Core.prototype.on = function() {
-      return this._mediator.on.apply(this._mediator, arguments);
-    };
-
-    Core.prototype.off = function() {
-      return this._mediator.off.apply(this._mediator, arguments);
-    };
-
-    Core.prototype.emit = function() {
-      return this._mediator.emit.apply(this._mediator, arguments);
     };
 
     return Core;

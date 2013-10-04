@@ -12,7 +12,7 @@ class Core
     @_instances    = {}
     @_sandboxes    = {}
     @_running      = {}
-    @_mediator     = new Mediator
+    @_mediator     = new Mediator @
 
     # define public variables
 
@@ -207,7 +207,3 @@ class Core
           next()
     util.runSeries tasks, cb, true
     @
-
-  on:   -> @_mediator.on.apply   @_mediator, arguments
-  off:  -> @_mediator.off.apply  @_mediator, arguments
-  emit: -> @_mediator.emit.apply @_mediator, arguments
