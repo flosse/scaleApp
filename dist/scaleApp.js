@@ -400,24 +400,24 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       enable: function() {}
     };
 
-    Core.prototype.register = function(moduleId, creator, opt) {
+    Core.prototype.register = function(id, creator, options) {
       var err;
-      if (opt == null) {
-        opt = {};
+      if (options == null) {
+        options = {};
       }
-      err = checkType("string", moduleId, "module ID") || checkType("function", creator, "creator") || checkType("object", opt, "option parameter");
+      err = checkType("string", id, "module ID") || checkType("function", creator, "creator") || checkType("object", options, "option parameter");
       if (err) {
-        this.log.error("could not register module '" + moduleId + "': " + err);
+        this.log.error("could not register module '" + id + "': " + err);
         return this;
       }
-      if (this._modules[moduleId] != null) {
-        this.log.warn("module " + moduleId + " was already registered");
+      if (id in this._modules) {
+        this.log.warn("module " + id + " was already registered");
         return this;
       }
-      this._modules[moduleId] = {
+      this._modules[id] = {
         creator: creator,
-        options: opt,
-        id: moduleId
+        options: options,
+        id: id
       };
       return this;
     };

@@ -30,39 +30,29 @@ class Core
     enable:->
 
   # register a module
-  register: (moduleId, creator, opt = {}) ->
+  register: (id, creator, options = {}) ->
     err =
-      checkType("string",   moduleId, "module ID")  or
+      checkType("string",   id,       "module ID")  or
       checkType("function", creator,  "creator")    or
-      checkType("object",   opt,      "option parameter")
+      checkType("object",   options,  "option parameter")
     if err
-      @log.error "could not register module '#{moduleId}': #{err}"
+      @log.error "could not register module '#{id}': #{err}"
       return @
 
-    if @_modules[moduleId]?
-      @log.warn "module #{moduleId} was already registered"
+    if id of @_modules
+      @log.warn "module #{id} was already registered"
       return @
 
-    @_modules[moduleId] =
-      creator: creator
-      options: opt
-      id: moduleId
+    @_modules[id] = { creator, options, id }
     @
 
   # start a module
   start: (moduleId, opt={}, cb=->) ->
 
-    if arguments.length is 0
-      return @_startAll()
-
-    if moduleId instanceof Array
-      return @_startAll moduleId, opt
-
-    if typeof moduleId is "function"
-      return @_startAll null, moduleId
-
-    if typeof opt is "function"
-      cb = opt; opt = {}
+    if arguments.length is 0         then return @_startAll()
+    if moduleId instanceof Array     then return @_startAll moduleId, opt
+    if typeof moduleId is "function" then return @_startAll null, moduleId
+    if typeof opt is "function"      then cb = opt; opt = {}
 
     e =
       checkType("string", moduleId, "module ID")    or
