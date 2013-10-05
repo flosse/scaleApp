@@ -1,31 +1,19 @@
 /*!
-scaleapp - v0.4.1 - 2013-10-04
+scaleapp - v0.4.1 - 2013-10-05
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
 (function() {
-  var Core, Mediator, api, checkType, doForAll, getArgumentNames, runParallel, runSeries, runWaterfall, util,
+  var Core, Mediator, api, argRgx, checkType, doForAll, fnRgx, getArgumentNames, runParallel, runSeries, runWaterfall, util,
     __slice = [].slice;
 
+  fnRgx = /function[^(]*\(([^)]*)\)/;
+
+  argRgx = /([^\s,]+)/g;
+
   getArgumentNames = function(fn) {
-    var a, args, _i, _len, _results;
-    if (fn == null) {
-      fn = function() {};
-    }
-    args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
-    if ((args == null) || (args.length < 2)) {
-      return [];
-    }
-    args = args[1];
-    args = args.split(/\s*,\s*/);
-    _results = [];
-    for (_i = 0, _len = args.length; _i < _len; _i++) {
-      a = args[_i];
-      if (a.trim() !== '') {
-        _results.push(a);
-      }
-    }
-    return _results;
+    var _ref;
+    return ((fn != null ? (_ref = fn.toString().match(fnRgx)) != null ? _ref[1] : void 0 : void 0) || '').match(argRgx) || [];
   };
 
   runParallel = function(tasks, cb, force) {

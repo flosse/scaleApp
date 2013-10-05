@@ -1,15 +1,16 @@
-getArgumentNames = (fn=->) ->
-  args = fn.toString().match ///
+fnRgx =
+  ///
     function    # start with 'function'
     [^(]*       # any character but not '('
     \(          # open bracket = '(' character
       ([^)]*)   # any character but not ')'
     \)          # close bracket = ')' character
   ///
-  return [] if not args? or (args.length < 2)
-  args = args[1]
-  args = args.split /\s*,\s*/
-  (a for a in args when a.trim() isnt '')
+
+argRgx = /([^\s,]+)/g
+
+getArgumentNames = (fn) ->
+  (fn?.toString().match(fnRgx)?[1] or '').match(argRgx) or []
 
 # run asynchronous tasks in parallel
 runParallel = (tasks=[], cb=(->), force) ->
