@@ -54,8 +54,8 @@
   },
   "testling": {
     "files":[
-      "src/*.coffee",
-      "spec/*.coffee"
+      "src/*.js",
+      "spec/*.js"
     ],
     "harness": "mocha",
     "browsers": {
