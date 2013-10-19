@@ -1,5 +1,6 @@
 if module?.exports?
   require?("./nodeSetup")()
+  pkg = require "../package.json"
 else if window?
   window.expect = window.chai.expect
 
@@ -17,6 +18,8 @@ describe "scaleApp", ->
 
   it "has a VERSION property", ->
     (expect @scaleApp.VERSION).to.be.a "string"
+    if pkg?.version
+      (expect @scaleApp.VERSION).to.equal pkg.version
 
   it "has a reference to the Mediator class", ->
     (expect @scaleApp.Mediator).to.be.a "function"

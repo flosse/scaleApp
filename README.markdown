@@ -87,13 +87,13 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- [scaleApp 0.4.1.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.1)
-- [scaleApp 0.4.1.zip](https://github.com/flosse/scaleApp/zipball/v0.4.1)
+- [scaleApp 0.4.2.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.2)
+- [scaleApp 0.4.2.zip](https://github.com/flosse/scaleApp/zipball/v0.4.2)
 
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.1/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.2/scaleapp.min.js" ></script>
 ```
 
 ## Old stable 0.3.x version
