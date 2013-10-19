@@ -153,18 +153,16 @@ class Core
 
       @_mediator.off instance
       @_runSandboxPlugins 'destroy', @_sandboxes[id], (err) =>
-
         # if the module wants destroy in an asynchronous way
         if util.hasArgument instance.destroy
-          # then define a callback
-          instance.destroy (err) ->
-            # rereference if something went wrong
-            @_instances[id] = instance if err
-            cb err
+          instance.destroy (err2) =>
+            delete @_running[id]
+            cb err or err2
         else
           # else call the callback directly after stopping
           instance.destroy?()
-          cb()
+          delete @_running[id]
+          cb err
     @
 
   # register a plugin

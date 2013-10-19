@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.1 - 2013-10-05
+scaleapp - v0.4.1 - 2013-10-19
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -600,17 +600,16 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         this._mediator.off(instance);
         this._runSandboxPlugins('destroy', this._sandboxes[id], function(err) {
           if (util.hasArgument(instance.destroy)) {
-            return instance.destroy(function(err) {
-              if (err) {
-                this._instances[id] = instance;
-              }
-              return cb(err);
+            return instance.destroy(function(err2) {
+              delete _this._running[id];
+              return cb(err || err2);
             });
           } else {
             if (typeof instance.destroy === "function") {
               instance.destroy();
             }
-            return cb();
+            delete _this._running[id];
+            return cb(err);
           }
         });
       }
