@@ -15,7 +15,7 @@ define(function(){
       // creat log method
       var log = function(msg, channel){
         var li = document.createElement("li");
-        li.innerText = channel.split('/')[1] + ': ' + msg;
+        li.innerText = li.textContent = channel.split('/')[1] + ': ' + msg;
         container.appendChild(li);
       };
 
@@ -34,7 +34,7 @@ define(function(){
     var destroy = function(){
 
       // clean your container
-      container.innerText = '';
+      container.innerText = container.textContent = '';
     };
 
     // return public module API
