@@ -27,9 +27,10 @@
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-coffeelint":     "~0.0.7",
+    "uglify-js":            "~2.4.6",
     "beautiful-docs":       "~1.0.3",
     "coveralls":            "~2.5.0",
-    "istanbul":             "~0.1.45",
+    "istanbul":             "~0.1.46",
     "sloc":                 "~0.0.4"
   },
   "repository":
