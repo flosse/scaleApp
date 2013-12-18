@@ -22,3 +22,4 @@ describe "xmpp plugin", ->
     (expect @core.xmpp.off        ).to.be.a "function"
     (expect @core.xmpp.connection ).to.be.null
     (expect @core.xmpp.jid        ).to.equal ""
+    (expect @core.xmpp._mediator instanceof @core.Mediator ).to.equal true

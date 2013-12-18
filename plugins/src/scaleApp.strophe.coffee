@@ -256,12 +256,13 @@ plugin = (core) ->
 
   # public API
   core.xmpp =
-    jid:        ""
-    connection: null
-    login:      login
-    logout:     disconnect
-    on:  -> mediator.on.apply mediator, arguments
-    off: -> mediator.off.apply mediator, arguments
+    jid         : ""
+    connection  : null
+    login       : login
+    logout      : disconnect
+    on          : -> mediator.on.apply  mediator, arguments
+    off         : -> mediator.off.apply mediator, arguments
+    _mediator   : mediator
 
   null
 
