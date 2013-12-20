@@ -4,8 +4,8 @@ scaleApp is a tiny JavaScript framework for scalable and maintainable
 [One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
 The framework allows you to easily create complex web applications.
 
-[![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
-[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png)](https://gemnasium.com/flosse/scaleApp)
+[![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png?branch=master)](http://travis-ci.org/flosse/scaleApp)
+[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png?branch=master)](https://gemnasium.com/flosse/scaleApp)
 [![NPM version](https://badge.fury.io/js/scaleapp.png)](http://badge.fury.io/js/scaleapp)
 [![Coverage Status](https://coveralls.io/repos/flosse/scaleApp/badge.png?branch=master)](https://coveralls.io/r/flosse/scaleApp?branch=master)
 
