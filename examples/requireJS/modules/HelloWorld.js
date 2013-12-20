@@ -13,14 +13,14 @@ define(function(){
       container = document.getElementById(sandbox.instanceId);
 
       // say hello
-      container.innerText = "Hello World!";
+      container.innerText = container.textContent = "Hello World!";
     };
 
     // shutdown your module
     var destroy = function(){
 
       // clean your container
-      container.innerText = '';
+      container.innerText = container.textContent = '';
     };
 
     // return public module API

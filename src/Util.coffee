@@ -1,15 +1,16 @@
-getArgumentNames = (fn=->) ->
-  args = fn.toString().match ///
+fnRgx =
+  ///
     function    # start with 'function'
     [^(]*       # any character but not '('
     \(          # open bracket = '(' character
       ([^)]*)   # any character but not ')'
     \)          # close bracket = ')' character
   ///
-  return [] if not args? or (args.length < 2)
-  args = args[1]
-  args = args.split /\s*,\s*/
-  (a for a in args when a.trim() isnt '')
+
+argRgx = /([^\s,]+)/g
+
+getArgumentNames = (fn) ->
+  (fn?.toString().match(fnRgx)?[1] or '').match(argRgx) or []
 
 # run asynchronous tasks in parallel
 runParallel = (tasks=[], cb=(->), force) ->
@@ -18,17 +19,18 @@ runParallel = (tasks=[], cb=(->), force) ->
 
   return cb null, results if count is 0
 
-  errors  = []
+  errors  = []; hasErr = false
 
   for t,i in tasks then do (t,i) ->
     next = (err, res...) ->
       if err
         errors[i] = err
+        hasErr    = true
         return cb errors, results unless force
       else
         results[i] = if res.length < 2 then res[0] else res
       if --count <= 0
-        if (e for e in errors when e?).length > 0
+        if hasErr
           cb errors, results
         else
           cb null, results
@@ -44,16 +46,18 @@ runSeries = (tasks=[], cb=(->), force) ->
   results = []
   return cb null, results if count is 0
 
-  errors  = []
+  errors = []; hasErr = false
+
   next = (err, res...) ->
     if err
       errors[i] = err
+      hasErr    = true
       return cb errors, results unless force
     else
       if i > -1 # first run
         results[i] = if res.length < 2 then res[0] else res
     if ++i >= count
-      if (e for e in errors when e?).length > 0
+      if hasErr
         cb errors, results
       else
         cb null, results

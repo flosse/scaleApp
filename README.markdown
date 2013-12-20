@@ -7,6 +7,7 @@ The framework allows you to easily create complex web applications.
 [![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
 [![Dependency Status](https://gemnasium.com/flosse/scaleApp.png)](https://gemnasium.com/flosse/scaleApp)
 [![NPM version](https://badge.fury.io/js/scaleapp.png)](http://badge.fury.io/js/scaleapp)
+[![Coverage Status](https://coveralls.io/repos/flosse/scaleApp/badge.png?branch=master)](https://coveralls.io/r/flosse/scaleApp?branch=master)
 
 You can dynamically start and stop/destroy modules that acts as small parts of
 your whole application.
@@ -87,13 +88,13 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- [scaleApp 0.4.1.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.1)
-- [scaleApp 0.4.1.zip](https://github.com/flosse/scaleApp/zipball/v0.4.1)
+- [scaleApp 0.4.2.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.2)
+- [scaleApp 0.4.2.zip](https://github.com/flosse/scaleApp/zipball/v0.4.2)
 
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.1/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.2/scaleapp.min.js" ></script>
 ```
 
 ## Old stable 0.3.x version

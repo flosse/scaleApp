@@ -291,7 +291,11 @@ describe "scaleApp core", ->
     it "calls the callback afterwards", (done) ->
       (expect @core.register "valid", @validModule).to.equal @core
       (expect @core.start "valid").to.equal @core
-      (expect @core.stop "valid", done).to.equal @core
+      (expect @core.stop "valid", (err) =>
+        (expect err?).to.equal false
+        (expect @core._running["valid"]?).to.equal false
+        done()
+      ).to.equal @core
 
     it "supports synchronous stopping", ->
       mod = (sb) ->

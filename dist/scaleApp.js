@@ -1,35 +1,23 @@
 /*!
-scaleapp - v0.4.1 - 2013-09-25
+scaleapp - v0.4.2 - 2013-10-19
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
 (function() {
-  var Core, Mediator, api, checkType, doForAll, getArgumentNames, runParallel, runSeries, runWaterfall, util,
+  var Core, Mediator, api, argRgx, checkType, doForAll, fnRgx, getArgumentNames, runParallel, runSeries, runWaterfall, util,
     __slice = [].slice;
 
+  fnRgx = /function[^(]*\(([^)]*)\)/;
+
+  argRgx = /([^\s,]+)/g;
+
   getArgumentNames = function(fn) {
-    var a, args, _i, _len, _results;
-    if (fn == null) {
-      fn = function() {};
-    }
-    args = fn.toString().match(/function[^(]*\(([^)]*)\)/);
-    if ((args == null) || (args.length < 2)) {
-      return [];
-    }
-    args = args[1];
-    args = args.split(/\s*,\s*/);
-    _results = [];
-    for (_i = 0, _len = args.length; _i < _len; _i++) {
-      a = args[_i];
-      if (a.trim() !== '') {
-        _results.push(a);
-      }
-    }
-    return _results;
+    var _ref;
+    return ((fn != null ? (_ref = fn.toString().match(fnRgx)) != null ? _ref[1] : void 0 : void 0) || '').match(argRgx) || [];
   };
 
   runParallel = function(tasks, cb, force) {
-    var count, errors, i, results, t, _i, _len, _results;
+    var count, errors, hasErr, i, results, t, _i, _len, _results;
     if (tasks == null) {
       tasks = [];
     }
@@ -42,16 +30,18 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return cb(null, results);
     }
     errors = [];
+    hasErr = false;
     _results = [];
     for (i = _i = 0, _len = tasks.length; _i < _len; i = ++_i) {
       t = tasks[i];
       _results.push((function(t, i) {
         var e, next;
         next = function() {
-          var e, err, res;
+          var err, res;
           err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           if (err) {
             errors[i] = err;
+            hasErr = true;
             if (!force) {
               return cb(errors, results);
             }
@@ -59,17 +49,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
             results[i] = res.length < 2 ? res[0] : res;
           }
           if (--count <= 0) {
-            if (((function() {
-              var _j, _len1, _results1;
-              _results1 = [];
-              for (_j = 0, _len1 = errors.length; _j < _len1; _j++) {
-                e = errors[_j];
-                if (e != null) {
-                  _results1.push(e);
-                }
-              }
-              return _results1;
-            })()).length > 0) {
+            if (hasErr) {
               return cb(errors, results);
             } else {
               return cb(null, results);
@@ -88,7 +68,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
   };
 
   runSeries = function(tasks, cb, force) {
-    var count, errors, i, next, results;
+    var count, errors, hasErr, i, next, results;
     if (tasks == null) {
       tasks = [];
     }
@@ -102,11 +82,13 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return cb(null, results);
     }
     errors = [];
+    hasErr = false;
     next = function() {
       var e, err, res;
       err = arguments[0], res = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (err) {
         errors[i] = err;
+        hasErr = true;
         if (!force) {
           return cb(errors, results);
         }
@@ -116,17 +98,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         }
       }
       if (++i >= count) {
-        if (((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = errors.length; _i < _len; _i++) {
-            e = errors[_i];
-            if (e != null) {
-              _results.push(e);
-            }
-          }
-          return _results;
-        })()).length > 0) {
+        if (hasErr) {
           return cb(errors, results);
         } else {
           return cb(null, results);
@@ -413,7 +385,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       this._instances = {};
       this._sandboxes = {};
       this._running = {};
-      this._mediator = new Mediator;
+      this._mediator = new Mediator(this);
       this.Mediator = Mediator;
       if (this.Sandbox == null) {
         this.Sandbox = function(core, instanceId, options, moduleId) {
@@ -434,24 +406,24 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       enable: function() {}
     };
 
-    Core.prototype.register = function(moduleId, creator, opt) {
+    Core.prototype.register = function(id, creator, options) {
       var err;
-      if (opt == null) {
-        opt = {};
+      if (options == null) {
+        options = {};
       }
-      err = checkType("string", moduleId, "module ID") || checkType("function", creator, "creator") || checkType("object", opt, "option parameter");
+      err = checkType("string", id, "module ID") || checkType("function", creator, "creator") || checkType("object", options, "option parameter");
       if (err) {
-        this.log.error("could not register module '" + moduleId + "': " + err);
+        this.log.error("could not register module '" + id + "': " + err);
         return this;
       }
-      if (this._modules[moduleId] != null) {
-        this.log.warn("module " + moduleId + " was already registered");
+      if (id in this._modules) {
+        this.log.warn("module " + id + " was already registered");
         return this;
       }
-      this._modules[moduleId] = {
+      this._modules[id] = {
         creator: creator,
-        options: opt,
-        id: moduleId
+        options: options,
+        id: id
       };
       return this;
     };
@@ -646,17 +618,16 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
         this._mediator.off(instance);
         this._runSandboxPlugins('destroy', this._sandboxes[id], function(err) {
           if (util.hasArgument(instance.destroy)) {
-            return instance.destroy(function(err) {
-              if (err) {
-                this._instances[id] = instance;
-              }
-              return cb(err);
+            return instance.destroy(function(err2) {
+              delete _this._running[id];
+              return cb(err || err2);
             });
           } else {
             if (typeof instance.destroy === "function") {
               instance.destroy();
             }
-            return cb();
+            delete _this._running[id];
+            return cb(err);
           }
         });
       }
@@ -726,24 +697,12 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return this;
     };
 
-    Core.prototype.on = function() {
-      return this._mediator.on.apply(this._mediator, arguments);
-    };
-
-    Core.prototype.off = function() {
-      return this._mediator.off.apply(this._mediator, arguments);
-    };
-
-    Core.prototype.emit = function() {
-      return this._mediator.emit.apply(this._mediator, arguments);
-    };
-
     return Core;
 
   })();
 
   api = {
-    VERSION: "0.4.1",
+    VERSION: "0.4.2",
     util: util,
     Mediator: Mediator,
     Core: Core,

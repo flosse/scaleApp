@@ -26,8 +26,10 @@ define(['text!modules/ControlModuleTemplate.html'],function(template){
 
         // create otptions
         for(m in mods){
-          o = document.createElement("option");
-          o.innerText = mods[m].label;
+          var o = document.createElement("option");
+          var l = mods[m].label;
+          o.innerText   = l;
+          o.textContent = l;
           o.setAttribute('value', mods[m].name);
           selection.appendChild(o);
         }

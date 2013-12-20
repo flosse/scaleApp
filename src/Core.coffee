@@ -12,7 +12,7 @@ class Core
     @_instances    = {}
     @_sandboxes    = {}
     @_running      = {}
-    @_mediator     = new Mediator
+    @_mediator     = new Mediator @
 
     # define public variables
 
@@ -30,39 +30,29 @@ class Core
     enable:->
 
   # register a module
-  register: (moduleId, creator, opt = {}) ->
+  register: (id, creator, options = {}) ->
     err =
-      checkType("string",   moduleId, "module ID")  or
+      checkType("string",   id,       "module ID")  or
       checkType("function", creator,  "creator")    or
-      checkType("object",   opt,      "option parameter")
+      checkType("object",   options,  "option parameter")
     if err
-      @log.error "could not register module '#{moduleId}': #{err}"
+      @log.error "could not register module '#{id}': #{err}"
       return @
 
-    if @_modules[moduleId]?
-      @log.warn "module #{moduleId} was already registered"
+    if id of @_modules
+      @log.warn "module #{id} was already registered"
       return @
 
-    @_modules[moduleId] =
-      creator: creator
-      options: opt
-      id: moduleId
+    @_modules[id] = { creator, options, id }
     @
 
   # start a module
   start: (moduleId, opt={}, cb=->) ->
 
-    if arguments.length is 0
-      return @_startAll()
-
-    if moduleId instanceof Array
-      return @_startAll moduleId, opt
-
-    if typeof moduleId is "function"
-      return @_startAll null, moduleId
-
-    if typeof opt is "function"
-      cb = opt; opt = {}
+    if arguments.length is 0         then return @_startAll()
+    if moduleId instanceof Array     then return @_startAll moduleId, opt
+    if typeof moduleId is "function" then return @_startAll null, moduleId
+    if typeof opt is "function"      then cb = opt; opt = {}
 
     e =
       checkType("string", moduleId, "module ID")    or
@@ -163,18 +153,16 @@ class Core
 
       @_mediator.off instance
       @_runSandboxPlugins 'destroy', @_sandboxes[id], (err) =>
-
         # if the module wants destroy in an asynchronous way
         if util.hasArgument instance.destroy
-          # then define a callback
-          instance.destroy (err) ->
-            # rereference if something went wrong
-            @_instances[id] = instance if err
-            cb err
+          instance.destroy (err2) =>
+            delete @_running[id]
+            cb err or err2
         else
           # else call the callback directly after stopping
           instance.destroy?()
-          cb()
+          delete @_running[id]
+          cb err
     @
 
   # register a plugin
@@ -207,7 +195,3 @@ class Core
           next()
     util.runSeries tasks, cb, true
     @
-
-  on:   -> @_mediator.on.apply   @_mediator, arguments
-  off:  -> @_mediator.off.apply  @_mediator, arguments
-  emit: -> @_mediator.emit.apply @_mediator, arguments

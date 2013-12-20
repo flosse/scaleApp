@@ -5,6 +5,7 @@
 
 // set the require.js configuration
 require.config({
+  urlArgs: "bust=" + (new Date()).getTime(),
   paths:{
     scaleApp: '../../dist/scaleApp',
     plugins: '../../dist/plugins',
