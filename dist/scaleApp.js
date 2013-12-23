@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.2 - 2013-10-19
+scaleapp - v0.4.2 - 2013-12-23
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -317,13 +317,17 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       return this;
     };
 
-    Mediator.prototype.installTo = function(obj) {
+    Mediator.prototype.installTo = function(obj, force) {
       var k, v;
       if (typeof obj === "object") {
         for (k in this) {
           v = this[k];
-          if (obj[k] == null) {
+          if (force) {
             obj[k] = v;
+          } else {
+            if (obj[k] == null) {
+              obj[k] = v;
+            }
           }
         }
       }

@@ -633,7 +633,7 @@ var mediator = new scaleApp.Mediator(null, true);
 - `mediator.emit(channel, data, callback)`
 - `mediator.on(channel, callback, context)`
 - `mediator.off(channel, callback)`
-- `mediator.installTo(context)`
+- `mediator.installTo(context, force)`
 
 ```javascript
 // subscribe
@@ -641,6 +641,20 @@ var subscription = mediator.on(channel, callback, context);
 ```
 - `subscription.detach` - stop listening
 - `subscription.attach` - resume listening
+
+```javascript
+var fn  = function(){ /*...*/ };
+var obj = { emit: fn };
+
+// the installTo method prevents existing properties by default
+core._mediator.installTo(obj);
+obj.emit === fn // true
+
+// set the second paramater to 'true'
+// to force the mediator to override existing propeties
+core._mediator.installTo(obj, true);
+obj.emit === core._mediator.emit // true
+```
 
 ## Sandbox
 

@@ -82,9 +82,11 @@ class Mediator
     @
 
   # ## Install Pub/Sub functions to an object
-  installTo: (obj) ->
+  installTo: (obj,force) ->
     if typeof obj is "object"
-      obj[k] ?= v for k,v of @
+      for k,v of @
+        if force then obj[k] = v
+        else obj[k] ?= v
     @
 
   @_rm: (o, ch, cb, ctxt) ->

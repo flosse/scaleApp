@@ -300,6 +300,14 @@ describe "Mediator", ->
       (expect @paul.installTo {}).to.equal @paul
       (expect (new @Mediator).installTo {}).not.to.equal @paul
 
+    it "overrides methods if 'force' is set", ->
+      m = new @Mediator
+      o = { on: "foo" }
+      m.installTo o
+      (expect o.on).to.equal "foo"
+      m.installTo o, true
+      (expect o.on).to.equal m.on
+
   describe "Pub/Sub", ->
 
     beforeEach ->
