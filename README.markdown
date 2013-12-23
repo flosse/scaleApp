@@ -647,13 +647,13 @@ var fn  = function(){ /*...*/ };
 var obj = { emit: fn };
 
 // the installTo method prevents existing properties by default
-core._mediator.installTo(obj);
+mediator.installTo(obj);
 obj.emit === fn // true
 
 // set the second paramater to 'true'
 // to force the mediator to override existing propeties
-core._mediator.installTo(obj, true);
-obj.emit === core._mediator.emit // true
+mediator.installTo(obj, true);
+obj.emit === mediator.emit // true
 ```
 
 ## Sandbox
@@ -669,6 +669,22 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 - `sandbox.off` is `mediator.off`
 
 # Changelog
+
+#### v0.4.3 (??)
+
+- added option to `Mediator.installTo` to force overriding existing properties
+- added option `useGlobalMediator` to the submodule plugin
+- added option `mediator` to the submodule plugin
+- added submodule example
+- fixed requireJS example
+- fixed grunt task for custom builds
+- expose the mediator of the strophe plugin
+
+#### v0.4.2 (10-2013)
+
+- fixed restarting modules
+- speed up argument extraction
+- little refactoring
 
 #### v0.4.1 (09-2013)
 
