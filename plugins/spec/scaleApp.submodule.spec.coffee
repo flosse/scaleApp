@@ -123,6 +123,27 @@ describe "submodule plugin", ->
     @core.permission.add "parent", "on", "to parent"
     @core.start "parent"
 
+  it "provides an option to use the custom mediator", (done) ->
+
+    mySubModule = (sb) -> init: -> sb.emit "x", "z"
+
+    mediator = new @scaleApp.Mediator
+
+    mediator.on "x", (y) ->
+      (expect y).to.eql "z"
+      done()
+
+    myModule = (sb) ->
+      init: ->
+        sb.sub.register "sub", mySubModule
+        sb.sub.start "sub"
+    core = new @scaleApp.Core
+    core
+      .use(@plugin, {mediator: mediator})
+      .boot()
+      .register("parent", myModule)
+      .start "parent"
+
   it "provides an option to use the global mediator", (done) ->
 
     mySubModule = (sb) -> init: -> sb.emit "event", "hello"

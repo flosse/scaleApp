@@ -22,6 +22,9 @@ plugin = (core, options={}) ->
     if options.useGlobalMediator
       core._mediator.installTo subCore._mediator, true
 
+    else if options.mediator?
+      options.mediator?.installTo? subCore._mediator, true
+
     # make sure that plugins do not modify the original
     # Sandbox class.
     subCore.Sandbox = class SubSandbox extends core.Sandbox
