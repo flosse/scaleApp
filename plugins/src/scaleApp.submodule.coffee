@@ -19,6 +19,8 @@ plugin = (core, options={}) ->
   init: (sb, opt, done) ->
 
     sb._subCore = subCore = new core.constructor
+    if options.useGlobalMediator
+      core._mediator.installTo subCore._mediator, true
 
     # make sure that plugins do not modify the original
     # Sandbox class.

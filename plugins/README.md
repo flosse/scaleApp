@@ -245,8 +245,9 @@ core.register("parent", function(sandbox){
 
 // register the submodule plugin
 core.use(scaleApp.plugins.submodule, {
-  inherit: true,     // use all plugins from the parent's Core
-  use: [somePlugins] // use some additional plugins
+  inherit: true,          // use all plugins from the parent's Core
+  use: [somePlugins],     // use some additional plugins
+  useGlobalMediator: true // emit and receive all events from the parent's Core
 });
 
 core.start("parent");

@@ -123,6 +123,24 @@ describe "submodule plugin", ->
     @core.permission.add "parent", "on", "to parent"
     @core.start "parent"
 
+  it "provides an option to use the global mediator", (done) ->
+
+    mySubModule = (sb) -> init: -> sb.emit "event", "hello"
+
+    myModule = (sb) ->
+      init: ->
+        sb.on "event", (data) ->
+          (expect data).to.eql "hello"
+          done()
+        sb.sub.register "sub", mySubModule
+        sb.sub.start "sub"
+    core = new @scaleApp.Core
+    core
+      .use(@plugin, {useGlobalMediator: yes})
+      .boot()
+      .register("parent", myModule)
+      .start "parent"
+
   it "provides an option for plugin inheritance", (done) ->
 
     foobarPlugin = (core) ->
