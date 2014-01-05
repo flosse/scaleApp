@@ -670,7 +670,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
-#### v0.4.3 (??)
+#### v0.4.3 (??-2014)
 
 - added option to `Mediator.installTo` to force overriding existing properties
 - added option `useGlobalMediator` to the submodule plugin
@@ -678,7 +678,9 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 - added submodule example
 - fixed requireJS example
 - fixed grunt task for custom builds
-- expose the mediator of the strophe plugin
+- strophe plugin
+    - expose the mediator
+    - fixed error emitting on failed connection
 
 #### v0.4.2 (10-2013)
 
