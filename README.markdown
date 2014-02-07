@@ -126,7 +126,7 @@ Link `scaleApp.min.js` in your HTML file:
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.0/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.3/scaleapp.min.js" ></script>
 ```
 
 If you're going to use it with node:
