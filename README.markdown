@@ -56,7 +56,7 @@ For example you could extend the core with basic functionalities
 ## Features
 
 + loose coupling of modules
-+ small (about 300 sloc / 9k min / 3.5k gz)
++ small (about 300 sloc / 8,7k min / 3.3k gz)
 + no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules

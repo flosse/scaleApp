@@ -11,27 +11,27 @@
   "engine":       "node",
   "devDependencies":
   {
-    "chai":                 "~1.8.1",
-    "mocha":                "~1.14.0",
-    "phantomjs":            "~1.9.2",
-    "karma":                "~0.10.5",
-    "karma-mocha":          "~0.1.0",
-    "karma-coverage":       "~0.1.2",
-    "sinon":                "~1.7.3",
-    "sinon-chai":           "~2.4.0",
-    "coffee-script":        "~1.6.3",
+    "chai":                 "~1.9.0",
+    "mocha":                "~1.17.1",
+    "phantomjs":            "~1.9.7",
+    "karma":                "~0.10.9",
+    "karma-mocha":          "~0.1.1",
+    "karma-coverage":       "~0.1.5",
+    "sinon":                "~1.8.1",
+    "sinon-chai":           "~2.5.0",
+    "coffee-script":        "~1.7.1",
     "grunt":                "~0.4.2",
-    "grunt-cli":            "~0.1.11",
-    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-cli":            "~0.1.13",
+    "grunt-contrib-coffee": "~0.9.0",
     "grunt-contrib-watch":  "~0.5.3",
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-contrib-concat": "~0.3.0",
-    "grunt-coffeelint":     "~0.0.7",
-    "uglify-js":            "~2.4.6",
+    "grunt-coffeelint":     "~0.0.8",
+    "uglify-js":            "~2.4.12",
     "beautiful-docs":       "~1.0.3",
-    "coveralls":            "~2.5.0",
-    "istanbul":             "~0.1.46",
-    "sloc":                 "~0.0.4"
+    "coveralls":            "~2.7.1",
+    "istanbul":             "~0.2.4",
+    "sloc":                 "~0.0.6"
   },
   "repository":
   {
@@ -49,6 +49,6 @@
   "scripts": {
     "test":   "./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
     "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs",
-    "coveralls": "istanbul cover ./node_modules/.bin/_mocha --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "istanbul cover ./node_modules/.bin/mocha --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   }
 }

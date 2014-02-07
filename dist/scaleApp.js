@@ -1,7 +1,7 @@
 /*!
-scaleapp - v0.4.2 - 2013-12-23
+scaleapp - v0.4.2 - 2014-02-07
 This program is distributed under the terms of the MIT license.
-Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 */
 (function() {
   var Core, Mediator, api, argRgx, checkType, doForAll, fnRgx, getArgumentNames, runParallel, runSeries, runWaterfall, util,
@@ -415,8 +415,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.start = function(moduleId, opt, cb) {
-      var e, id, initInst,
-        _this = this;
+      var e, id, initInst;
       if (opt == null) {
         opt = {};
       }
@@ -444,34 +443,38 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       if (this._running[id] === true) {
         return this._startFail(new Error("module was already started"), cb);
       }
-      initInst = function(err, instance, opt) {
-        if (err) {
-          return _this._startFail(err, cb);
-        }
-        try {
-          if (util.hasArgument(instance.init, 2)) {
-            return instance.init(opt, function(err) {
-              if (!err) {
-                _this._running[id] = true;
-              }
-              return cb(err);
-            });
-          } else {
-            instance.init(opt);
-            _this._running[id] = true;
-            return cb();
+      initInst = (function(_this) {
+        return function(err, instance, opt) {
+          if (err) {
+            return _this._startFail(err, cb);
           }
-        } catch (_error) {
-          e = _error;
-          return _this._startFail(e, cb);
-        }
-      };
-      return this.boot(function(err) {
-        if (err) {
-          return _this._startFail(err, cb);
-        }
-        return _this._createInstance(moduleId, opt, initInst);
-      });
+          try {
+            if (util.hasArgument(instance.init, 2)) {
+              return instance.init(opt, function(err) {
+                if (!err) {
+                  _this._running[id] = true;
+                }
+                return cb(err);
+              });
+            } else {
+              instance.init(opt);
+              _this._running[id] = true;
+              return cb();
+            }
+          } catch (_error) {
+            e = _error;
+            return _this._startFail(e, cb);
+          }
+        };
+      })(this);
+      return this.boot((function(_this) {
+        return function(err) {
+          if (err) {
+            return _this._startFail(err, cb);
+          }
+          return _this._createInstance(moduleId, opt, initInst);
+        };
+      })(this));
     };
 
     Core.prototype._startFail = function(e, cb) {
@@ -481,8 +484,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype._createInstance = function(moduleId, o, cb) {
-      var Sandbox, iOpts, id, key, module, obj, opt, sb, val, _i, _len, _ref,
-        _this = this;
+      var Sandbox, iOpts, id, key, module, obj, opt, sb, val, _i, _len, _ref;
       id = o.instanceId || moduleId;
       opt = o.options;
       module = this._modules[moduleId];
@@ -504,16 +506,18 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
       }
       Sandbox = typeof o.sandbox === 'function' ? o.sandbox : this.Sandbox;
       sb = new Sandbox(this, id, iOpts, moduleId);
-      return this._runSandboxPlugins('init', sb, function(err) {
-        var instance;
-        instance = new module.creator(sb);
-        if (typeof instance.init !== "function") {
-          return cb(new Error("module has no 'init' method"));
-        }
-        _this._instances[id] = instance;
-        _this._sandboxes[id] = sb;
-        return cb(null, instance, iOpts);
-      });
+      return this._runSandboxPlugins('init', sb, (function(_this) {
+        return function(err) {
+          var instance;
+          instance = new module.creator(sb);
+          if (typeof instance.init !== "function") {
+            return cb(new Error("module has no 'init' method"));
+          }
+          _this._instances[id] = instance;
+          _this._sandboxes[id] = sb;
+          return cb(null, instance, iOpts);
+        };
+      })(this));
     };
 
     Core.prototype._runSandboxPlugins = function(ev, sb, cb) {
@@ -545,8 +549,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype._startAll = function(mods, cb) {
-      var done, m, startAction,
-        _this = this;
+      var done, m, startAction;
       if (mods == null) {
         mods = (function() {
           var _results;
@@ -557,9 +560,11 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
           return _results;
         }).call(this);
       }
-      startAction = function(m, next) {
-        return _this.start(m, _this._modules[m].options, next);
-      };
+      startAction = (function(_this) {
+        return function(m, next) {
+          return _this.start(m, _this._modules[m].options, next);
+        };
+      })(this);
       done = function(err) {
         var e, i, mdls, x;
         if ((err != null ? err.length : void 0) > 0) {
@@ -583,8 +588,7 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Core.prototype.stop = function(id, cb) {
-      var instance, x,
-        _this = this;
+      var instance, x;
       if (cb == null) {
         cb = function() {};
       }
@@ -596,26 +600,30 @@ Copyright (c) 2011-2013 Markus Kohlhase <mail@markus-kohlhase.de>
             _results.push(x);
           }
           return _results;
-        }).call(this), (function() {
-          return _this.stop.apply(_this, arguments);
-        }), id, true);
+        }).call(this), ((function(_this) {
+          return function() {
+            return _this.stop.apply(_this, arguments);
+          };
+        })(this)), id, true);
       } else if (instance = this._instances[id]) {
         delete this._instances[id];
         this._mediator.off(instance);
-        this._runSandboxPlugins('destroy', this._sandboxes[id], function(err) {
-          if (util.hasArgument(instance.destroy)) {
-            return instance.destroy(function(err2) {
+        this._runSandboxPlugins('destroy', this._sandboxes[id], (function(_this) {
+          return function(err) {
+            if (util.hasArgument(instance.destroy)) {
+              return instance.destroy(function(err2) {
+                delete _this._running[id];
+                return cb(err || err2);
+              });
+            } else {
+              if (typeof instance.destroy === "function") {
+                instance.destroy();
+              }
               delete _this._running[id];
-              return cb(err || err2);
-            });
-          } else {
-            if (typeof instance.destroy === "function") {
-              instance.destroy();
+              return cb(err);
             }
-            delete _this._running[id];
-            return cb(err);
-          }
-        });
+          };
+        })(this));
       }
       return this;
     };
