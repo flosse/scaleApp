@@ -88,13 +88,13 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- [scaleApp 0.4.2.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.2)
-- [scaleApp 0.4.2.zip](https://github.com/flosse/scaleApp/zipball/v0.4.2)
+- [scaleApp 0.4.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.3)
+- [scaleApp 0.4.3.zip](https://github.com/flosse/scaleApp/zipball/v0.4.3)
 
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.2/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.3/scaleapp.min.js" ></script>
 ```
 
 ## Old stable 0.3.x version
@@ -670,7 +670,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
-#### v0.4.3 (??-2014)
+#### v0.4.3 (02-2014)
 
 - added option to `Mediator.installTo` to force overriding existing properties
 - added option `useGlobalMediator` to the submodule plugin
@@ -681,6 +681,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 - strophe plugin
     - expose the mediator
     - fixed error emitting on failed connection
+- compile with coffee-script 1.7.1
 
 #### v0.4.2 (10-2013)
 
