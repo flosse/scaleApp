@@ -83,12 +83,8 @@ var parentMod = function(sb){
 var core = new sa.Core();
 
 core
-  .use(i18n)
+  .use(i18n, { global: localization })
   .use(submodule, { inherit: true, useGlobalMediator: true })
   .register("parent", parentMod)
-  .boot()
-  .i18n.setGlobal(localization);
-
-core
   .start()
   .stop();

@@ -670,6 +670,11 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
+#### v0.x.x
+
+- fixed i18n plugin (not it works with the submodule plugin and a global dict)
+- added i18n plugin option `global`
+
 #### v0.4.3 (02-2014)
 
 - added option to `Mediator.installTo` to force overriding existing properties

@@ -45,6 +45,12 @@ core.i18n.setLanguage( "de" );
 You can also set a global i18n object which can be used by all modules:
 
 ```javascript
+// pass it as a plugin option
+core.use(scaleApp.plugins.i18n, {
+  global: myGlobalObj
+});
+
+// or use the 'setGlobal' method
 core.i18n.setGlobal( myGlobalObj );
 ```
 

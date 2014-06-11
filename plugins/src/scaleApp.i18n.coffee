@@ -1,4 +1,4 @@
-plugin = (core) ->
+plugin = (core, options={}) ->
 
   hasParent = -> core._parentCore?.i18n
 
@@ -25,7 +25,7 @@ plugin = (core) ->
 
   mediator = new core.Mediator
   lang     = getBrowserLanguage()
-  global   = {}
+  global   = options.global or {}
 
   core.getBrowserLanguage = getBrowserLanguage
   core.baseLanguage = baseLanguage
