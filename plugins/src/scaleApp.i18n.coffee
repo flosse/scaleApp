@@ -1,5 +1,7 @@
 plugin = (core) ->
 
+  hasParent = -> core._parentCore?.i18n
+
   baseLanguage = "en"
 
   getBrowserLanguage = ->
@@ -41,11 +43,18 @@ plugin = (core) ->
 
   setGlobal = (obj) ->
     if typeof obj is "object"
-      global = obj
+      if (p = hasParent())?
+        p.setGlobal obj
+      else
+        global = obj
       true
     else false
 
-  _ = (text, o) -> get text, o, lang, global
+  _ = (text, o) ->
+    if (p = hasParent())?
+      p._ text, o
+    else
+      get text, o, lang, global
 
   core.i18n =
     setLanguage: setLanguage

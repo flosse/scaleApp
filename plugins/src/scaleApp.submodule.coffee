@@ -19,6 +19,10 @@ plugin = (core, options={}) ->
   init: (sb, opt, done) ->
 
     sb._subCore = subCore = new core.constructor
+
+    # hold a reference to the parents core
+    subCore._parentCore = core
+
     if options.useGlobalMediator
       core._mediator.installTo subCore._mediator, true
 
