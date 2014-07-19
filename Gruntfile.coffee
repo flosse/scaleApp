@@ -10,7 +10,7 @@ banner =
   """
   /*!
   <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today(\"yyyy-mm-dd\") %>
-  This program is distributed under the terms of the <%= pkg.licenses[0].type %> license.
+  This program is distributed under the terms of the <%= pkg.license.type %> license.
   Copyright (c) 2011-<%= grunt.template.today(\"yyyy\") %> <%= pkg.author %>
   */\n
   """

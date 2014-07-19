@@ -1,53 +1,55 @@
 {
-  "name":         "scaleapp",
-  "version":      "0.4.3",
-  "main":         "./dist/scaleApp",
-  "description":  "scaleApp is a JavaScript framework for scalable and maintainable One-Page-Applications",
-  "author":       "Markus Kohlhase <mail@markus-kohlhase.de>",
-  "homepage":     "http://www.scaleapp.org",
-  "bugs":         "http://github.com/flosse/scaleApp/issues",
-  "contributors": ["Markus Kohlhase", "Johann Philipp Strathausen"],
-  "licenses":     [{"type": "MIT"}],
-  "engine":       "node",
-  "devDependencies":
-  {
-    "chai":                 "~1.9.1",
-    "mocha":                "~1.20.1",
-    "phantomjs":            "~1.9.7",
-    "karma":                "~0.12.16",
-    "karma-mocha":          "~0.1.3",
-    "karma-coverage":       "~0.2.4",
-    "sinon":                "~1.10.2",
-    "sinon-chai":           "~2.5.0",
-    "coffee-script":        "~1.7.1",
-    "grunt":                "~0.4.5",
-    "grunt-cli":            "~0.1.13",
+  "name": "scaleapp",
+  "version": "0.4.3",
+  "main": "./dist/scaleApp",
+  "description": "scaleApp is a JavaScript framework for scalable and maintainable One-Page-Applications",
+  "author": "Markus Kohlhase <mail@markus-kohlhase.de>",
+  "homepage": "http://www.scaleapp.org",
+  "bugs": "http://github.com/flosse/scaleApp/issues",
+  "contributors": [
+    "Markus Kohlhase",
+    "Johann Philipp Strathausen"
+  ],
+  "license": "MIT",
+  "engine": "node",
+  "devDependencies": {
+    "beautiful-docs": "~1.0.3",
+    "chai": "~1.9.1",
+    "coffee-script": "~1.7.1",
+    "coveralls": "~2.11.1",
+    "grunt": "~0.4.5",
+    "grunt-cli": "~0.1.13",
+    "grunt-coffeelint": "~0.0.10",
     "grunt-contrib-coffee": "~0.10.1",
-    "grunt-contrib-watch":  "~0.6.1",
-    "grunt-contrib-uglify": "~0.4.0",
     "grunt-contrib-concat": "~0.4.0",
-    "grunt-coffeelint":     "~0.0.10",
-    "uglify-js":            "~2.4.13",
-    "beautiful-docs":       "~1.0.3",
-    "coveralls":            "~2.10.0",
-    "istanbul":             "~0.2.11",
-    "sloc":                 "~0.0.8"
+    "grunt-contrib-uglify": "~0.5.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "istanbul": "~0.2.11",
+    "karma": "~0.12.16",
+    "karma-coffee-preprocessor": "^0.2.1",
+    "karma-coverage": "~0.2.4",
+    "karma-mocha": "~0.1.4",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "mocha": "~1.20.1",
+    "phantomjs": "~1.9.7",
+    "sinon": "~1.10.2",
+    "sinon-chai": "~2.5.0",
+    "sloc": "~0.0.8",
+    "uglify-js": "~2.4.14"
   },
-  "repository":
-  {
+  "repository": {
     "type": "git",
     "url": "git://github.com/flosse/scaleApp.git"
   },
-  "maintainers":
-  [
+  "maintainers": [
     {
-      "name":   "Markus Kohlhase",
-      "email":  "mail@markus-kohlhase.de",
-      "web":    "http://github.com/flosse/"
+      "name": "Markus Kohlhase",
+      "email": "mail@markus-kohlhase.de",
+      "web": "http://github.com/flosse/"
     }
   ],
   "scripts": {
-    "test":   "./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
+    "test": "./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
     "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs",
     "coveralls": "istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   }

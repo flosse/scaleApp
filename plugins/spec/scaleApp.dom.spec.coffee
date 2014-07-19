@@ -9,16 +9,16 @@ describe "dom plugin", ->
     # helper method
     @run = (fn, opt={}) =>
 
-        # create module
-        mod = (sb) ->
-          init: -> fn sb
-          destroy: ->
+      # create module
+      mod = (sb) ->
+        init: -> fn sb
+        destroy: ->
 
-        # register module
-        @core.register "myId", mod
+      # register module
+      @core.register "myId", mod
 
-        # start that moudle
-        @core.start "myId", options: opt
+      # start that moudle
+      @core.start "myId", options: opt
 
     @dummy = { a: "dummy" }
 
