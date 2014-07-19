@@ -88,13 +88,13 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- [scaleApp 0.4.3.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.3)
-- [scaleApp 0.4.3.zip](https://github.com/flosse/scaleApp/zipball/v0.4.3)
+- [scaleApp 0.4.4.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.4)
+- [scaleApp 0.4.4.zip](https://github.com/flosse/scaleApp/zipball/v0.4.4)
 
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.3/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.4/scaleapp.min.js" ></script>
 ```
 
 ## Old stable 0.3.x version
@@ -126,7 +126,7 @@ Link `scaleApp.min.js` in your HTML file:
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.3/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.4/scaleapp.min.js" ></script>
 ```
 
 If you're going to use it with node:
@@ -670,7 +670,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
-#### v0.x.x
+#### v0.4.4 (07-2014)
 
 - fixed i18n plugin (not it works with the submodule plugin and a global dict)
 - added i18n plugin option `global`
