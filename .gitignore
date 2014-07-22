@@ -12,3 +12,4 @@ spec/**/*.js
 *~
 npm-debug.log
 .directory
+README.md

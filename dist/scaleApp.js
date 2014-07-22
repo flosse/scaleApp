@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.4 - 2014-07-20
+scaleapp - v0.4.5 - 2014-07-22
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -566,20 +566,25 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
         };
       })(this);
       done = function(err) {
-        var e, i, mdls, x;
+        var e, i, k, mdls, modErrors, x, _i, _len;
         if ((err != null ? err.length : void 0) > 0) {
+          modErrors = {};
+          for (i = _i = 0, _len = err.length; _i < _len; i = ++_i) {
+            x = err[i];
+            if (x != null) {
+              modErrors[mods[i]] = x;
+            }
+          }
           mdls = (function() {
-            var _i, _len, _results;
+            var _results;
             _results = [];
-            for (i = _i = 0, _len = err.length; _i < _len; i = ++_i) {
-              x = err[i];
-              if (x != null) {
-                _results.push("'" + mods[i] + "'");
-              }
+            for (k in modErrors) {
+              _results.push("'" + k + "'");
             }
             return _results;
           })();
           e = new Error("errors occoured in the following modules: " + mdls);
+          e.moduleErrors = modErrors;
         }
         return typeof cb === "function" ? cb(e) : void 0;
       };
@@ -696,7 +701,7 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
   })();
 
   api = {
-    VERSION: "0.4.4",
+    VERSION: "0.4.5",
     util: util,
     Mediator: Mediator,
     Core: Core,

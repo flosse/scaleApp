@@ -256,6 +256,9 @@ describe "scaleApp core", ->
         (expect spy1).to.have.been.called
         (expect spy2).to.have.been.called
         (expect err.message).to.equal "errors occoured in the following modules: 'invalid'"
+        (expect err.moduleErrors.invalid?).to.equal true
+        (expect err.moduleErrors.invalid instanceof Error).to.equal true
+        (expect err.moduleErrors.valid?).to.equal false
         done()
 
     it "calls the callback with an error if one or more modules don't exist", (done) ->

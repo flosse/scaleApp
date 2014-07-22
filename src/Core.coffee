@@ -137,8 +137,11 @@ class Core
 
     done = (err) ->
       if err?.length > 0
-        mdls = ("'#{mods[i]}'" for x,i in err when x?)
+        modErrors = {}
+        modErrors[mods[i]] = x for x,i in err when x?
+        mdls = ("'#{k}'" for k of modErrors)
         e = new Error "errors occoured in the following modules: #{mdls}"
+        e.moduleErrors = modErrors
       cb? e
     util.doForAll mods, startAction, done, true
     @

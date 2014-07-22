@@ -6,7 +6,7 @@ zlib    = require "zlib"
 buffer  = require "buffer"
 
 getSlocOfFile = (file) ->
-  sloc(fs.readFileSync(file, "utf8"), "coffeescript").sloc
+  sloc(fs.readFileSync(file, "utf8"), "coffee").source
 
 describe "The codebase", ->
 
