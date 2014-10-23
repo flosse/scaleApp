@@ -54,9 +54,7 @@ class Mediator
   # - (String) topic             - The topic name
   # - (Object) data              - The data that gets published
   # - (Funtction)                - callback method
-  emit: (channel, data, cb=->, channelOriginal) ->
-
-    channelOriginal = channel or channelOriginal
+  emit: (channel, data, cb=(->), channelOriginal=cannel) ->
     if typeof data is "function"
       cb  = data
       data = undefined
