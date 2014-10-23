@@ -54,7 +54,7 @@ class Mediator
   # - (String) topic             - The topic name
   # - (Object) data              - The data that gets published
   # - (Funtction)                - callback method
-  emit: (channel, data, cb=->) ->
+  emit: (channel, data, cb=(->), originalChannel=channel) ->
 
     if typeof data is "function"
       cb  = data
@@ -66,9 +66,9 @@ class Mediator
       (next) ->
         try
           if util.hasArgument sub.callback, 3
-            sub.callback.apply sub.context, [data, channel, next]
+            sub.callback.apply sub.context, [data, originalChannel, next]
           else
-            next null, sub.callback.apply sub.context, [data, channel]
+            next null, sub.callback.apply sub.context, [data, originalChannel]
         catch e
           next e
 
@@ -78,7 +78,7 @@ class Mediator
       cb e), true
 
     if @cascadeChannels and (chnls = channel.split('/')).length > 1
-      @emit chnls[0...-1].join('/'), data, cb
+      @emit chnls[0...-1].join('/'), data, cb, originalChannel
     @
 
   # ## Install Pub/Sub functions to an object

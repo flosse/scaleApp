@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.5 - 2014-07-22
+scaleapp - v0.4.5 - 2014-10-23
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -258,10 +258,13 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
       return this;
     };
 
-    Mediator.prototype.emit = function(channel, data, cb) {
+    Mediator.prototype.emit = function(channel, data, cb, originalChannel) {
       var chnls, sub, subscribers, tasks;
       if (cb == null) {
-        cb = function() {};
+        cb = (function() {});
+      }
+      if (originalChannel == null) {
+        originalChannel = channel;
       }
       if (typeof data === "function") {
         cb = data;
@@ -281,9 +284,9 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
               var e;
               try {
                 if (util.hasArgument(sub.callback, 3)) {
-                  return sub.callback.apply(sub.context, [data, channel, next]);
+                  return sub.callback.apply(sub.context, [data, originalChannel, next]);
                 } else {
-                  return next(null, sub.callback.apply(sub.context, [data, channel]));
+                  return next(null, sub.callback.apply(sub.context, [data, originalChannel]));
                 }
               } catch (_error) {
                 e = _error;
@@ -312,7 +315,7 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
         return cb(e);
       }), true);
       if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
-        this.emit(chnls.slice(0, -1).join('/'), data, cb);
+        this.emit(chnls.slice(0, -1).join('/'), data, cb, originalChannel);
       }
       return this;
     };

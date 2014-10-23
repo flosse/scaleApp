@@ -398,3 +398,20 @@ describe "Mediator", ->
         (expect @cb1).to.have.been.called
         (expect @cb2).to.have.been.called
         (expect @cb3).not.to.have.been.called
+
+      it "publishes the original channel name", (done) ->
+
+        count = 0
+        @paul.cascadeChannels = true
+        @paul.on "module/route", (data, topic) ->
+
+          if count is 0
+            console.log topic
+            (expect topic).to.eql "module/route/hit"
+            count++
+          else
+            done()
+           (expect topic).to.eql "module/route/miss"
+
+        @paul.emit "module/route/hit"
+        @paul.emit "module/route/miss"
