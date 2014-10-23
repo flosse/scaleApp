@@ -406,7 +406,6 @@ describe "Mediator", ->
         @paul.on "module/route", (data, topic) ->
 
           if count is 0
-            console.log topic
             (expect topic).to.eql "module/route/hit"
             count++
           else

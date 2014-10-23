@@ -47,7 +47,7 @@ describe "modulestate plugin", ->
 
   it "calls a registered method on destruction", (done) ->
     fn = (data, channel) ->
-      (expect channel).to.equal "destroy/mod"
+      (expect channel).to.equal "destroy/mod/mod"
       done()
     @core.state.on "destroy/mod", fn
     @core.start "mod"
@@ -55,7 +55,7 @@ describe "modulestate plugin", ->
 
   it "passes the moduleId and instanceId", (done) ->
     fn = (ev, channel) ->
-      (expect channel).to.equal "init"
+      (expect channel).to.equal "init/mod/33"
       (expect ev).to.eql {moduleId: "mod", instanceId: "33"}
       done()
     @core.state.on "init", fn, "mod"
