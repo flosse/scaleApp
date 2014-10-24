@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.5 - 2014-10-23
+scaleapp - v0.4.5 - 2014-10-24
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -259,7 +259,7 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
     };
 
     Mediator.prototype.emit = function(channel, data, cb, originalChannel) {
-      var chnls, sub, subscribers, tasks;
+      var chnls, o, sub, subscribers, tasks;
       if (cb == null) {
         cb = (function() {});
       }
@@ -315,7 +315,10 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
         return cb(e);
       }), true);
       if (this.cascadeChannels && (chnls = channel.split('/')).length > 1) {
-        this.emit(chnls.slice(0, -1).join('/'), data, cb, originalChannel);
+        if (this.emitOriginalChannels) {
+          o = originalChannel;
+        }
+        this.emit(chnls.slice(0, -1).join('/'), data, cb, o);
       }
       return this;
     };

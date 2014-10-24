@@ -77,8 +77,9 @@ class Mediator
         e = new Error (x.message for x in errors when x?).join '; '
       cb e), true
 
-    if @cascadeChannels and (chnls = channel.split('/')).length > 1
-      @emit chnls[0...-1].join('/'), data, cb, originalChannel
+    if @cascadeChannels and (chnls = channel.split '/').length > 1
+      o = originalChannel if @emitOriginalChannels
+      @emit chnls[0...-1].join('/'), data, cb, o
     @
 
   # ## Install Pub/Sub functions to an object

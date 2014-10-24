@@ -670,6 +670,11 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
+#### v0.4.5 (10-2014)
+
+- added Mediator option `emitOriginalChannels` to receive the original
+  channel name if `cascadeChannels` is enabled
+
 #### v0.4.4 (07-2014)
 
 - fixed i18n plugin (not it works with the submodule plugin and a global dict)

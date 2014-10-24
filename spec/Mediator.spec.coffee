@@ -179,7 +179,7 @@ describe "Mediator", ->
       (expect cb1.callCount).to.equal 8
       (expect cb2.callCount).to.equal 1
 
-  describe "publish function", ->
+  describe "emit function", ->
 
     it "is an accessible function", ->
       (expect @paul.emit).to.be.a "function"
@@ -319,7 +319,7 @@ describe "Mediator", ->
       @cb3 = sinon.spy()
       @anObject = {}
 
-    it "publishes data to a subscribed topic", ->
+    it "emit data to a subscribed topic", ->
 
       @paul.on  "a channel", @cb
       @paul.installTo @anObject
@@ -330,7 +330,7 @@ describe "Mediator", ->
       (expect @cb.callCount).to.equal 2
       (expect @cb2).not.to.have.been.called
 
-    it "publishes data to all subscribers even if an error occours", ->
+    it "emits data to all subscribers even if an error occours", ->
       cb = sinon.spy()
       @paul.on "channel", -> cb()
       @paul.on "channel", -> (throw new Error "err"); cb()
@@ -338,7 +338,7 @@ describe "Mediator", ->
       @paul.emit "channel"
       (expect cb.callCount).to.equal 2
 
-    it "publishes the reference of data objects by default", (done) ->
+    it "emits the reference of data objects by default", (done) ->
 
       obj = {a:true,b:"x",c:{ y:0 }}
 
@@ -349,13 +349,13 @@ describe "Mediator", ->
 
       @paul.emit "obj", obj
 
-    it "does not publish data to other topics", ->
+    it "does not emit data to other topics", ->
 
       @paul.on "a channel", @cb
       @paul.emit "another channel", @data
       (expect @cb).not.to.have.been.called
 
-    it "can request data by publishing an event", (done) ->
+    it "can request data by emit an event", (done) ->
 
       # lets say we have database with user objects
       db = [
@@ -375,7 +375,7 @@ describe "Mediator", ->
         # send results
         r.receive null, result
 
-      # receive a list of users by publishing a read event
+      # receive a list of users by emitting a read event
       @dbAccess.emit "read",
         query: { role: "admin" }
         receive: (err, data) ->
@@ -385,7 +385,7 @@ describe "Mediator", ->
 
     describe "auto subscription", ->
 
-      it "publishes subtopics to parent topics", ->
+      it "emits subtopics to parent topics", ->
 
         @paul.cascadeChannels = true
         @paul.on "parentTopic", @cb
@@ -399,18 +399,29 @@ describe "Mediator", ->
         (expect @cb2).to.have.been.called
         (expect @cb3).not.to.have.been.called
 
-      it "publishes the original channel name", (done) ->
+      it "optionally emits the original channel name", (done) ->
 
         count = 0
-        @paul.cascadeChannels = true
-        @paul.on "module/route", (data, topic) ->
+        @paul.cascadeChannels = yes
+        @paul.emitOriginalChannels = yes
+        @paul.on "module/route", (data, topic) =>
 
-          if count is 0
-            (expect topic).to.eql "module/route/hit"
-            count++
-          else
-            done()
-           (expect topic).to.eql "module/route/miss"
+          switch count
+            when 0
+              (expect topic).to.eql "module/route/hit"
+              count++
+            when 1
+              (expect topic).to.eql "module/route/miss"
+              @paul.emitOriginalChannels = no
+              count++
+            when 2
+              (expect topic).to.eql "module/route"
+              count++
+            when 3
+              (expect topic).to.eql "module/route"
+              done()
 
+        @paul.emit "module/route/hit"
+        @paul.emit "module/route/miss"
         @paul.emit "module/route/hit"
         @paul.emit "module/route/miss"
