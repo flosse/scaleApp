@@ -8,7 +8,8 @@
   "bugs": "http://github.com/flosse/scaleApp/issues",
   "contributors": [
     "Markus Kohlhase",
-    "Johann Philipp Strathausen"
+    "Johann Philipp Strathausen",
+    "Makeev Vitaliy"
   ],
   "license": "MIT",
   "engine": "node",
