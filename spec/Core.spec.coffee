@@ -78,7 +78,7 @@ describe "scaleApp core", ->
           (expect err).not.to.exist
           done()
 
-      it "returns an error if instance was aleready started", (done) ->
+      it "returns an error if instance was already started", (done) ->
         @core.start "myId", =>
           @core.start "myId", (err) ->
             (expect err).to.exist
@@ -133,17 +133,17 @@ describe "scaleApp core", ->
         @core.start "anId", cb
         (expect cb).to.have.been.called
 
-      it "calls the callback function with an error if an error occours", (done) ->
+      it "calls the callback function with an error if an error occurs", (done) ->
         initCB = sinon.spy()
         mod1 = (sb) ->
           init: ->
             initCB()
-            thisWillProcuceAnError()
+            thisWillProduceAnError()
         (expect @core.register "anId", mod1).to.equal @core
         @core.start "anId", (err)->
             (expect initCB).to.have.been.called
             (expect err.message.indexOf("could not start module:") >= 0).to.be.true
-            (expect err.message.indexOf("thisWillProcuceAnError") >= 0).to.be.true
+            (expect err.message.indexOf("thisWillProduceAnError") >= 0).to.be.true
             done()
 
       it "starts a separate instance", ->
@@ -255,7 +255,7 @@ describe "scaleApp core", ->
       @core.start ["invalid", "valid"], (err) ->
         (expect spy1).to.have.been.called
         (expect spy2).to.have.been.called
-        (expect err.message).to.equal "errors occoured in the following modules: 'invalid'"
+        (expect err.message).to.equal "errors occurred in the following modules: 'invalid'"
         (expect err.moduleErrors.invalid?).to.equal true
         (expect err.moduleErrors.invalid instanceof Error).to.equal true
         (expect err.moduleErrors.valid?).to.equal false
@@ -271,7 +271,7 @@ describe "scaleApp core", ->
       @core.register "valid", @validModule
       @core.register "x", mod
       finished = (err) ->
-        (expect err.message).to.equal "errors occoured in the following modules: 'invalid','y'"
+        (expect err.message).to.equal "errors occurred in the following modules: 'invalid','y'"
         done()
       (expect @core.start ["valid","invalid", "x", "y"], finished).to.equal @core
       (expect spy2).to.have.been.called
@@ -431,7 +431,7 @@ describe "scaleApp core", ->
           sb.bar = -> "foo"
           done()
 
-    it "does not regsiter a plugin if it is not a function", ->
+    it "does not register a plugin if it is not a function", ->
       (expect @core.use("foo")._plugins.length).to.equal 0
 
     it "registers a plugin if it's a function", ->
