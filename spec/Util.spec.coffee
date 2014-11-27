@@ -153,6 +153,62 @@ describe "Util", ->
         done()
       @util.runSeries [cb1, cb2, cb3, cb4], fini, true
 
+  describe "runFirst", ->
+    it "returns the result of the first function of the array", (done) ->
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+      spy3 = sinon.spy()
+      cb1 = (next) ->
+        (expect spy1).not.to.have.been.called
+        (expect spy2).not.to.have.been.called
+        (expect spy3).not.to.have.been.called
+        setTimeout (->
+          (expect spy1).not.to.have.been.called
+          (expect spy2).not.to.have.been.called
+          (expect spy3).not.to.have.been.called
+          spy1()
+          next null, "one"
+        ), 30
+
+      cb2 = (next) ->
+        setTimeout (->
+          spy2()
+        ), 0
+
+      cb3 = (next) ->
+        spy3()
+
+      (expect @util.runFirst).to.be.a "function"
+      @util.runFirst [cb1, cb2, cb3], (err, res) ->
+        (expect err).not.to.exist
+        (expect res).to.equal "one"
+        done()
+
+    it "does not break if the array is empty or not defined", (done) ->
+      @util.runFirst [], (err, res) =>
+        (expect err).not.to.exist
+        @util.runFirst undefined, (err, res) ->
+          (expect err).not.to.exist
+          done()
+
+    it "stops on errors", (done) ->
+      cb1 = (next) -> thisMethodDoesNotExist()
+      cb2 = (next) -> next null, "tow"
+      fini = (err, res) ->
+        (expect err).to.exsit
+        (expect res).not.to.exist
+        done()
+      @util.runFirst [cb1, cb2], fini
+
+    it "doesn't stop on errors if the 'force' option is 'true'", (done) ->
+      cb1 = (next) -> thisMethodDoesNotExist()
+      cb2 = (next) -> next null, ["tow", 2]
+      fini = (err, res) ->
+        (expect err).not.to.exist
+        (expect res).to.eql ["tow", 2]
+        done()
+      @util.runFirst [cb1, cb2], fini, true
+
   describe "runWaterfall", ->
 
     it "runs an array of functions and passes the results", (done) ->
