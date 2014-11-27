@@ -53,7 +53,7 @@ class Mediator
   # Parameters:
   # - (String) topic             - The topic name
   # - (Object) data              - The data that gets published
-  # - (Funtction)                - callback method
+  # - (Function)                 - callback method
   emit: (channel, data, cb=->) ->
 
     if typeof data is "function"

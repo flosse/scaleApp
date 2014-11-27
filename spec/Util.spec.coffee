@@ -132,7 +132,7 @@ describe "Util", ->
       cb2 = (next) -> thisMethodDoesNotExist()
       cb3 = (next) -> next null, "three"
       fini = (err, res) ->
-        (expect err).to.exsit
+        (expect err).to.exist
         (expect res[0]).to.eql ["one", 2]
         (expect res[1]).not.to.exist
         (expect res[2]).not.to.exist
@@ -193,7 +193,7 @@ describe "Util", ->
 
     it "returns an array of argument names", ->
       fn = (a,b,c,d) ->
-      (expect @util.getArgumentNames fn).to.eql ["a","b","c", "d"]
+      (expect @util.getArgumentNames fn).to.eql ["a","b","c","d"]
       (expect @util.getArgumentNames ->).to.eql []
 
     it "does not break if the function is not defined", ->
