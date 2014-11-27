@@ -429,7 +429,7 @@ describe "Mediator", ->
       @paul.emit "channel"
       (expect cb.callCount).to.equal 2
 
-    it "publishes/send the reference of data objects by default", (done) ->
+    it "publishes the reference of data objects by default", (done) ->
 
       obj = {a:true,b:"x",c:{ y:0 }}
 
@@ -439,6 +439,16 @@ describe "Mediator", ->
         done()
 
       @paul.emit "obj", obj
+
+    it "send the reference of data objects by default", (done) ->
+
+      obj = {a:true,b:"x",c:{ y:0 }}
+
+      @paul.on "obj", (data) ->
+        (expect data).to.equal obj
+        (expect data is obj).to.be.true
+        done()
+
       @paul.send "obj", obj
 
     it "does not publish/send data to other topics", ->
