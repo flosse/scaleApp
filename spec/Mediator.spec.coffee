@@ -22,7 +22,6 @@ describe "Mediator", ->
       ch = "a channel"
       obj = {}
       cb1 = sinon.spy()
-      cb2 = sinon.spy()
 
       sub = @paul.on ch, cb1
       sub2 = @paul.on ch, cb1, obj
@@ -88,13 +87,13 @@ describe "Mediator", ->
   describe "off function", ->
 
     it "removes a subscription from a channel", ->
+
       ch = "a channel"
-      obj = {}
       cb1 = sinon.spy()
       cb2 = sinon.spy()
 
       @paul.on ch, cb1
-      sub = @paul.on ch, cb2
+      @paul.on ch, cb2
 
       @paul.emit ch, "hello"
       @paul.off ch, cb1
@@ -102,7 +101,7 @@ describe "Mediator", ->
       (expect cb1.callCount).to.equal 1
       (expect cb2.callCount).to.equal 2
 
-    it "removes a callbackfunction from all channels", ->
+    it "removes a callback function from all channels", ->
 
       ch1 = "channel1"
       ch2 = "channel2"
@@ -194,11 +193,11 @@ describe "Mediator", ->
     it "calls the callback if it is defined", (done) ->
       cb = sinon.spy()
       @paul.on "event", cb
-      @paul.emit "event", {}, (err) ->
+      @paul.emit "event", {}, () ->
         (expect cb.callCount).to.equal 1
         done()
 
-    it "calls the callback even if there are not subsribers", (done) ->
+    it "calls the callback even if there are not subscribers", (done) ->
       m1 = new @Mediator
       m2 = new @Mediator
       m1.emit "x", (err)->
@@ -217,7 +216,7 @@ describe "Mediator", ->
         done()
 
 
-    it "calls the callback asynchrounously", (done) ->
+    it "calls the callback asynchronously", (done) ->
       cb  = sinon.spy()
       cb2 = sinon.spy()
       @paul.on "event", (data, channel, next) ->
@@ -230,8 +229,7 @@ describe "Mediator", ->
         (expect err?).to.be.false
         done()
 
-    it "calls the callback asynchrounously and looks for errors", (done) ->
-
+    it "calls the callback asynchronously and looks for errors", (done) ->
       @paul.on "event", (data, channel, next) ->
         setTimeout (-> next null), 1
       @paul.on "event", (data, channel, x) ->
@@ -274,6 +272,7 @@ describe "Mediator", ->
       (expect cb2.callCount).to.equal 3
 
     it "takes care of the context", (done) ->
+
       mediator = new @Mediator
       myObj = {}
       empty = {}
@@ -288,7 +287,6 @@ describe "Mediator", ->
       done()
 
     it "installs the mediator functions on creation", ->
-
       myObj = {}
       new @Mediator myObj
       (expect myObj.on).to.be.a "function"
@@ -326,11 +324,11 @@ describe "Mediator", ->
       @anObject.on "a channel", @cb
       @peter.on "a channel", @cb2
       @paul.emit "a channel", @data
-      @paul.emit "doees not exist", @data
+      @paul.emit "does not exist", @data
       (expect @cb.callCount).to.equal 2
       (expect @cb2).not.to.have.been.called
 
-    it "publishes data to all subscribers even if an error occours", ->
+    it "publishes data to all subscribers even if an error occurs", ->
       cb = sinon.spy()
       @paul.on "channel", -> cb()
       @paul.on "channel", -> (throw new Error "err"); cb()
@@ -368,7 +366,7 @@ describe "Mediator", ->
 
       # then we bind the read event to our database
       @dbAccess.on "read", (r) ->
-        # prcocess the query
+        # process the query
         result = []
         for user in db
           result.push user for k,v of r.query when user[k] is v
