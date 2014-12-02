@@ -587,7 +587,7 @@ If you want scaleApp bundled with special plugins type
 ```shell
 grunt custom[:PLUGIN_NAME]
 ```
-e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
+e.g. `grunt custom:dom:mvc` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
 # API
