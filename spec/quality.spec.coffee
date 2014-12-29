@@ -26,7 +26,7 @@ describe "The codebase", ->
       (expect x).to.be.at.most count
 
     console.log sum
-    (expect sum).to.be.at.most 346
+    (expect sum).to.be.at.most 348
 
   it "is small", (done) ->
     stat = fs.statSync "dist/scaleApp.js"

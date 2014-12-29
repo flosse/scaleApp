@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.4.5 - 2014-11-27
+scaleapp - v0.4.5 - 2014-12-29
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -447,7 +447,14 @@ Copyright (c) 2011-2014 Markus Kohlhase <mail@markus-kohlhase.de>
 
   Core = (function() {
     function Core(Sandbox) {
+      var err;
       this.Sandbox = Sandbox;
+      if (this.Sandbox != null) {
+        err = checkType('function', this.Sandbox, 'Sandbox');
+      }
+      if (err) {
+        throw new Error(err);
+      }
       this._modules = {};
       this._plugins = [];
       this._instances = {};
