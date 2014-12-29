@@ -21,6 +21,13 @@ describe "scaleApp core", ->
       init: (opt, done) -> setTimeout (-> done()), 0
       destroy: (done) -> setTimeout (-> done()), 0
 
+  describe "constructor", ->
+    it "check Sandbox type", ->
+      that = @
+      (expect -> new that.scaleApp.Core()).to.not.throw();
+      (expect -> new that.scaleApp.Core(->)).to.not.throw();
+      (expect -> new that.scaleApp.Core({})).to.throw('Sandbox has to be a function')
+
   describe "register function", ->
 
     it "is an accessible function", ->

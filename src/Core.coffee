@@ -5,6 +5,9 @@ class Core
 
   constructor: (@Sandbox) ->
 
+    err = checkType 'function', @Sandbox, 'Sandbox' if @Sandbox?
+    throw new Error err if err
+
     # define private variables
 
     @_modules      = {}
