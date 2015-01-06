@@ -1,5 +1,10 @@
 # Changelog
 
+#### next
+
+- added `Mediator.send` method
+- check Sandbox type in Core constructor
+
 #### v0.4.4 (07-2014)
 
 - fixed i18n plugin (not it works with the submodule plugin and a global dict)
