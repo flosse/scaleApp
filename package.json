@@ -49,7 +49,7 @@
     }
   ],
   "scripts": {
-    "lint": "coffeelint src/ plugins/src",
+    "lint": "./node_modules/.bin/coffeelint src/ plugins/src",
     "test": "npm run lint && ./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
     "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs",
     "coveralls": "istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
