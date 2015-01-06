@@ -17,6 +17,7 @@
     "beautiful-docs": "~1.0.3",
     "chai": "~1.10.0",
     "coffee-script": "~1.8.0",
+    "coffeelint": "^1.8.1",
     "coveralls": "~2.11.2",
     "grunt": "~0.4.5",
     "grunt-cli": "~0.1.13",
