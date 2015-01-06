@@ -1,5 +1,5 @@
 ###
-Copyright (c) 2012 - 2013 Markus Kohlhase <mail@markus-kohlhase.de>
+Copyright (c) 2012 - 2014 Markus Kohlhase <mail@markus-kohlhase.de>
 ###
 
 DEFAULT_PATH     = "http-bind/"
@@ -169,11 +169,11 @@ plugin = (core) ->
 
       when s.ERROR
         resetPlugin()
-        mediator.emit "error", "an error occoured"
+        mediator.emit "error", "an error occurred"
       when s.CONNECTING
         resetPlugin()
         mediator.emit "connecting"
-      when s.CONFAIL
+      when s.CONNFAIL
         resetPlugin()
         mediator.emit "error", "could not connect to xmpp server"
       when s.AUTHENTICATING

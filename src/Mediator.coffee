@@ -48,21 +48,9 @@ class Mediator
       when "object"    then Mediator._rm @,id,null,ch for id of @channels
     @
 
-  # ## Publish an event
-  #
-  # Parameters:
-  # - (String) topic             - The topic name
-  # - (Object) data              - The data that gets published
-  # - (Funtction)                - callback method
-  emit: (channel, data, cb=->) ->
-
-    if typeof data is "function"
-      cb  = data
-      data = undefined
-    return false unless typeof channel is "string"
-    subscribers = @channels[channel] or []
-
-    tasks = for sub in subscribers then do (sub) ->
+  _getTasks = (data, channel, ctx) ->
+    subscribers = ctx.channels[channel] or []
+    for sub in subscribers then do (sub) ->
       (next) ->
         try
           if util.hasArgument sub.callback, 3
@@ -71,6 +59,20 @@ class Mediator
             next null, sub.callback.apply sub.context, [data, channel]
         catch e
           next e
+
+  # ## Publish an event
+  #
+  # Parameters:
+  # - (String) topic             - The topic name
+  # - (Object) data              - The data that gets published
+  # - (Function)                 - callback method
+  emit: (channel, data, cb=->) ->
+
+    if typeof data is "function"
+      cb  = data
+      data = undefined
+    return false unless typeof channel is "string"
+    tasks = _getTasks data, channel, @
 
     util.runSeries tasks,((errors, results) ->
       if errors
@@ -81,10 +83,34 @@ class Mediator
       @emit chnls[0...-1].join('/'), data, cb
     @
 
+  # ## Send a task
+  #
+  # Parameters:
+  # - (String) topic             - The topic name
+  # - (Object) data              - The data that gets published
+  # - (Function)                 - callback method
+  send: (channel, data, cb=->) ->
+
+    if typeof data is "function"
+      cb  = data
+      data = undefined
+    return false unless typeof channel is "string"
+    tasks = _getTasks data, channel, @
+
+    util.runFirst tasks,((errors, result) ->
+      if errors
+        e = new Error (x.message for x in errors when x?).join '; '
+        cb e
+      else
+        cb null, result), true
+    @
+
   # ## Install Pub/Sub functions to an object
-  installTo: (obj) ->
+  installTo: (obj,force) ->
     if typeof obj is "object"
-      obj[k] ?= v for k,v of @
+      for k,v of @
+        if force then obj[k] = v
+        else obj[k] ?= v
     @
 
   pipe: (src, target, mediator) ->

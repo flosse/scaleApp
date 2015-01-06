@@ -20,6 +20,15 @@ plugin = (core, options={}) ->
 
     sb._subCore = subCore = new core.constructor
 
+    # hold a reference to the parents core
+    subCore._parentCore = core
+
+    if options.useGlobalMediator
+      core._mediator.installTo subCore._mediator, true
+
+    else if options.mediator?
+      options.mediator?.installTo? subCore._mediator, true
+
     # make sure that plugins do not modify the original
     # Sandbox class.
     subCore.Sandbox = class SubSandbox extends core.Sandbox

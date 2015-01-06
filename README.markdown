@@ -4,8 +4,8 @@ scaleApp is a tiny JavaScript framework for scalable and maintainable
 [One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
 The framework allows you to easily create complex web applications.
 
-[![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png)](http://travis-ci.org/flosse/scaleApp)
-[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png)](https://gemnasium.com/flosse/scaleApp)
+[![Build Status](https://secure.travis-ci.org/flosse/scaleApp.png?branch=master)](http://travis-ci.org/flosse/scaleApp)
+[![Dependency Status](https://gemnasium.com/flosse/scaleApp.png?branch=master)](https://gemnasium.com/flosse/scaleApp)
 [![NPM version](https://badge.fury.io/js/scaleapp.png)](http://badge.fury.io/js/scaleapp)
 [![Coverage Status](https://coveralls.io/repos/flosse/scaleApp/badge.png?branch=master)](https://coveralls.io/r/flosse/scaleApp?branch=master)
 
@@ -56,7 +56,7 @@ For example you could extend the core with basic functionalities
 ## Features
 
 + loose coupling of modules
-+ small (about 300 sloc / 9k min / 3.5k gz)
++ small (about 300 sloc / 8,7k min / 3.3k gz)
 + no dependencies
 + modules can be tested separately
 + replacing any module without affecting other modules
@@ -88,13 +88,13 @@ You can easily define your own plugin (see plugin section).
 
 ## Latest stable 0.4.x version
 
-- [scaleApp 0.4.2.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.2)
-- [scaleApp 0.4.2.zip](https://github.com/flosse/scaleApp/zipball/v0.4.2)
+- [scaleApp 0.4.4.tar.gz](https://github.com/flosse/scaleApp/tarball/v0.4.4)
+- [scaleApp 0.4.4.zip](https://github.com/flosse/scaleApp/zipball/v0.4.4)
 
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.2/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.4/scaleapp.min.js" ></script>
 ```
 
 ## Old stable 0.3.x version
@@ -126,7 +126,7 @@ Link `scaleApp.min.js` in your HTML file:
 or use the [CDN](http://en.wikipedia.org/wiki/Content_delivery_network):
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.0/scaleapp.min.js" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/scaleapp/0.4.4/scaleapp.min.js" ></script>
 ```
 
 If you're going to use it with node:
@@ -587,7 +587,7 @@ If you want scaleApp bundled with special plugins type
 ```shell
 grunt custom[:PLUGIN_NAME]
 ```
-e.g. `cake custom:dom:mvc` creates the file `scaleApp.custom.js` that
+e.g. `grunt custom:dom:mvc` creates the file `scaleApp.custom.js` that
 contains scaleApp itself the dom plugin and the mvc plugin.
 
 # API
@@ -633,7 +633,8 @@ var mediator = new scaleApp.Mediator(null, true);
 - `mediator.emit(channel, data, callback)`
 - `mediator.on(channel, callback, context)`
 - `mediator.off(channel, callback)`
-- `mediator.installTo(context)`
+- `mediator.installTo(context, force)`
+- `mediator.send(channel, payload, callback)`
 
 ```javascript
 // subscribe
@@ -641,6 +642,20 @@ var subscription = mediator.on(channel, callback, context);
 ```
 - `subscription.detach` - stop listening
 - `subscription.attach` - resume listening
+
+```javascript
+var fn  = function(){ /*...*/ };
+var obj = { emit: fn };
+
+// the installTo method prevents existing properties by default
+mediator.installTo(obj);
+obj.emit === fn // true
+
+// set the second paramater to 'true'
+// to force the mediator to override existing propeties
+mediator.installTo(obj, true);
+obj.emit === mediator.emit // true
+```
 
 ## Sandbox
 
@@ -656,105 +671,7 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 
 # Changelog
 
-#### v0.4.1 (09-2013)
-
-- no more sandbox manipulation
-- added start option to use a separate sandbox
-- removed modules directory
-  (building modules is your own business;
-  above all they should depend on YOUR sandbox)
-- available at [cdnjs.com](http://cdnjs.com/)
-- improved README
-- bugfixes
-
-#### v0.4.0 (07-2013)
-
-- added a `Core` class that can be instantiated (`var core = new scaleApp.Core();`)
-- new plugin API (`scaleApp.plugins.register` moved to `core.use`)
-    - support asynchronous plugins
-    - added `boot` method to initialize asynchronous plugins
-- changed API
-    - `startAll()` is now `start()`
-    - `stopAll()` is now `stop()`
-    - the API is now chainable (e.g. `core.use(X).register("foo",bar).start("foo")`)
-    - removed `setInstanceOptions`
-    - removed `unregister` and `unregisterAll`
-    - dropped `subscribe`, `unsubscribe` and `publish` from Mediator API
-      (use `on`, `off` and `emit` instead)
-    - the methods `lsModules`, `lsInstances`, `lsPlugins` moved to the `ls` plugin
-    - the `destroy` method of a module is now optional
-    - the `callback` property of the start option object was removed.
-      Use the `modulestate` plugin instead
-- plugins
-    - new `submodule` plugin
-    - improved `permission` and `i18n`
-    - new `modulestate` plugin to emit events on module state changes
-- cleaner code
-- `Mediator`: do not *clone* objects any more (do it manually instead)
-- test with mocha, chai, sinon, karma and PhantomJS instead of buster.js
-
-#### v0.3.9 (12-2012)
-
-- grunt as build systemt
-- added waterfall flow control method
-- improved permission plugin
-- improved state plugin (thanks to Strathausen)
-- added xmpp (stropje.js) plugin
-- added a simple clock module
-- added [bower](http://twitter.github.com/bower/) support
-- added this changelog
-
-#### v0.3.8 (08-2012)
-
-- bug fixes
-- added support for async. callback of the `publish` method
-- added amd support
-
-#### v0.3.7 (07-2012)
-
-- bug fixes
-- added permission plugin
-- ported specs to buster.js
-- support for global i18n properties
-
-#### v0.3.6 (03-2012)
-
-- support for async. and sync. module initialization
-
-#### v0.3.5 (03-2012)
-
-- simpified Mediator code
-
-#### v0.3.4 (03-2012)
-
-- bugfixes
-- added `lsModules` and `lsInstances`
-- improved README
-
-#### v0.3.3 (02-2012)
-
-- run tests with jasmine-node instead of JSTestDriver
-- added travis testing
-- improved README
-
-#### v0.3.2 (01-2012)
-
-- bugfixes
-- improved Mediator
-
-#### v0.3.0 (11-2011)
-
-- ported to Coffee-Script
-- removed jQuery dependency
-
-#### v0.2.0 (07-2011)
-
-- bugfixes
-- improvements
-
-#### v0.1.0 (02-2011)
-
- - first release
+see `CHANGELOG.md`
 
 # Testing
 
@@ -762,13 +679,10 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 npm test
 ```
 
-# Demo
+# Examples
 
-**WARNING**: the demo is totally out of date!
-
-You can try out the [sample application](http://www.scaleapp.org/demo/fast/)
-that is build on [scaleApp](http://www.scaleapp.org).
-Also have a look at the [source code](http://github.com/flosse/FAST).
+Within the [`examples`](https://github.com/flosse/scaleApp/tree/master/examples)
+directory you can find some basic examples that might help you.
 
 # Licence
 

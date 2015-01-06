@@ -53,7 +53,17 @@ describe "i18n plugin", ->
 
   it "has a method for setting a global object", ->
     (expect @core.i18n.setGlobal).to.be.a "function"
-    (expect @core.i18n.setGlobal @core).to.equal true
+    @core.i18n.setLanguage "en"
+    (expect @core.i18n.setGlobal @myLangObj).to.equal true
+    (expect @core.i18n._ "helloWorld").to.equal "Hello world"
+
+  it "has a plugin option to set a global object", ->
+    core = new @scaleApp.Core
+    core
+      .use(@plugin,{global: { en: "foo":"baaar"}})
+      .boot()
+    core.i18n.setLanguage "en"
+    (expect core.i18n._ "foo").to.equal "baaar"
 
   it "fires an event when the languages was changed", (done) ->
 

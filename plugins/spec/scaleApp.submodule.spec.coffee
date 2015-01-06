@@ -4,13 +4,15 @@ describe "submodule plugin", ->
 
   beforeEach ->
     if typeof require is "function"
-      @scaleApp  = getScaleApp()
-      @plugin    = require "../../dist/plugins/scaleApp.submodule"
+      @scaleApp         = getScaleApp()
+      @plugin           = require "../../dist/plugins/scaleApp.submodule"
       @permissionPlugin = require "../../dist/plugins/scaleApp.permission"
+      @i18nPlugin       = require "../../dist/plugins/scaleApp.i18n"
     else if window?
-      @scaleApp  = window.scaleApp
-      @plugin =  @scaleApp.plugins.submodule
-      @permissionPlugin =  @scaleApp.plugins.permission
+      @scaleApp         = window.scaleApp
+      @plugin           = @scaleApp.plugins.submodule
+      @permissionPlugin = @scaleApp.plugins.permission
+      @i18nPlugin       = @scaleApp.plugins.i18n
 
     @core = new @scaleApp.Core
     @core
@@ -123,6 +125,45 @@ describe "submodule plugin", ->
     @core.permission.add "parent", "on", "to parent"
     @core.start "parent"
 
+  it "provides an option to use the custom mediator", (done) ->
+
+    mySubModule = (sb) -> init: -> sb.emit "x", "z"
+
+    mediator = new @scaleApp.Mediator
+
+    mediator.on "x", (y) ->
+      (expect y).to.eql "z"
+      done()
+
+    myModule = (sb) ->
+      init: ->
+        sb.sub.register "sub", mySubModule
+        sb.sub.start "sub"
+    core = new @scaleApp.Core
+    core
+      .use(@plugin, {mediator: mediator})
+      .boot()
+      .register("parent", myModule)
+      .start "parent"
+
+  it "provides an option to use the global mediator", (done) ->
+
+    mySubModule = (sb) -> init: -> sb.emit "event", "hello"
+
+    myModule = (sb) ->
+      init: ->
+        sb.on "event", (data) ->
+          (expect data).to.eql "hello"
+          done()
+        sb.sub.register "sub", mySubModule
+        sb.sub.start "sub"
+    core = new @scaleApp.Core
+    core
+      .use(@plugin, {useGlobalMediator: yes})
+      .boot()
+      .register("parent", myModule)
+      .start "parent"
+
   it "provides an option for plugin inheritance", (done) ->
 
     foobarPlugin = (core) ->
@@ -158,3 +199,32 @@ describe "submodule plugin", ->
       .use(foobarPlugin)
       .register("parent", myModule)
       .start("parent")
+
+  it "inheritance works with the i18n plugin", (done) ->
+
+    localization =
+      en:
+        saving : 'Saving...',
+        searching : 'Searching...',
+        searchfinished : 'Search finished'
+
+    childMod = (sb) ->
+        init: ->
+          (expect sb._ "searching").to.equal 'Searching...'
+          done()
+
+    parentMod = (sb) ->
+        init: ->
+          (expect sb._ "searching").to.equal 'Searching...'
+          sb.sub.register("child", childMod)
+          sb.sub.start()
+
+    core = new @scaleApp.Core
+
+    core
+      .use(@i18nPlugin)
+      .use(@plugin, {inherit: yes, useGlobalMediator: yes })
+      .register("parent", parentMod)
+    core.boot()
+      .i18n.setGlobal localization
+    core.start()
