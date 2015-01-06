@@ -800,13 +800,10 @@ var sandbox =  new scaleApp.Sandbox(core, instanceId, options, moduleId)` - crea
 npm test
 ```
 
-# Demo
+# Examples
 
-**WARNING**: the demo is totally out of date!
-
-You can try out the [sample application](http://www.scaleapp.org/demo/fast/)
-that is build on [scaleApp](http://www.scaleapp.org).
-Also have a look at the [source code](http://github.com/flosse/FAST).
+Within the [`examples`](https://github.com/flosse/scaleApp/tree/master/examples)
+directory you can find some basic examples that might help you.
 
 # Licence
 
