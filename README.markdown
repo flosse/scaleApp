@@ -634,6 +634,7 @@ var mediator = new scaleApp.Mediator(null, true);
 - `mediator.on(channel, callback, context)`
 - `mediator.off(channel, callback)`
 - `mediator.installTo(context, force)`
+- `mediator.send(channel, payload, callback)`
 
 ```javascript
 // subscribe
