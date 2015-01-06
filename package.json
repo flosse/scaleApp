@@ -20,23 +20,22 @@
     "coveralls": "~2.11.2",
     "grunt": "~0.4.5",
     "grunt-cli": "~0.1.13",
-    "grunt-coffeelint": "~0.0.13",
     "grunt-contrib-coffee": "~0.12.0",
     "grunt-contrib-concat": "~0.5.0",
-    "grunt-contrib-uglify": "~0.6.0",
+    "grunt-contrib-uglify": "~0.7.0",
     "grunt-contrib-watch": "~0.6.1",
-    "istanbul": "~0.3.2",
-    "karma": "~0.12.28",
+    "istanbul": "~0.3.5",
+    "karma": "~0.12.31",
     "karma-coffee-preprocessor": "^0.2.1",
-    "karma-coverage": "~0.2.6",
-    "karma-mocha": "~0.1.9",
+    "karma-coverage": "~0.2.7",
+    "karma-mocha": "~0.1.10",
     "karma-phantomjs-launcher": "^0.1.4",
-    "mocha": "~2.0.1",
-    "phantomjs": "~1.9.12",
-    "sinon": "~1.12.1",
+    "mocha": "~2.1.0",
+    "phantomjs": "~1.9.13",
+    "sinon": "~1.12.2",
     "sinon-chai": "~2.6.0",
-    "sloc": "~0.1.7",
-    "uglify-js": "~2.4.15"
+    "sloc": "~0.1.9",
+    "uglify-js": "~2.4.16"
   },
   "repository": {
     "type": "git",
@@ -50,7 +49,8 @@
     }
   ],
   "scripts": {
-    "test": "./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
+    "lint": "coffeelint src/ plugins/src",
+    "test": "npm run lint && ./node_modules/grunt-cli/bin/grunt && ./node_modules/.bin/mocha && ./node_modules/karma/bin/karma start",
     "bfdocs": "cat ./README.markdown > ./README.md && cat ./plugins/README.md >> ./README.md && ./node_modules/beautiful-docs/bin/bfdocs bfdocs.json ./docs",
     "coveralls": "istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   }

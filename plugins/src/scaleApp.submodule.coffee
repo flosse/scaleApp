@@ -5,7 +5,7 @@ plugin = (core, options={}) ->
   install = (sb, subCore) ->
     sb.sub = {}
 
-    for fn in methods then do (fn) =>
+    for fn in methods then do (fn) ->
       sb.sub[fn] = ->
         subCore[fn].apply subCore, arguments
         sb
