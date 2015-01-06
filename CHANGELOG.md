@@ -1,8 +1,9 @@
 # Changelog
 
-#### next
+#### v0.5.0
 
 - added `Mediator.send` method
+- added `Mediator.pipe` method
 - check Sandbox type in Core constructor
 
 #### v0.4.4 (07-2014)
