@@ -4,6 +4,7 @@
 
 - added `Mediator.send` method
 - added `Mediator.pipe` method
+- added Mediator option `publishOriginalChannels`
 - check Sandbox type in Core constructor
 
 #### v0.4.4 (07-2014)
