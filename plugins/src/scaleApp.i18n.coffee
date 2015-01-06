@@ -5,7 +5,8 @@ plugin = (core, options={}) ->
   baseLanguage = "en"
 
   getBrowserLanguage = ->
-    (navigator?.language or navigator?.browserLanguage or baseLanguage).split("-")[0]
+    (navigator?.language or navigator?.browserLanguage or baseLanguage)
+      .split("-")[0]
 
   channelName = "i18n"
 
@@ -77,7 +78,7 @@ plugin = (core, options={}) ->
       sb.options.i18n ?= {}
       addLocal dict, sb.options.i18n
 
-    sb._ = (text) => _ text, sb.options.localDict or sb.options.i18n
+    sb._ = (text) -> _ text, sb.options.localDict or sb.options.i18n
 
 # AMD support
 if define?.amd?

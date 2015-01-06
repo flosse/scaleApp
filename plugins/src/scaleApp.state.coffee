@@ -34,8 +34,10 @@ plugin = (core) ->
         @states.push id
         success = []
         if opt.enter?
+          return false unless typeof opt.enter is "function"
           success.push @on enterChannel(id), opt.enter
         if opt.leave?
+          return false unless typeof opt.leave is "function"
           success.push @on leaveChannel(id), opt.leave
         return not (false in success)
 

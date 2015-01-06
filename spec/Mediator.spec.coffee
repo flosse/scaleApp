@@ -22,7 +22,6 @@ describe "Mediator", ->
       ch = "a channel"
       obj = {}
       cb1 = sinon.spy()
-      cb2 = sinon.spy()
 
       sub = @paul.on ch, cb1
       sub2 = @paul.on ch, cb1, obj
@@ -32,8 +31,8 @@ describe "Mediator", ->
       (expect sub.detach).to.be.a "function"
       (expect sub).not.to.equal sub2
 
-    it "returns false if callback is not a function", ->
-      (expect @paul.on "a", 345).to.equal false
+    it "returns the subscription even if the callback isn't a function", ->
+      (expect @paul.on "a", 345).to.be.an "object"
 
     it "has an alias method named 'on'", ->
       (expect @paul.on).to.equal @paul.on
@@ -88,13 +87,13 @@ describe "Mediator", ->
   describe "off function", ->
 
     it "removes a subscription from a channel", ->
+
       ch = "a channel"
-      obj = {}
       cb1 = sinon.spy()
       cb2 = sinon.spy()
 
       @paul.on ch, cb1
-      sub = @paul.on ch, cb2
+      @paul.on ch, cb2
 
       @paul.emit ch, "hello"
       @paul.off ch, cb1
@@ -102,7 +101,7 @@ describe "Mediator", ->
       (expect cb1.callCount).to.equal 1
       (expect cb2.callCount).to.equal 2
 
-    it "removes a callbackfunction from all channels", ->
+    it "removes a callback function from all channels", ->
 
       ch1 = "channel1"
       ch2 = "channel2"
@@ -194,11 +193,11 @@ describe "Mediator", ->
     it "calls the callback if it is defined", (done) ->
       cb = sinon.spy()
       @paul.on "event", cb
-      @paul.emit "event", {}, (err) ->
+      @paul.emit "event", {}, () ->
         (expect cb.callCount).to.equal 1
         done()
 
-    it "calls the callback even if there are not subsribers", (done) ->
+    it "calls the callback even if there are not subscribers", (done) ->
       m1 = new @Mediator
       m2 = new @Mediator
       m1.emit "x", (err)->
@@ -217,7 +216,7 @@ describe "Mediator", ->
         done()
 
 
-    it "calls the callback asynchrounously", (done) ->
+    it "calls the callback asynchronously", (done) ->
       cb  = sinon.spy()
       cb2 = sinon.spy()
       @paul.on "event", (data, channel, next) ->
@@ -230,8 +229,7 @@ describe "Mediator", ->
         (expect err?).to.be.false
         done()
 
-    it "calls the callback asynchrounously and looks for errors", (done) ->
-
+    it "calls the callback asynchronously and looks for errors", (done) ->
       @paul.on "event", (data, channel, next) ->
         setTimeout (-> next null), 1
       @paul.on "event", (data, channel, x) ->
@@ -240,6 +238,81 @@ describe "Mediator", ->
         x new Error "fake2"
       @paul.emit "event", {}, (err) ->
         (expect err.message).to.equal "fake1; fake2"
+        done()
+
+  describe "send function", ->
+
+    it "is an accessible function", ->
+      (expect @paul.send).to.be.a "function"
+
+    it "returns the current context", ->
+      (expect @paul.send "my channel", {}).to.equal @paul
+      (expect (new @Mediator).on "my channel", ->).not.to.equal @paul
+
+    it "calls the callback if it is defined", (done) ->
+      cb = sinon.spy()
+      @paul.on "event", cb
+      @paul.send "event", {}, (err) ->
+        (expect cb.callCount).to.equal 1
+        done()
+
+    it "calls the callback even if there are not subscribers", (done) ->
+      m1 = new @Mediator
+      m2 = new @Mediator
+      m1.send "x", (err)->
+        (expect err?).to.be.false
+        m2.send "x", "foo", (err, reply)->
+          (expect err?).to.be.false
+          (expect reply?).to.be.false
+          done()
+
+    it "passes an error if a callback returned false", (done) ->
+      cb = sinon.spy()
+      @paul.on "event", ->
+        cb()
+        false
+      @paul.send "event", {}, (err) ->
+        (expect cb.callCount).to.equal 1
+        (expect err).not.to.be.null
+        done()
+
+    it "calls the callback asynchronously", (done) ->
+      cb1 = sinon.spy()
+      cb2 = sinon.spy()
+      @paul.on "event", (data, channel, next) ->
+        setTimeout (-> cb1(); next null, 'one'), 3
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> cb2(); x null, 'tow'), 2
+      @paul.send "event", {}, (err, reply) ->
+        (expect cb1.callCount).to.equal 1
+        (expect cb2.callCount).to.equal 0
+        (expect err?).to.be.false
+        (expect reply).to.equal 'one'
+        done()
+
+    it "calls the callback asynchronously and force errors", (done) ->
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> x new Error "fake1"), 1
+      @paul.on "event", (data, channel, next) ->
+        setTimeout (-> next null, "tow", "some"), 1
+      @paul.on "event", (data, channel, x) ->
+        x new Error "fake2"
+      @paul.send "event", {}, (err, reply) ->
+        (expect err?).to.be.false
+        (expect reply).to.eql ["tow", "some"]
+        done()
+
+    it "calls the callback asynchronously and pass errors", (done) ->
+      @paul.on "event", (data, channel, x) ->
+        setTimeout (-> x new Error "fake1"), 3
+      @paul.on "event", (data, channel, next) ->
+        setTimeout (-> next new Error "fake2"), 1
+      @paul.on "event", (data, channel, x) ->
+        x new Error "fake3"
+      @paul.send "event", {}, (err, reply) ->
+        (expect reply?).to.be.false
+        (expect err?).not.to.be.false
+        (expect err.message).to.equal "fake1; fake2; fake3"
         done()
 
   describe "installTo function", ->
@@ -256,9 +329,8 @@ describe "Mediator", ->
       mediator.installTo myObj
 
       (expect myObj.on).to.be.a "function"
-      (expect myObj.on).to.be.a "function"
       (expect myObj.emit).to.be.a "function"
-      (expect myObj.emit).to.be.a "function"
+      (expect myObj.send).to.be.a "function"
       (expect myObj.off).to.be.a "function"
       (expect myObj.channels).to.be.an "object"
 
@@ -268,12 +340,15 @@ describe "Mediator", ->
 
       myObj.emit "ch", "foo"
       mediator.emit "ch", "bar"
+      mediator.send "ch", "bar"
       mediator.emit "ch2", "blub"
+      mediator.send "ch2", "blub"
 
-      (expect cb.callCount).to.equal 2
-      (expect cb2.callCount).to.equal 3
+      (expect cb.callCount).to.equal 3
+      (expect cb2.callCount).to.equal 4
 
     it "takes care of the context", (done) ->
+
       mediator = new @Mediator
       myObj = {}
       empty = {}
@@ -285,14 +360,17 @@ describe "Mediator", ->
 
       myObj.emit "ch", "foo"
       mediator.emit "ch", "bar"
+
+      myObj.send "ch", "foo"
+      mediator.send "ch", "bar"
       done()
 
     it "installs the mediator functions on creation", ->
-
       myObj = {}
       new @Mediator myObj
       (expect myObj.on).to.be.a "function"
       (expect myObj.emit).to.be.a "function"
+      (expect myObj.send).to.be.a "function"
       (expect myObj.off).to.be.a "function"
       (expect myObj.channels).to.be.an "object"
 
@@ -319,15 +397,26 @@ describe "Mediator", ->
       @cb3 = sinon.spy()
       @anObject = {}
 
-    it "emit data to a subscribed topic", ->
+    it "emits data to a subscribed topic", ->
 
       @paul.on  "a channel", @cb
       @paul.installTo @anObject
       @anObject.on "a channel", @cb
       @peter.on "a channel", @cb2
       @paul.emit "a channel", @data
-      @paul.emit "doees not exist", @data
+      @paul.emit "does not exist", @data
       (expect @cb.callCount).to.equal 2
+      (expect @cb2).not.to.have.been.called
+
+    it "send data to a subscribed topic", ->
+
+      @paul.on  "a channel", @cb
+      @paul.installTo @anObject
+      @anObject.on "a channel", @cb
+      @peter.on "a channel", @cb2
+      @paul.send "a channel", @data
+      @paul.send "does not exist", @data
+      (expect @cb.callCount).to.equal 1
       (expect @cb2).not.to.have.been.called
 
     it "emits data to all subscribers even if an error occours", ->
@@ -349,10 +438,21 @@ describe "Mediator", ->
 
       @paul.emit "obj", obj
 
-    it "does not emit data to other topics", ->
+    it "send the reference of data objects by default", (done) ->
 
+      obj = {a:true,b:"x",c:{ y:0 }}
+
+      @paul.on "obj", (data) ->
+        (expect data).to.equal obj
+        (expect data is obj).to.be.true
+        done()
+
+      @paul.send "obj", obj
+
+    it "does not emit data to other topics", ->
       @paul.on "a channel", @cb
       @paul.emit "another channel", @data
+      @paul.send "another channel", @data
       (expect @cb).not.to.have.been.called
 
     it "can request data by emit an event", (done) ->
@@ -368,7 +468,7 @@ describe "Mediator", ->
 
       # then we bind the read event to our database
       @dbAccess.on "read", (r) ->
-        # prcocess the query
+        # process the query
         result = []
         for user in db
           result.push user for k,v of r.query when user[k] is v
@@ -382,6 +482,47 @@ describe "Mediator", ->
           (expect data.length).to.equal 1
           (expect data[0]).to.eql { name: "markus", role: "admin" }
           done()
+
+    it "can request data by send an event", (done) ->
+      spy = sinon.spy()
+
+      # lets say we have database with user objects
+      db = [
+        { name: "markus", role: "admin" }
+        { name: "paul",   role: "user" }
+      ]
+
+      # we could use a mediator as public API
+      @dbAccess = new @Mediator
+
+      # then we bind the read event to our primary database
+      @dbAccess.on "read", (query, channel, reply) ->
+        # prcocess the query
+        # .. but something went wrong
+        reply new Error('Error during database access')
+
+      # common query handler
+      dbQueryHandler = (query, channel, reply) ->
+        # prcocess the query
+        result = []
+        for user in db
+          result.push user for k,v of query when user[k] is v
+        spy()
+        # send results
+        reply null, result
+
+      # bind the read event to our redundant database №1
+      @dbAccess.on "read", dbQueryHandler
+      # bind the read event to our redundant database №2
+      @dbAccess.on "read", dbQueryHandler
+
+      # receive a list of users by send a read event
+      @dbAccess.send "read", { role: "admin" }, (err, data) ->
+        (expect data.length).to.equal 1
+        (expect data[0]).to.eql { name: "markus", role: "admin" }
+        # was sent only one query to the database
+        (expect spy.calledOnce).to.be.true
+        done()
 
     describe "auto subscription", ->
 
@@ -425,3 +566,77 @@ describe "Mediator", ->
         @paul.emit "module/route/miss"
         @paul.emit "module/route/hit"
         @paul.emit "module/route/miss"
+
+      it "doesn't send subtopics to parent topics", ->
+
+        @paul.cascadeChannels = true
+        @paul.on "parentTopic", @cb
+        @paul.on "parentTopic/subTopic", @cb1
+        @paul.on "parentTopic/subTopic/subsub", @cb2
+        @paul.on "parentTopic/otherSubTopic", @cb3
+
+        @paul.send "parentTopic/subTopic/subsub", @data
+        (expect @cb).not.to.have.been.called
+        (expect @cb1).not.to.have.been.called
+        (expect @cb2).to.have.been.called
+        (expect @cb3).not.to.have.been.called
+
+    describe "pipe", ->
+
+      beforeEach ->
+        @a = new @Mediator
+        @b = new @Mediator
+
+      it "is a method", ->
+        @x = new @Mediator
+        (expect @x.pipe).to.be.a.function
+
+      it "is a subscription method", ->
+        @x = new @Mediator
+        sub =  @x.on "foo", ->
+        (expect sub.pipe).to.be.a.function
+        (expect sub.pipe()).to.eql sub
+
+      it "forwards messages of subscription to another mediator", (done) ->
+        @a.on("foo").pipe(@b)
+        @b.on "foo", (ev) ->
+          (expect ev).to.eql 33
+          done()
+
+        @a.emit "foo", 33
+
+      it "forwards messages of a channel to another one", (done) ->
+        @a.pipe("foo", "bar")
+        @a.on "bar", (ev) ->
+          (expect ev).to.eql "data"
+          done()
+
+        @a.emit "foo", "data"
+
+      it "forwards messages of a channel to another mediator", (done) ->
+        @a.pipe("foo",@b)
+        @b.on "foo", (ev) ->
+          (expect ev).to.eql 77
+          done()
+
+        @a.emit "foo", 77
+
+      it "ignores method calls with no argument", ->
+        (expect @a.pipe()).to.eql @a
+        sub = @a.on "baz"
+        (expect sub).to.eql sub.pipe()
+
+      it "forwards messages of a channel to another channel of another mediator", (done) ->
+        @a.on("bar").pipe("baz",@b)
+        @b.on "baz", (d) ->
+          (expect d).to.eql -3
+          done()
+        @a.emit "bar", -3
+
+      it "forwards messages of a subscription to another channel", (done) ->
+        @a.on("x").pipe("y")
+        @a.on "y", (ev) ->
+          (expect ev).to.eql "yeah!"
+          done()
+
+        @a.emit "x", "yeah!"

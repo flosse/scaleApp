@@ -23,11 +23,14 @@ plugin = (core) ->
   core.mixin = (receivingClass, givingClass, override=false) ->
 
     switch "#{typeof givingClass}-#{typeof receivingClass}"
-      when "function-function" then mix givingClass::, receivingClass::, override
-      when "function-object"   then mix givingClass::, receivingClass,   override
-      when "object-object"     then mix givingClass,   receivingClass,   override
-      when "object-function"   then mix givingClass,   receivingClass::, override
-
+      when "function-function"
+        mix givingClass::, receivingClass::, override
+      when "function-object"
+        mix givingClass::, receivingClass,   override
+      when "object-object"
+        mix givingClass,   receivingClass,   override
+      when "object-function"
+        mix givingClass,   receivingClass::, override
 
 # AMD support
 if define?.amd?

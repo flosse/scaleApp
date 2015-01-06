@@ -18,7 +18,8 @@ plugin = (core) ->
 
       if typeof action is "string"
         if action is '*'
-          not false in (addPermission id, act, channels for act in controlledActions)
+          not false in for act in controlledActions
+            addPermission id, act, channels
         else
           a = p[action] ?= {}
           a[c] = true for c in channels
@@ -43,14 +44,15 @@ plugin = (core) ->
     if channel? and (p[channel] or p["__all__"])
       true
     else
-      console.warn "'#{id}' has no permissions for '#{action}' with '#{channel}'"
+      console.warn "'#{id}' has no permissions for '#{action}' on '#{channel}'"
       false
 
   grantAction = (sb, action, method, args) ->
     channel = args[0] if args?.length > 0
     p =
       if channel instanceof Array
-        (c for c in channel when not hasPermission sb.instanceId, action, c).length is 0
+        (c for c in channel when not hasPermission sb.instanceId, action, c)
+          .length is 0
       else
         hasPermission sb.instanceId, action, channel
     if p is true

@@ -5,6 +5,9 @@ class Core
 
   constructor: (@Sandbox) ->
 
+    err = checkType 'function', @Sandbox, 'Sandbox' if @Sandbox?
+    throw new Error err if err
+
     # define private variables
 
     @_modules      = {}
@@ -140,7 +143,7 @@ class Core
         modErrors = {}
         modErrors[mods[i]] = x for x,i in err when x?
         mdls = ("'#{k}'" for k of modErrors)
-        e = new Error "errors occoured in the following modules: #{mdls}"
+        e = new Error "errors occurred in the following modules: #{mdls}"
         e.moduleErrors = modErrors
       cb? e
     util.doForAll mods, startAction, done, true

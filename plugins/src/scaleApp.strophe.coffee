@@ -169,7 +169,7 @@ plugin = (core) ->
 
       when s.ERROR
         resetPlugin()
-        mediator.emit "error", "an error occoured"
+        mediator.emit "error", "an error occurred"
       when s.CONNECTING
         resetPlugin()
         mediator.emit "connecting"

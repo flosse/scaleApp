@@ -68,6 +68,32 @@ runSeries = (tasks=[], cb=(->), force) ->
         next e
   next()
 
+# run first task, which does not return an error
+runFirst = (tasks=[], cb=(->), force) ->
+  i = -1
+  count = tasks.length
+  result = null
+  return cb null if count is 0
+
+  errors = []
+
+  next = (err, res...) ->
+    if err
+      errors[i] = err
+      return cb errors unless force
+    else
+      if i > -1 # first run
+        return cb null, if res.length < 2 then res[0] else res
+    if ++i >= count
+      cb errors
+    else
+      try
+        tasks[i] next
+      catch e
+        next e
+
+  next()
+
 # run asynchronous tasks one after another
 # and pass the argument
 runWaterfall = (tasks, cb) ->
@@ -90,6 +116,7 @@ util =
   doForAll: doForAll
   runParallel : runParallel
   runSeries : runSeries
+  runFirst: runFirst
   runWaterfall : runWaterfall
   getArgumentNames: getArgumentNames
   hasArgument: (fn, idx=1) -> util.getArgumentNames(fn).length >= idx

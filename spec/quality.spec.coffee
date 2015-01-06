@@ -13,28 +13,29 @@ describe "The codebase", ->
   it "has few lines of code", ->
 
     maxSLOC =
-      "src/Core.coffee":      160
-      "src/Util.coffee":      80
-      "src/Mediator.coffee":  70
-      "src/scaleApp.coffee":  20
+      "src/Core.coffee"     : 160
+      "src/Util.coffee"     : 100
+      "src/Mediator.coffee" : 90
+      "src/scaleApp.coffee" : 20
 
     sum = 0
 
     for file, count of maxSLOC
       x = getSlocOfFile file
       sum += x
-      (expect x <= count).to.be.true
+      (expect x).to.be.at.most count
 
-    console.log sum
-    (expect sum <= 320).to.be.true
+    (expect sum).to.be.at.most 360
 
   it "is small", (done) ->
     stat = fs.statSync "dist/scaleApp.js"
-    (expect stat.size <= 25000).to.be.true
+    (expect stat.size).to.be.at.most 25000
+
     stat = fs.statSync "dist/scaleApp.min.js"
-    (expect stat.size <= 10000).to.be.true
+    (expect stat.size).to.be.at.most 11000
+
     min = fs.readFileSync "dist/scaleApp.min.js"
     b = new buffer.Buffer min
     zlib.gzip b, (err, compressed)->
-      (expect compressed.length <= 3400).to.be.true
+      (expect compressed.length).to.be.at.most 3400
       done()
