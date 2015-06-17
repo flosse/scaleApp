@@ -1,5 +1,5 @@
 /*!
-scaleapp - v0.5.0 - 2015-01-06
+scaleapp - v0.5.0 - 2015-06-17
 This program is distributed under the terms of the MIT license.
 Copyright (c) 2011-2015 Markus Kohlhase <mail@markus-kohlhase.de>
 */
@@ -826,12 +826,12 @@ Copyright (c) 2011-2015 Markus Kohlhase <mail@markus-kohlhase.de>
     define(function() {
       return api;
     });
+  } else if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = api;
   } else if (typeof window !== "undefined" && window !== null) {
     if (window.scaleApp == null) {
       window.scaleApp = api;
     }
-  } else if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
-    module.exports = api;
   }
 
 }).call(this);
