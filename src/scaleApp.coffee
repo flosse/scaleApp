@@ -22,10 +22,11 @@ api =
 if define?.amd?
   define -> api
 
+# support commonJS
+else if module?.exports?
+  module.exports = api
+
 # support the browser
 else if window?
   window.scaleApp ?= api
 
-# support commonJS
-else if module?.exports?
-  module.exports = api
